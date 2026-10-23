@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Peta portal e-procurement bank Indonesia dan tender EDC</title>
+<link rel="stylesheet" href="laporan.css">
+</head>
+<body>
+<main>
+<header>
+<h1>Peta portal e-procurement bank Indonesia dan tender EDC</h1>
+<p class="meta">Riset untuk Tender Bot, 23 Oktober 2026. Untuk Arif dan tim yang membangun bot: bank mana yang bisa dipantau bot, mana yang butuh akun vendor, dan mana yang cukup lewat berita atau email. Bahan: tiga berkas riset (bank BUMN, bank swasta, BPD dan portal agregat) ditambah pemeriksaan ulang oleh koordinator. Semua sumber diakses 23 Oktober 2026.</p>
+</header>
+<section>
+<h2>Ringkasan</h2>
+<ol class="summary">
+<li>Bank Sumut sedang menayangkan tender "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC)" senilai Rp6.993.000.000, diposting Selasa, 13 Oktober 2026, dengan metode Pelelangan Umum sistem pascakualifikasi. Jadwal dan syaratnya ada di lampiran unduhan yang belum terbaca, jadi batas pendaftarannya belum diketahui. Lampiran itu perlu diunduh manual secepatnya. <span class="tag">[KOORDINATOR]</span></li>
+<li>Di antara bank BUMN, swasta, dan BPD yang diriset, hanya dua yang daftar tendernya bisa dibaca bot tanpa login: Bank Sumut dan Bank Jatim. Keduanya menayangkan pengumuman sebagai halaman HTML biasa di situs sendiri. Bank Sumut juga punya feed RSS, tetapi isinya belum dicek.</li>
+<li>Di bank BUMN, hanya portal BRI dan BTN yang terverifikasi, dan keduanya wajib login vendor. Arif belum punya akun vendor BTN. Portal BRI menolak dengan blokir WAF (lapisan pelindung situs yang menyaring klien otomatis) saat dicek koordinator lewat HTTP biasa.</li>
+<li>Dari 11 bank swasta, tidak satu pun yang ketahuan memasang daftar tender publik. Satu-satunya portal yang teridentifikasi milik SMBC Indonesia (iProc di domain pengadaan.com), dan isinya hanya halaman login.</li>
+<li>Portal Bank Mandiri, BNI, BSI, dan sebagian besar bank swasta tidak ditemukan. Ini batas riset (tanpa browser, mesin pencari lemah untuk media nasional), bukan bukti portalnya tidak ada. Cara tercepat memastikannya adalah bertanya langsung ke bagian pengadaan bank.</li>
+<li>Tender EDC bank besar bisa saja tidak pernah diumumkan terbuka. Pengadaan mesin EDC BRI 2020-2024, dengan nilai proyek sekitar Rp2,1 triliun, sedang disidik KPK <span class="tag">[KOORDINATOR]</span>. Cuplikan Tempo yang belum terverifikasi menulis bahwa perusahaan lain "were not invited" <span class="tag">[SNIPPET]</span>. Untuk bank seperti ini, jalurnya akun vendor, email undangan, dan berita.</li>
+<li>Usulan untuk bot: tier 1 dipantau otomatis (Bank Sumut, Bank Jatim), tier 2 lewat akun vendor (BRI, BTN, SMBC Indonesia), tier 3 lewat berita, email, dan alert (bank lainnya). Kata "lelang" saja tidak boleh jadi penanda tender, karena beberapa bank memakainya untuk lelang agunan.</li>
+<li>Syarat penggunaan (ToS) belum dicek di situs mana pun. Beberapa bank menolak klien otomatis: PermataBank, Panin, dan Bank Jakarta dengan HTTP 403, BRI dengan WAF. Bot harus menghormati blokir itu, bukan mengakalinya.</li>
+</ol>
+</section>
+<section>
+<h2>Label sumber</h2>
+<p>Setiap klaim diberi label asal buktinya.</p>
+<ul class="legend">
+<li><span class="tag">[KOORDINATOR]</span> dicek ulang langsung oleh koordinator pada 23 Oktober 2026, lewat Chrome Arif atau dengan membuka halamannya.</li>
+<li><span class="tag">[PORTAL]</span> halaman situs atau portal resmi bank yang dibuka langsung oleh peneliti.</li>
+<li><span class="tag">[BERITA]</span> berita atau halaman pihak ketiga yang dibuka penuh.</li>
+<li><span class="tag">[SNIPPET]</span> hanya terlihat di cuplikan hasil pencarian; halaman aslinya tidak terbuka.</li>
+<li><span class="tag">[INFERENSI]</span> kesimpulan peneliti dari bukti yang ada, bukan yang tertulis di sumber.</li>
+<li><span class="tag">[TERBATAS]</span> halamannya dicoba dibuka, tetapi isinya tidak terbaca karena dirender JavaScript, diblokir, atau butuh login.</li>
+</ul>
+<p>"Tidak ditemukan" berarti tidak ketemu dalam batas riset, bukan bukti tidak ada.</p>
+</section>
+<section>
+<h2>Peta portal per bank</h2>
+<p>Kolom "Tender EDC" hanya mencatat yang ditemukan dalam riset ini. Domain bertanda "tebakan" adalah alamat yang ditebak dari pola umum, bukan dari tautan resmi.</p>
+<h3>Bank BUMN</h3>
+<table class="data banks">
+<colgroup>
+<col class="c1">
+<col class="c2">
+<col class="c3">
+<col class="c4">
+<col class="c5">
+<col class="c6">
+</colgroup>
+<thead><tr>
+<th scope="col">Bank</th>
+<th scope="col">Portal</th>
+<th scope="col">Akses publik</th>
+<th scope="col">Format</th>
+<th scope="col">Catatan teknis bot</th>
+<th scope="col">Tender EDC</th>
+</tr></thead>
+<tbody>
+<tr><td>BRI</td><td><a href="https://eproc.bri.co.id/">eproc.<wbr>bri.<wbr>co.<wbr>id</a> (iProc Extranet); akun dibuat di <a href="https://tdronline.bri.co.id/">tdronline.<wbr>bri.<wbr>co.<wbr>id</a> <span class="tag">[PORTAL]</span></td><td>Tidak. Halaman depan langsung form login <span class="tag">[PORTAL]</span></td><td>Tidak ada daftar tender publik; RSS/API tidak ditemukan</td><td>Dicek lewat HTTP, dijawab blokir WAF Incapsula ("Request unsuccessful") <span class="tag">[KOORDINATOR]</span>. Peneliti sempat membaca form login pada percobaan kedua. robots.txt 404 <span class="tag">[PORTAL]</span>. Ada tombol "Refresh" di form login, kemungkinan CAPTCHA <span class="tag">[INFERENSI]</span></td><td>Ya, lewat berita: kasus KPK pengadaan mesin EDC 2020-2024 <span class="tag">[KOORDINATOR]</span></td></tr>
+<tr><td>Bank Mandiri</td><td>Tidak ditemukan. <code>eproc.<wbr>bankmandiri.<wbr>co.<wbr>id</code> (tebakan) gagal koneksi <span class="tag">[PORTAL]</span>; <a href="https://lelang.bankmandiri.co.id/">lelang.<wbr>bankmandiri.<wbr>co.<wbr>id</a> kemungkinan lelang agunan <span class="tag">[INFERENSI]</span></td><td>Tidak diketahui</td><td>Kebijakan pengadaan hanya berupa PDF <span class="tag">[SNIPPET]</span></td><td>Perlu pembaca PDF. Subdomain lelang kosong saat dibuka karena dirender JavaScript</td><td>Tidak ditemukan</td></tr>
+<tr><td>BNI</td><td>Tidak ditemukan. <code>eproc.<wbr>bni.<wbr>co.<wbr>id</code> (tebakan) gagal koneksi <span class="tag">[PORTAL]</span></td><td>Tidak diketahui</td><td>Tidak ditemukan</td><td>Beranda tidak memuat teks pengadaan <span class="tag">[PORTAL]</span>. Kata "BNI" tercampur Business Network International</td><td>Tidak ditemukan</td></tr>
+<tr><td>BTN</td><td><a href="https://e2eprocreg.btn.co.id/">e2eprocreg.<wbr>btn.<wbr>co.<wbr>id</a>, dialihkan ke login Oracle E-Business Suite "Aplikasi Integrated End to End Procurement" <span class="tag">[KOORDINATOR]</span></td><td>Tidak. Hanya form User Name/Password dan tautan lupa sandi. Arif belum punya akun vendor <span class="tag">[KOORDINATOR]</span></td><td>Tidak ada daftar tender publik; RSS/API tidak ditemukan</td><td>Path <code>/<wbr>OA_HTML/<wbr>AppsLocalLogin.<wbr>jsp</code>. Browser otomatis sempat menggantung, jadi wajib batas waktu keras. robots.txt belum dicek. Subdomain b-gov dan emitra berjudul "Request Rejected" <span class="tag">[SNIPPET]</span></td><td>Tidak ditemukan, termasuk lewat 5 kueri tambahan</td></tr>
+<tr><td>BSI</td><td>Tidak ditemukan. <code>eproc.<wbr>bankbsi.<wbr>co.<wbr>id</code> (tebakan) gagal koneksi <span class="tag">[PORTAL]</span>; <a href="https://span.bankbsi.co.id/">span.<wbr>bankbsi.<wbr>co.<wbr>id</a> fungsinya belum jelas, kemungkinan layanan perbendaharaan negara, bukan pengadaan <span class="tag">[INFERENSI]</span></td><td>Tidak diketahui</td><td>Tidak ditemukan</td><td>Kata "BSI" tercampur BSI Group, yang juga memakai istilah Electronic Data Capture untuk uji klinis</td><td>Tidak ditemukan</td></tr>
+<tr><td>Anak usaha (Bank Mandiri Taspen, BRILink)</td><td>Tidak ditemukan. BRILink adalah program agen BRI, jadi pengadaan EDC-nya diperkirakan lewat BRI <span class="tag">[INFERENSI]</span></td><td>Tidak diketahui</td><td>Tidak ditemukan</td><td>Belum ada target</td><td>Tidak ditemukan</td></tr>
+</tbody>
+</table>
+<h3>Bank swasta</h3>
+<table class="data banks">
+<colgroup>
+<col class="c1">
+<col class="c2">
+<col class="c3">
+<col class="c4">
+<col class="c5">
+<col class="c6">
+</colgroup>
+<thead><tr>
+<th scope="col">Bank</th>
+<th scope="col">Portal</th>
+<th scope="col">Akses publik</th>
+<th scope="col">Format</th>
+<th scope="col">Catatan teknis bot</th>
+<th scope="col">Tender EDC</th>
+</tr></thead>
+<tbody>
+<tr><td>BCA</td><td>Tidak ditemukan. <code>eproc.<wbr>bca.<wbr>co.<wbr>id</code> (tebakan) gagal koneksi <span class="tag">[PORTAL]</span></td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt tidak memuat path pengadaan <span class="tag">[PORTAL]</span>; situs berbasis Sitecore <span class="tag">[INFERENSI]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>CIMB Niaga</td><td>Tidak ditemukan. Yang ada hanya Vendor Code of Conduct grup CIMB <span class="tag">[SNIPPET]</span></td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt melarang path internal Adobe Experience Manager; halaman HTML bisa diambil <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Danamon</td><td>Tidak ditemukan</td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt "Allow: /" <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>PermataBank</td><td>Tidak ditemukan</td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>HTTP 403 untuk alat otomatis, termasuk robots.txt <span class="tag">[PORTAL]</span>. Blokir ini dihormati, tidak diakali</td><td>Tidak ditemukan</td></tr>
+<tr><td>Maybank Indonesia</td><td>Tidak ditemukan. Grup Maybank punya sistem eProcurement menurut studi kasus vendor dengan data tahun 2012 <span class="tag">[SNIPPET]</span></td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt hanya melarang <code>/<wbr>sitecore</code> <span class="tag">[PORTAL]</span>; halaman NewsAndAnnouncement terindeks publik <span class="tag">[SNIPPET]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>OCBC Indonesia</td><td>Tidak ditemukan. Yang ada hanya Supplier Code of Conduct grup OCBC <span class="tag">[SNIPPET]</span></td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt melarang semua URL ber-query (<code>Disallow: /<wbr>*?</code>) <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Panin Bank</td><td>Tidak ditemukan</td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>HTTP 403 untuk alat otomatis di seluruh situs <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank Mega</td><td>Tidak ditemukan. Menu "Catalog of AYDA" adalah katalog agunan, bukan tender <span class="tag">[PORTAL]</span></td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt hanya melarang <code>/<wbr>admin/</code>; halaman terbaca sebagai HTML biasa <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>SMBC Indonesia (eks BTPN)</td><td><a href="https://iprocsmbci.pengadaan.com/">iprocsmbci.<wbr>pengadaan.<wbr>com</a> dan <a href="https://smbci.pengadaan.com/">smbci.<wbr>pengadaan.<wbr>com</a>, platform iProc di domain pihak ketiga <span class="tag">[PORTAL]</span></td><td>Tidak. Hanya form login iProc Intranet, tampaknya untuk staf internal <span class="tag">[PORTAL]</span></td><td>Tidak terlihat tanpa login</td><td>robots.txt 404. Kepemilikan hanya klaim di footer portal; belum ada tautan dari situs resmi bank</td><td>Tidak ditemukan</td></tr>
+<tr><td>UOB Indonesia (riset singkat)</td><td>Tidak ditemukan</td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>robots.txt 404 <span class="tag">[PORTAL]</span></td><td>Tidak dicari mendalam</td></tr>
+<tr><td>Bank Sinarmas (riset singkat)</td><td>Tidak ditemukan</td><td>Tidak diketahui</td><td>Tidak diketahui</td><td>Situs gagal koneksi dari alat riset <span class="tag">[PORTAL]</span></td><td>Tidak dicari mendalam</td></tr>
+</tbody>
+</table>
+<h3>Bank pembangunan daerah (BPD)</h3>
+<table class="data banks">
+<colgroup>
+<col class="c1">
+<col class="c2">
+<col class="c3">
+<col class="c4">
+<col class="c5">
+<col class="c6">
+</colgroup>
+<thead><tr>
+<th scope="col">Bank</th>
+<th scope="col">Portal</th>
+<th scope="col">Akses publik</th>
+<th scope="col">Format</th>
+<th scope="col">Catatan teknis bot</th>
+<th scope="col">Tender EDC</th>
+</tr></thead>
+<tbody>
+<tr><td>Bank Sumut</td><td><a href="https://www.banksumut.co.id/pengadaan-barang-jasa/">Pengadaan Barang &amp; Jasa</a> dan <a href="https://www.banksumut.co.id/archive-jasa-barang/">arsip</a> <span class="tag">[PORTAL]</span></td><td>Ya, tanpa login</td><td>WordPress; tiap pengumuman adalah post <code>jasa_barang</code> berisi ringkasan HTML dan lampiran unduhan</td><td><code>/<wbr>feed/</code> menjawab sebagai RSS dan REST <code>/<wbr>wp-json/<wbr>wp/<wbr>v2/<wbr>jasa_barang</code> menjawab JSON; isi keduanya belum terbaca <span class="tag">[TERBATAS]</span>. HTML server-side, tanpa CAPTCHA saat dibuka. robots.txt dan ToS belum dicek</td><td>Ya. Sewa Beli Mesin Smart EDC, Rp6.993.000.000, diposting 13 Oktober 2026 <span class="tag">[KOORDINATOR]</span></td></tr>
+<tr><td>Bank Jatim</td><td><a href="https://www.bankjatim.co.id/id/informasi/lelang-pengadaan">Lelang Pengadaan</a> <span class="tag">[PORTAL]</span></td><td>Ya untuk membaca. Pendaftaran peserta secara luring di kantor pusat Surabaya (contoh tender 2025) <span class="tag">[SNIPPET]</span></td><td>Daftar HTML (tanggal dan judul); isi tiap item di PDF dengan pola <code>/<wbr>files/<wbr>pengumuman/<wbr>&lt;tahun&gt;/<wbr>&lt;bulan&gt;/</code></td><td>Server-side, berhalaman, tanpa CAPTCHA; robots.txt tanpa Disallow <span class="tag">[PORTAL]</span>. Pola URL halaman detail belum tertangkap <span class="tag">[TERBATAS]</span></td><td>Tidak ditemukan. Ada sewa mesin ATM dan CRM 2022 <span class="tag">[SNIPPET]</span></td></tr>
+<tr><td>BPD Bali</td><td>Menu "INFO LELANG"; URL belum tertangkap <span class="tag">[TERBATAS]</span></td><td>Belum diketahui</td><td>Menu HTML server-side</td><td>Perlu pemetaan URL sekali secara manual; isinya bisa pengadaan atau lelang agunan</td><td>Tidak ditemukan</td></tr>
+<tr><td>Bankaltimtara</td><td>Menu "Info Lelang", terpisah dari "Info Lelang Jaminan"; belum dibuka <span class="tag">[PORTAL]</span></td><td>Belum diketahui</td><td>HTML</td><td>Perlu pemetaan URL manual. Bank ini mengoperasikan layanan EDC sendiri <span class="tag">[PORTAL]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank Nagari</td><td>Menu "Informasi Lelang"; URL belum tertangkap <span class="tag">[TERBATAS]</span></td><td>Belum diketahui</td><td>HTML server-side dengan parameter URL terenkripsi</td><td>URL tidak bisa ditebak. Aplikasi Nagari Portal Lelang terpisah, untuk agunan <span class="tag">[SNIPPET]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>bank bjb</td><td>Tidak ditemukan. <code>eproc.<wbr>bankbjb.<wbr>co.<wbr>id</code> (tebakan) menampilkan "Please wait a while..." <span class="tag">[TERBATAS]</span></td><td>Belum diketahui</td><td>Situs dirender JavaScript</td><td>Butuh browser headless, atau cukup lewat berita</td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank DKI, kini Bank Jakarta</td><td>Tidak ditemukan. Ada sistem pendaftaran calon vendor menurut dokumen pihak ketiga di Scribd <span class="tag">[SNIPPET]</span></td><td>Belum diketahui</td><td>Tidak terbaca</td><td>Domain lama dan baru sama-sama HTTP 403 <span class="tag">[TERBATAS]</span>. Domain baru bankjakarta.co.id diumumkan 9 Agustus 2026 <span class="tag">[BERITA]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank Jateng</td><td>Tidak ditemukan. <a href="https://lelang.bankjateng.co.id/">lelang.<wbr>bankjateng.<wbr>co.<wbr>id</a> adalah lelang agunan <span class="tag">[PORTAL]</span></td><td>Belum diketahui</td><td>Isi berita dan pengumuman dimuat JavaScript</td><td>Beberapa subdomain berjudul "Request Rejected" <span class="tag">[SNIPPET]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank Kalbar</td><td>Tidak ditemukan</td><td>Belum diketahui</td><td>Tidak terbaca</td><td>Subdomain cms berjudul "Request Rejected" <span class="tag">[SNIPPET]</span></td><td>Tidak ditemukan</td></tr>
+<tr><td>Bank Sultra (ditemukan sambil lalu)</td><td><a href="https://e-tender.banksultra.co.id/">e-tender.<wbr>banksultra.<wbr>co.<wbr>id</a>, "Tender Online" <span class="tag">[SNIPPET]</span></td><td>Belum dibuka</td><td>Belum dibuka</td><td>Belum dicek</td><td>Tidak dicari</td></tr>
+<tr><td>Bank Sulteng (ditemukan sambil lalu)</td><td><a href="https://eproc.banksulteng.co.id/">eproc.<wbr>banksulteng.<wbr>co.<wbr>id</a> <span class="tag">[SNIPPET]</span></td><td>Belum dibuka</td><td>Belum dibuka</td><td>Belum dicek</td><td>Tidak dicari</td></tr>
+</tbody>
+</table>
+<h3>Portal agregat dan jalur lain</h3>
+<ul>
+<li>SPSE/LPSE dan INAPROC tidak terlihat dipakai BPD. Bank Jatim merujuk keputusan direksinya sendiri dan Bank Sumut merujuk peraturan direksinya sendiri; keduanya mengumumkan di situs sendiri <span class="tag">[PORTAL]</span>. Dasar hukumnya belum dicek dari teks peraturan, jadi "BPD tidak wajib SPSE" masih dugaan. Bila suatu saat perlu data SPSE, ada pustaka open source pyproc <span class="tag">[SNIPPET]</span>.</li>
+<li>TenderKita menampilkan daftar tender secara publik, dari LPSE dan beberapa e-procurement BUMD/BUMN, tetapi tidak ada satu pun bank di daftar instansinya <span class="tag">[PORTAL]</span>.</li>
+<li>Tender Indonesia mengaku memuat informasi tender lengkap di Indonesia; model langganannya tidak terbaca <span class="tag">[TERBATAS]</span>. pengadaan.info, IndoTender, TenderTiger, tenderinfo.org, dan IndonesiaTenders hanya terlihat di hasil pencarian <span class="tag">[SNIPPET]</span>. Tidak ada agregator yang terlihat meliput tender bank secara sistematis.</li>
+<li>PaDi UMKM adalah katalog belanja BUMN untuk produk UMKM, bukan portal tender terbuka <span class="tag">[SNIPPET]</span>. Portal tender bersama untuk seluruh BUMN tidak ditemukan.</li>
+<li>Iklan tender EDC bank di koran tidak ditemukan. Biro iklan masih menjual slot iklan lelang di Bisnis Indonesia, tetapi itu tidak membuktikan bank memakainya <span class="tag">[SNIPPET]</span>.</li>
+<li>Bank Indonesia (di luar cakupan, bukan bank umum) mengumumkan pengadaan secara publik dengan kolom Nomor Pengadaan, Nama Pengadaan, Tanggal Pengumuman, Satuan Kerja, Cara Pengadaan, Metode Evaluasi, Pagu, Status, Closing Date, Rekanan Pemenang, dan Lampiran <span class="tag">[SNIPPET]</span>. Kolom ini bisa jadi acuan skema data bot.</li>
+</ul>
+</section>
+<section>
+<h2>Tender dan berita EDC yang ditemukan</h2>
+<h3>Tender EDC yang sedang terbuka</h3>
+<table class="data facts">
+<colgroup>
+<col class="c1">
+<col class="c2">
+</colgroup>
+<thead><tr>
+<th scope="col">Butir</th>
+<th scope="col">Isi</th>
+</tr></thead>
+<tbody>
+<tr><td>Bank</td><td>PT Bank Sumut (Perseroda)</td></tr>
+<tr><td>Judul</td><td>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)</td></tr>
+<tr><td>Diposting</td><td>Selasa, 13 Oktober 2026</td></tr>
+<tr><td>Metode</td><td>Pelelangan Umum, Sistem Pascakualifikasi</td></tr>
+<tr><td>Acuan</td><td>Peraturan Direksi PT Bank Sumut 007/Dir/DUm-LPd/PBS/2023 tanggal 21 November 2023</td></tr>
+<tr><td>Nilai pekerjaan</td><td>Rp6.993.000.000</td></tr>
+<tr><td>Nomor tender</td><td>005/LPd-PP/SMRT-EDC-BS/L/2026 menurut peneliti. Nomor ini tidak tampil di halaman saat dicek koordinator, jadi belum terverifikasi</td></tr>
+<tr><td>Jadwal, syarat, HPS rinci</td><td>Ada di lampiran unduhan; belum terbaca</td></tr>
+<tr><td>Status</td><td>Masih tayang saat dicek koordinator, 23 Oktober 2026 pukul 15.16 WIB</td></tr>
+<tr><td>Halaman</td><td><a href="https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/">banksumut.co.id, detail tender Smart EDC</a></td></tr>
+</tbody>
+</table>
+<p>Semua butir di atas <span class="tag">[KOORDINATOR]</span>, kecuali nomor tender. Halaman daftar pengadaan Bank Sumut menulis acuan yang sedikit berbeda, No. 007/Dir/Dum-ULP/PBS/2023 tanggal 22 November 2023 <span class="tag">[PORTAL]</span>. Selisih kode dan tanggal ini ada di teks bank sendiri.</p>
+<h3>Berita EDC: kasus pengadaan mesin EDC BRI</h3>
+<p>Pengadaan mesin EDC BRI periode 2020-2024 sedang disidik KPK. Menurut Noi English (Pikiran Rakyat Media Network) edisi 6 Juli 2025, nilai proyeknya sekitar Rp2,1 triliun dan dugaan kerugiannya sekitar Rp700 miliar, kira-kira 30%. KPK menyita Rp5,3 miliar tunai dan deposito Rp28 miliar, serta mencekal 13 orang (status per Juli 2025). <span class="tag">[KOORDINATOR]</span></p>
+<p>Cuplikan pencarian artikel Tempo English 25 Juli 2025 menulis bahwa penyidik KPK menduga tender diatur agar dimenangkan PT Pasifik Cipta Solusi dan PT Bringin Inti Teknologi, menyebut lima tersangka, dan menulis bahwa perusahaan lain dengan teknologi serupa "were not invited". Halaman Tempo menolak dibuka (HTTP 403) dan artikel Noi tidak memuat hal-hal ini, jadi semuanya belum terverifikasi <span class="tag">[SNIPPET]</span>. Nomor tender, skema (beli atau sewa), dan status hukum terbaru juga tidak ditemukan.</p>
+<p>Bagi Tender Bot, kasus ini menunjukkan dua hal. Tender EDC bank besar bisa berbentuk undangan yang tidak pernah diumumkan, dan berita penegakan hukum termasuk sedikit jejak publik yang tersisa dari tender semacam itu <span class="tag">[INFERENSI]</span>.</p>
+<h3>Tender sejenis: perangkat kanal, bukan EDC</h3>
+<table class="data similar">
+<colgroup>
+<col class="c1">
+<col class="c2">
+<col class="c3">
+<col class="c4">
+<col class="c5">
+</colgroup>
+<thead><tr>
+<th scope="col">Bank</th>
+<th scope="col">Judul</th>
+<th scope="col">Waktu</th>
+<th scope="col">Nilai</th>
+<th scope="col">Sumber</th>
+</tr></thead>
+<tbody>
+<tr><td>Bank Jatim</td><td>Procurement of ATM Machine Rental Service</td><td>Pendaftaran 29 Juni sampai 5 Juli 2022</td><td>HPS Rp3.118.197 per unit per bulan, termasuk PPN</td><td><a href="https://www.bankjatim.id/files/pengumuman/2022/juni/pengumuman_website_pengadaan_jasa_sewa_mesin_atm_2022_english.pdf">PDF pengumuman</a> <span class="tag">[SNIPPET]</span></td></tr>
+<tr><td>Bank Jatim</td><td>Pengadaan Jasa Sewa Mesin CRM 2022</td><td>Juli 2022</td><td>Tidak terbaca</td><td><a href="https://www.bankjatim.id/files/pengumuman/2022/juli/pengumuman_website_pengadaan_jasa_sewa_mesin_crm_2022_english.pdf">PDF pengumuman</a> <span class="tag">[SNIPPET]</span></td></tr>
+</tbody>
+</table>
+<h3>Konteks pasar, bukan tender</h3>
+<ul>
+<li>Banyak bank menjalankan aplikasi merchant atau QRIS: Merchant BCA dan info EDC BCA, OCTO Merchant (CIMB Niaga), Merchant QR Danamon, Permata QR Merchant, OCBC Merchant, balé merchant (BTN), dan BYOND Merchant (BSI) <span class="tag">[SNIPPET]</span>. Ini tanda bank mengelola armada merchant, bukan bukti tender.</li>
+<li>OCBC meluncurkan Tap Credit Card untuk pembayaran NFC di terminal EDC/POS contactless, menurut rilis PR Newswire 10 November 2025 <span class="tag">[SNIPPET]</span>.</li>
+<li>Bankaltimtara mengoperasikan layanan EDC sendiri <span class="tag">[PORTAL]</span>. Contoh surat penarikan EDC di Scribd ditujukan ke Bank Mega sebagai PIC Merchant Relationship; dokumen pihak ketiga, belum terverifikasi <span class="tag">[SNIPPET]</span>.</li>
+<li>PT Prima Vista Solusi (PVS) menyediakan layanan EDC, POS, dan payment gateway sejak 2002 menurut akun resminya; profil PitchBook menyebut managed service dan EDC berbasis Android <span class="tag">[SNIPPET]</span>. Abstrak kerja praktik mahasiswa UPJ menyebut PVS-WIDE menangani EDC dari Bank Artha Graha, Bank Mandiri, BTPN, PermataBank, dan BNI; tahunnya tidak tercantum <span class="tag">[SNIPPET]</span>.</li>
+<li>PT Mitra Transaksi Indonesia (Yokke) adalah perusahaan patungan solusi pembayaran yang berdiri 2016 <span class="tag">[SNIPPET]</span>. Telkomsel menjual IoT Managed EDC dengan biaya bulanan <span class="tag">[SNIPPET]</span>. Ingenico memasarkan terminal Android AXIUM untuk bank dan acquirer di Asia Pasifik <span class="tag">[SNIPPET]</span>.</li>
+</ul>
+<h3>Yang tidak ditemukan</h3>
+<ul>
+<li>Berita pemenang tender managed service, pengadaan, sewa, atau pemeliharaan EDC di bank mana pun dalam tiga tahun terakhir.</li>
+<li>Daftar vendor yang sering memenangi tender EDC.</li>
+<li>Tender EDC dari bank swasta mana pun, baik di portal maupun di berita.</li>
+</ul>
+</section>
+<section>
+<h2>Rekomendasi untuk Tender Bot</h2>
+<p>Rekomendasi ini kesimpulan dari temuan di atas <span class="tag">[INFERENSI]</span>. Satu cara pemantauan tidak cukup untuk semua bank, jadi sumber dibagi tiga tier menurut cara datanya bisa diambil.</p>
+<h3>Tier 1: dipantau otomatis</h3>
+<h4>Bank Sumut</h4>
+<ul>
+<li>Coba feed RSS lebih dulu. <code>/<wbr>feed/</code> menjawab sebagai <code>application/<wbr>rss+xml</code>, tetapi itu feed seluruh situs dan isinya belum dibaca. Feed khusus <code>/<wbr>jasa_barang/<wbr>feed/</code> belum diuji. REST WordPress <code>/<wbr>wp-json/<wbr>wp/<wbr>v2/<wbr>jasa_barang</code> menjawab JSON, isinya juga belum dibaca <span class="tag">[TERBATAS]</span>. Langkah pertama tim: buka ketiganya sekali dan lihat mana yang memuat pengumuman <code>jasa_barang</code>.</li>
+<li>Cadangannya, ambil halaman arsip <code>/<wbr>archive-jasa-barang/</code> secara berkala. Pola URL pengumuman: <code>/<wbr>jasa_barang/<wbr>&lt;slug-judul&gt;/</code>.</li>
+<li>Rincian tender ada di lampiran unduhan. Bot harus mengikuti tautan lampiran itu, yang belum tertangkap oleh alat riset.</li>
+<li>robots.txt dan ToS Bank Sumut belum dicek.</li>
+</ul>
+<h4>Bank Jatim</h4>
+<ul>
+<li>Pantau halaman "Lelang Pengadaan", bukan "Pengumuman". Halaman "Pengumuman" berisi promo dan informasi investor.</li>
+<li>Daftarnya HTML server-side dengan paginasi. Tiap item tertaut ke PDF berpola <code>/<wbr>files/<wbr>pengumuman/<wbr>&lt;tahun&gt;/<wbr>&lt;bulan&gt;/<wbr>&lt;nama&gt;.<wbr>pdf</code>, juga di domain cermin bankjatim.id, dan ada versi <code>_english.<wbr>pdf</code>. Bot perlu pembaca PDF.</li>
+<li>Jenis item yang terlihat: Pengumuman Tender Pascakualifikasi, Market Sounding, Hasil Rekapitulasi Evaluasi Dokumen Penawaran, dan Pengumuman Pemenang. Bot bisa memilah menurut jenis ini.</li>
+<li>robots.txt tanpa Disallow; ToS belum dicek. Pendaftaran peserta pernah dilakukan luring di kantor pusat, jadi bot cukup memberi tahu dan pendaftaran tetap manual.</li>
+</ul>
+<p>Calon tier 1 setelah pemetaan manual: BPD Bali, Bankaltimtara, dan Bank Nagari. Situsnya HTML server-side, tetapi URL menu lelangnya belum tertangkap dan isinya bisa pengadaan atau lelang agunan. Portal Bank Sultra (e-tender) dan Bank Sulteng (eproc) belum dibuka sama sekali.</p>
+<h3>Tier 2: butuh akun vendor</h3>
+<ul>
+<li>BRI. Akun dibuat di tdronline.bri.co.id lewat tombol "Register as Partner", lalu dipakai untuk login di eproc.bri.co.id. Syarat registrasinya belum terbaca. Portal ini diblokir WAF Incapsula saat dicek lewat HTTP <span class="tag">[KOORDINATOR]</span> dan kemungkinan memakai CAPTCHA <span class="tag">[INFERENSI]</span>, jadi bot sebaiknya membaca email notifikasi, bukan masuk ke portal.</li>
+<li>BTN. Login Oracle E-Business Suite di e2eprocreg.btn.co.id. Arif belum punya akun. Syarat registrasi bisa ditanyakan ke helpdesk: WhatsApp +62 822 5888 2676, email helpdesk.e2eproc@btn.co.id <span class="tag">[KOORDINATOR]</span>. Browser otomatis sempat menggantung di portal ini, jadi akses apa pun wajib memakai batas waktu keras.</li>
+<li>SMBC Indonesia. Platform iProc di iprocsmbci.pengadaan.com dan smbci.pengadaan.com. Form yang terlihat berjudul iProc Intranet dan tampaknya untuk staf internal, jadi belum jelas apakah vendor bisa mendaftar di sana. Kepemilikan portal baru berupa klaim di footer; perlu konfirmasi ke bank.</li>
+<li>Registrasi vendor dilakukan manual oleh Arif. Setelah akun ada, bot membantu dengan membaca email undangan dan notifikasi portal. Membaca portal secara otomatis dari dalam sesi vendor harus dicek dulu terhadap syarat penggunaan portal.</li>
+</ul>
+<h3>Tier 3: berita, email, dan alert</h3>
+<p>Tier ini untuk bank yang portalnya tidak ditemukan (Bank Mandiri, BNI, BSI, BCA, CIMB Niaga, Danamon, PermataBank, Maybank Indonesia, OCBC Indonesia, Panin, Bank Mega, UOB Indonesia, Bank Sinarmas) dan BPD yang situsnya dirender JavaScript atau menolak klien otomatis (bank bjb, Bank Jakarta, Bank Jateng, Bank Kalbar).</p>
+<ul>
+<li>Sumber yang bisa dipantau: halaman berita dan pengumuman bank yang terbuka (misalnya NewsAndAnnouncement Maybank Indonesia), rilis pers bank dan vendor EDC, media bisnis, keterbukaan informasi emiten vendor, dan laporan tahunan bank.</li>
+<li>Email undangan setelah terdaftar sebagai vendor.</li>
+<li>Tulis nama lengkap bank di kueri, karena akronimnya bertabrakan: "Bank Negara Indonesia" atau "BBNI", "Bank Syariah Indonesia" atau "BRIS", serta "Bank DKI" dan "Bank Jakarta" sekaligus.</li>
+<li>"EDC" saja tercampur Export Development Canada, Electric Daisy Carnival, dan "everyday carry". Pakai "mesin EDC", "Smart EDC", "EDC Android", "terminal EDC", atau "Electronic Data Capture" bersama nama bank. Untuk jenis pekerjaan: pengadaan, sewa, sewa beli, pemeliharaan, managed service, pengelolaan, dan jasa layanan EDC.</li>
+<li>Untuk Bank Mandiri, BNI, dan BSI, tanyakan alamat portal resmi ke bagian pengadaan, atau buka manual dengan browser biasa.</li>
+</ul>
+<h3>Jebakan kata "lelang"</h3>
+<p>Di bank, "lelang" sering berarti penjualan agunan (jaminan kredit yang diambil alih), bukan pengadaan barang dan jasa. Contoh yang ditemukan:</p>
+<ul>
+<li>lelang.bankjateng.co.id adalah portal lelang agunan <span class="tag">[PORTAL]</span>.</li>
+<li>lelang.bankmandiri.co.id kemungkinan lelang agunan <span class="tag">[INFERENSI]</span>.</li>
+<li>Menu "Lelang PT Bank Sumut" (<code>/<wbr>lelang/</code>) terpisah dari "Pengadaan Barang &amp; Jasa". Menu ini belum dibuka dan kemungkinan berisi lelang agunan.</li>
+<li>Bankaltimtara memisahkan "Info Lelang" dari "Info Lelang Jaminan" <span class="tag">[PORTAL]</span>. Bank Nagari punya aplikasi Nagari Portal Lelang untuk agunan <span class="tag">[SNIPPET]</span>. "Catalog of AYDA" di situs Bank Mega adalah katalog agunan yang diambil alih <span class="tag">[PORTAL]</span>.</li>
+</ul>
+<p>Aturan untuk bot: buang item yang memuat "agunan" atau "jaminan", dan petakan menu pengadaan tiap bank secara eksplisit. Jangan mengandalkan kata "lelang".</p>
+<h3>Risiko syarat penggunaan dan robots.txt</h3>
+<ul>
+<li>ToS soal scraping belum dicek untuk satu situs pun. Bagian ini harus dibaca sebelum bot berjalan di produksi.</li>
+<li>robots.txt yang sudah dibaca: Bank Jatim tanpa Disallow; Danamon "Allow: /"; Bank Mega hanya melarang <code>/<wbr>admin/</code>; Maybank Indonesia hanya <code>/<wbr>sitecore</code>; BCA dan CIMB Niaga hanya path internal. OCBC Indonesia melarang semua URL ber-query (<code>/<wbr>*?</code>), jadi URL seperti <code>?page=</code> atau <code>?q=</code> melanggar. eproc BRI, smbci.pengadaan.com, dan UOB Indonesia tidak punya robots.txt (404). robots.txt Bank Sumut dan BTN belum dicek.</li>
+<li>Penolakan klien otomatis: PermataBank dan Panin (HTTP 403 di seluruh situs), Bank Jakarta dan Bank DKI (HTTP 403), BRI (WAF Incapsula, dan "Request Rejected" di www.bri.co.id), beberapa subdomain BTN, Bank Jateng, dan Bank Kalbar ("Request Rejected"), serta eproc.bankbjb.co.id (halaman tantangan "Please wait a while..."). Bot yang patuh tidak mengakali blokir ini. Jalurnya izin resmi, akun vendor, atau berita.</li>
+<li>Untuk portal di balik login (BRI, BTN, SMBC Indonesia), akses otomatis dari dalam sesi vendor bisa melanggar syarat portal.</li>
+</ul>
+<h3>Catatan teknis untuk semua sumber</h3>
+<ul>
+<li>Pakai batas waktu keras dan retry di setiap request. Fetch pertama eproc BRI kosong lalu berhasil pada percobaan kedua, dan browser otomatis menggantung di portal BTN. Peneliti menyarankan batas 15 sampai 30 detik per request <span class="tag">[INFERENSI]</span>.</li>
+<li>Kenali halaman blokir dan catat sebagai "tidak tersedia": "Request Rejected", "Request unsuccessful" (Incapsula), "Please wait a while...", dan HTTP 403.</li>
+<li>Pakai renderer JavaScript hanya bila perlu dan selalu dengan batas waktu.</li>
+<li>Siapkan pembaca PDF untuk pengumuman Bank Jatim dan dokumen kebijakan bank.</li>
+<li>Skema data bisa meniru kolom pengumuman Bank Indonesia.</li>
+</ul>
+<h3>Keputusan untuk Arif</h3>
+<ul>
+<li>Unduh dan baca lampiran tender Smart EDC Bank Sumut, lalu putuskan ikut atau tidak. Batas pendaftarannya belum diketahui.</li>
+<li>Putuskan apakah mendaftar sebagai vendor di BRI dan BTN. Tanpa akun, tender kedua bank ini tidak terlihat oleh bot.</li>
+<li>Tentukan siapa yang menanyakan alamat portal resmi ke Bank Mandiri, BNI, BSI, dan SMBC Indonesia.</li>
+</ul>
+</section>
+<section>
+<h2>Keterbatasan riset</h2>
+<ul>
+<li>Alat riset hanya pencarian web dan pengambilan halaman, tanpa browser, login, registrasi, atau pengisian formulir. Halaman yang dirender JavaScript terbaca kosong (tdronline BRI, lelang Bank Mandiri, span BSI, bank bjb, Bank Jateng), dan isi portal di balik login tidak terlihat.</li>
+<li>Mesin pencari yang dipakai lemah untuk media nasional Indonesia; Kompas, Detik, CNBC Indonesia, Bisnis, Kontan, dan Infobank tidak muncul. "Tidak ditemukan" untuk berita EDC bisa berarti belum terjangkau.</li>
+<li>Alat riset tidak bisa membaca PDF dan sitemap XML. Laporan tahunan, kebijakan pengadaan, dan lampiran tender, termasuk lampiran Bank Sumut, tidak terbaca. Sebagian fakta hanya berasal dari cuplikan pencarian.</li>
+<li>Subdomain <code>eproc.<wbr>*</code> adalah tebakan pola dan gagal koneksi di Bank Mandiri, BNI, BTN, BSI, dan BCA. Portal BTN ternyata memakai <code>e2eprocreg.</code>, jadi tebakan pola tidak bisa diandalkan.</li>
+<li>Tiap bagian riset dibatasi sekitar 45 menit. UOB Indonesia dan Bank Sinarmas hanya diriset singkat; Bank Kalbar dan Bankaltimtara dangkal.</li>
+<li>ToS tidak dicek di situs mana pun, dan robots.txt hanya dicek di sebagian situs.</li>
+<li>Nomor tender Bank Sumut belum terverifikasi. Nama pemenang dan jumlah tersangka kasus EDC BRI hanya dari cuplikan Tempo yang belum terverifikasi; halaman Tempo dan BrokerChooser menolak dibuka (HTTP 403).</li>
+<li>Isi feed RSS dan REST JSON Bank Sumut belum dibaca.</li>
+<li>Syarat registrasi vendor BRI dan BTN belum diketahui.</li>
+<li>Dasar hukum pengadaan BUMD dan model harga agregator berbayar belum diverifikasi.</li>
+</ul>
+</section>
+<section class="appendix">
+<h2>Daftar sumber</h2>
+<p>Semua sumber diakses 23 Oktober 2026. Keterangan di akhir tiap baris menyebut cara sumber itu dibaca.</p>
+<h3>Dicek ulang oleh koordinator</h3>
+<ul class="sources">
+<li><span class="desc">Bank Sumut, detail tender Smart EDC. </span><a class="url" href="https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/">https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/</a> Dibaca penuh oleh koordinator, 15.16 WIB.</li>
+<li><span class="desc">BTN, portal e2eproc. </span><a class="url" href="https://e2eprocreg.btn.co.id/">https://e2eprocreg.btn.co.id/</a> Dilihat koordinator di Chrome Arif, 15.13 WIB; dialihkan ke <code>/<wbr>OA_HTML/<wbr>AppsLocalLogin.<wbr>jsp</code>.</li>
+<li><span class="desc">Noi English / Pikiran Rakyat Media Network, 6 Juli 2025, berita sitaan KPK dalam kasus EDC BRI. </span><a class="url" href="https://noi.pikiran-rakyat.com/news/pr-4049475114/kpk-seizes-idr-53-billion-in-cash-idr-28-billion-in-deposits-in-massive-bri-edc-corruption-scandal">https://noi.pikiran-rakyat.com/news/pr-4049475114/kpk-seizes-idr-53-billion-in-cash-idr-28-billion-in-deposits-in-massive-bri-edc-corruption-scandal</a> Dibaca penuh oleh koordinator.</li>
+<li><span class="desc">BRI, eProc Vendor (iProc Extranet). </span><a class="url" href="https://eproc.bri.co.id/">https://eproc.bri.co.id/</a> Koordinator: diblokir WAF Incapsula. Peneliti: form login terbaca pada percobaan kedua.</li>
+</ul>
+<h3>Bank BUMN</h3>
+<ul class="sources">
+<li><span class="desc">BRI, robots.txt eproc. </span><a class="url" href="https://eproc.bri.co.id/robots.txt">https://eproc.bri.co.id/robots.txt</a> Dibuka; HTTP 404.</li>
+<li><span class="desc">BRI, tdronline. </span><a class="url" href="https://tdronline.bri.co.id/">https://tdronline.bri.co.id/</a> Dibuka, isi kosong; judul dari cuplikan pencarian.</li>
+<li><span class="desc">BRI, situs utama. </span><a class="url" href="https://www.bri.co.id/">https://www.bri.co.id/</a> Cuplikan pencarian ("Request Rejected").</li>
+<li><span class="desc">Tempo English, 25 Juli 2025, "The Procurement Rule That Opened the Door to Corruption". </span><a class="url" href="https://en.tempo.co/read/2032287/the-procurement-rule-that-opened-the-door-to-corruption">https://en.tempo.co/read/2032287/the-procurement-rule-that-opened-the-door-to-corruption</a> HTTP 403; cuplikan pencarian.</li>
+<li><span class="desc">BrokerChooser, penyelidikan KPK di BRI dan Telkom. </span><a class="url" href="https://brokerchooser.com/news/indonesias-anti-corruption-agency-opens-inquiry-into-banking-notification-scheme-at-bri-and-telkom--82b73667">https://brokerchooser.com/news/indonesias-anti-corruption-agency-opens-inquiry-into-banking-notification-scheme-at-bri-and-telkom--82b73667</a> HTTP 403; cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, eproc (tebakan). </span><a class="url" href="https://eproc.bankmandiri.co.id/">https://eproc.bankmandiri.co.id/</a> Gagal koneksi.</li>
+<li><span class="desc">Bank Mandiri, lelang. </span><a class="url" href="https://lelang.bankmandiri.co.id/">https://lelang.bankmandiri.co.id/</a> Dibuka, isi kosong; judul dari cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, Kebijakan Pengadaan Barang dan Jasa (English), PDF. </span><a class="url" href="https://www.bankmandiri.co.id/documents/38268824/42739631/Kebijakan+Pengadaan+Barang+dan+Jasa+(english).pdf/063e2ffa-5931-226e-e965-2faed3dbe524">https://www.bankmandiri.co.id/documents/38268824/42739631/Kebijakan+Pengadaan+Barang+dan+Jasa+(english).pdf/063e2ffa-5931-226e-e965-2faed3dbe524</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, Overview Sustainable Procurement Policy, PDF. </span><a class="url" href="https://www.bankmandiri.co.id/documents/20143/505464457/Overview_Sustainable+Procurement+Policy_Rev+SG_Rev.AJ_Rev.Syafiq_Rev.Nnd.pdf/49410a9f-2a68-9c5f-f540-e3fb6333d72a?t=1768377963227">https://www.bankmandiri.co.id/documents/20143/505464457/Overview_Sustainable+Procurement+Policy_Rev+SG_Rev.AJ_Rev.Syafiq_Rev.Nnd.pdf/49410a9f-2a68-9c5f-f540-e3fb6333d72a?t=1768377963227</a> PDF tidak terbaca; cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, Mandiri API. </span><a class="url" href="https://www.bankmandiri.co.id/en/mandiri-api">https://www.bankmandiri.co.id/en/mandiri-api</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, Mandiri EDC. </span><a class="url" href="https://bankmandiri.co.id/en/edc">https://bankmandiri.co.id/en/edc</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Mandiri, Mandiri Group. </span><a class="url" href="https://www.bankmandiri.co.id/en/mandiri-group">https://www.bankmandiri.co.id/en/mandiri-group</a> Cuplikan pencarian.</li>
+<li><span class="desc">BNI, eproc (tebakan). </span><a class="url" href="https://eproc.bni.co.id/">https://eproc.bni.co.id/</a> Gagal koneksi.</li>
+<li><span class="desc">BNI, beranda. </span><a class="url" href="https://www.bni.co.id/id-id/">https://www.bni.co.id/id-id/</a> Dibuka; tidak ada teks pengadaan.</li>
+<li><span class="desc">BTN, eproc (tebakan). </span><a class="url" href="https://eproc.btn.co.id/">https://eproc.btn.co.id/</a> Gagal koneksi.</li>
+<li><span class="desc">BTN, beranda. </span><a class="url" href="https://www.btn.co.id/">https://www.btn.co.id/</a> Dibuka; tidak ada teks pengadaan.</li>
+<li><span class="desc">BTN, b-gov. </span><a class="url" href="https://b-gov.btn.co.id/">https://b-gov.btn.co.id/</a> Cuplikan pencarian ("Request Rejected").</li>
+<li><span class="desc">BTN, emitra. </span><a class="url" href="https://emitra.btn.co.id/">https://emitra.btn.co.id/</a> Cuplikan pencarian ("Request Rejected").</li>
+<li><span class="desc">BTN, balé merchant di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?gl=US&amp;hl=en_ZA&amp;id=com.btn.btnmerchant">https://play.google.com/store/apps/details?gl=US&amp;hl=en_ZA&amp;id=com.btn.btnmerchant</a> Cuplikan pencarian.</li>
+<li><span class="desc">BSI, eproc (tebakan). </span><a class="url" href="https://eproc.bankbsi.co.id/">https://eproc.bankbsi.co.id/</a> Gagal koneksi.</li>
+<li><span class="desc">BSI, span. </span><a class="url" href="https://span.bankbsi.co.id/">https://span.bankbsi.co.id/</a> Dibuka, isi kosong; judul dari cuplikan pencarian.</li>
+<li><span class="desc">BSI, BYOND Merchant di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?hl=en&amp;id=co.id.bankbsi.qrismerchant">https://play.google.com/store/apps/details?hl=en&amp;id=co.id.bankbsi.qrismerchant</a> Cuplikan pencarian.</li>
+</ul>
+<h3>Bank swasta</h3>
+<ul class="sources">
+<li><span class="desc">BCA, robots.txt. </span><a class="url" href="https://www.bca.co.id/robots.txt">https://www.bca.co.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">BCA, eproc (tebakan). </span><a class="url" href="https://eproc.bca.co.id/">https://eproc.bca.co.id/</a> Gagal koneksi.</li>
+<li><span class="desc">BCA, sitemap. </span><a class="url" href="https://www.bca.co.id/sitemap.xml">https://www.bca.co.id/sitemap.xml</a> Format XML tidak terbaca alat riset.</li>
+<li><span class="desc">BCA, Merchant BCA di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?id=com.bca.msb">https://play.google.com/store/apps/details?id=com.bca.msb</a> Cuplikan pencarian.</li>
+<li><span class="desc">BCA, info EDC BCA di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?id=com.bca.info.edc">https://play.google.com/store/apps/details?id=com.bca.info.edc</a> Cuplikan pencarian.</li>
+<li><span class="desc">CIMB Niaga, robots.txt. </span><a class="url" href="https://www.cimbniaga.co.id/robots.txt">https://www.cimbniaga.co.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">CIMB Group, Vendor Code of Conduct, PDF. </span><a class="url" href="https://www.cimbbank.com.ph/content/dam/cimb/group/documents/sustainbility/vendor-code-of-conduct.pdf">https://www.cimbbank.com.ph/content/dam/cimb/group/documents/sustainbility/vendor-code-of-conduct.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">CIMB Niaga, OCTO Merchant di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?hl=en&amp;id=com.cimbedc">https://play.google.com/store/apps/details?hl=en&amp;id=com.cimbedc</a> Cuplikan pencarian.</li>
+<li><span class="desc">Telkom University, makalah transaksi debit EDC studi kasus CIMB Niaga, PDF. </span><a class="url" href="https://socj.telkomuniversity.ac.id/ojs/index.php/indojc/article/download/880/407">https://socj.telkomuniversity.ac.id/ojs/index.php/indojc/article/download/880/407</a> PDF tidak terbaca.</li>
+<li><span class="desc">Danamon, robots.txt. </span><a class="url" href="https://www.danamon.co.id/robots.txt">https://www.danamon.co.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">Danamon, Laporan Tahunan 2024 Company Profile, PDF. </span><a class="url" href="https://www.danamon.co.id/-/media/ALL-CONTENT-ABOUT-DANAMON/LAPORAN-KEUANGAN/LAPORAN-TAHUNAN/2024/en/5-Company-Profile-AR-Bank-Danamon-2024-ENG-25-Feb-Malam2web-Medium4.pdf">https://www.danamon.co.id/-/media/ALL-CONTENT-ABOUT-DANAMON/LAPORAN-KEUANGAN/LAPORAN-TAHUNAN/2024/en/5-Company-Profile-AR-Bank-Danamon-2024-ENG-25-Feb-Malam2web-Medium4.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Danamon, RIPLAY Layanan Merchant QR, PDF. </span><a class="url" href="https://www.danamon.co.id/-/media/ALL-CONTENT-EBANKING/QRIS/QR-Merchant/18-06-2025/RIPLAY---Layanan-Merchant-QR-Danamon---Final_non-iOS-include-sameday---EN.pdf">https://www.danamon.co.id/-/media/ALL-CONTENT-EBANKING/QRIS/QR-Merchant/18-06-2025/RIPLAY---Layanan-Merchant-QR-Danamon---Final_non-iOS-include-sameday---EN.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Danamon, TradeConnect. </span><a class="url" href="https://tradeconnect.danamon.co.id/">https://tradeconnect.danamon.co.id/</a> Cuplikan pencarian.</li>
+<li><span class="desc">PermataBank, robots.txt. </span><a class="url" href="https://www.permatabank.com/robots.txt">https://www.permatabank.com/robots.txt</a> HTTP 403.</li>
+<li><span class="desc">PermataBank, bergabung menjadi merchant. </span><a class="url" href="https://www.permatabank.com/id/digital-channel/permataqr/bergabung-menjadi-merchant">https://www.permatabank.com/id/digital-channel/permataqr/bergabung-menjadi-merchant</a> HTTP 403.</li>
+<li><span class="desc">PermataBank, Permata QR Merchant di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?hl=en_GB&amp;id=com.permatabank.qram">https://play.google.com/store/apps/details?hl=en_GB&amp;id=com.permatabank.qram</a> Cuplikan pencarian.</li>
+<li><span class="desc">Maybank Indonesia, robots.txt. </span><a class="url" href="https://www.maybank.co.id/robots.txt">https://www.maybank.co.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">MyBiz Solutions, studi kasus eProcurement Maybank Group, PDF. </span><a class="url" href="https://www.mybiz.net/_files/ugd/c29f77_aa494836ecc64a39bda6d27ee782e421.pdf">https://www.mybiz.net/_files/ugd/c29f77_aa494836ecc64a39bda6d27ee782e421.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Maybank Group, Sustainable Procurement Principles (salinan BankTrack). </span><a class="url" href="https://www.banktrack.org/download/sustainable_procurement_principles">https://www.banktrack.org/download/sustainable_procurement_principles</a> Cuplikan pencarian.</li>
+<li><span class="desc">Maybank, ESG Code of Conduct pemasok, PDF. </span><a class="url" href="https://www.maybank2u.com.sg/iwov-resources/sg/pdf/esg-code-of-conduct.pdf">https://www.maybank2u.com.sg/iwov-resources/sg/pdf/esg-code-of-conduct.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Maybank Indonesia, pengumuman pemeliharaan sistem rekening joint, 17 April 2026. </span><a class="url" href="https://www.maybank.co.id/en/NewsAndAnnouncement/NewsAndAnnouncements/2026/04/17/01/11/Informasi-Pemeliharaan-Sistem-Rekening-Joint">https://www.maybank.co.id/en/NewsAndAnnouncement/NewsAndAnnouncements/2026/04/17/01/11/Informasi-Pemeliharaan-Sistem-Rekening-Joint</a> Cuplikan pencarian.</li>
+<li><span class="desc">OCBC Indonesia, robots.txt. </span><a class="url" href="https://www.ocbc.id/robots.txt">https://www.ocbc.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">OCBC Indonesia, Corporate Internet Banking. </span><a class="url" href="https://business.ocbc.id/">https://business.ocbc.id/</a> Cuplikan pencarian.</li>
+<li><span class="desc">OCBC, Supplier Code of Conduct, PDF. </span><a class="url" href="https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/ocbc-supplier-code-of-conduct.pdf">https://www.ocbc.com/iwov-resources/sg/ocbc/gbc/pdf/ocbc-supplier-code-of-conduct.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">OCBC, Acting with integrity. </span><a class="url" href="https://www.ocbc.com/group/sustainability/sustainability-framework/acting-with-integrity.page">https://www.ocbc.com/group/sustainability/sustainability-framework/acting-with-integrity.page</a> Cuplikan pencarian.</li>
+<li><span class="desc">OCBC, OCBC Merchant di Google Play. </span><a class="url" href="https://play.google.com/store/apps/details?id=id.ocbc.merchant">https://play.google.com/store/apps/details?id=id.ocbc.merchant</a> Cuplikan pencarian.</li>
+<li><span class="desc">PR Newswire, OCBC Tap Credit Card, 10 November 2025. </span><a class="url" href="https://www.prnewswire.com/apac/news-releases/ocbc-launches-tap-credit-card-seamless-nfc-transactions-for-speed-and-convenience-302610100.html">https://www.prnewswire.com/apac/news-releases/ocbc-launches-tap-credit-card-seamless-nfc-transactions-for-speed-and-convenience-302610100.html</a> Cuplikan pencarian.</li>
+<li><span class="desc">OCBC, rilis akuisisi HSBC International Wealth and Premier Banking Indonesia. </span><a class="url" href="https://www.ocbc.com/group/media/release/2026/ocbc-acquires-hsbc-international-wealth-and-premier-banking-indonesia">https://www.ocbc.com/group/media/release/2026/ocbc-acquires-hsbc-international-wealth-and-premier-banking-indonesia</a> Cuplikan pencarian.</li>
+<li><span class="desc">Panin Bank, robots.txt. </span><a class="url" href="https://www.panin.co.id/robots.txt">https://www.panin.co.id/robots.txt</a> HTTP 403.</li>
+<li><span class="desc">Panin Bank, kurs. </span><a class="url" href="https://www.panin.co.id/id/kurs">https://www.panin.co.id/id/kurs</a> HTTP 403.</li>
+<li><span class="desc">Bank Mega, robots.txt. </span><a class="url" href="https://bankmega.com/robots.txt">https://bankmega.com/robots.txt</a> Dibuka.</li>
+<li><span class="desc">Bank Mega, Corporate Governance. </span><a class="url" href="https://bankmega.com/en/about-us/corporate-governance/">https://bankmega.com/en/about-us/corporate-governance/</a> Dibuka.</li>
+<li><span class="desc">Bank Mega, Developer API. </span><a class="url" href="https://developer.bankmega.com/">https://developer.bankmega.com/</a> Cuplikan pencarian.</li>
+<li><span class="desc">Scribd, Surat Permohonan Penarikan EDC. </span><a class="url" href="https://www.scribd.com/document/343502745/Surat-Permohonan-Penarikan">https://www.scribd.com/document/343502745/Surat-Permohonan-Penarikan</a> Cuplikan pencarian.</li>
+<li><span class="desc">SMBC Indonesia, iProc (iprocsmbci). </span><a class="url" href="https://iprocsmbci.pengadaan.com/">https://iprocsmbci.pengadaan.com/</a> Dibuka.</li>
+<li><span class="desc">SMBC Indonesia, iProc (smbci). </span><a class="url" href="https://smbci.pengadaan.com/">https://smbci.pengadaan.com/</a> Dibuka.</li>
+<li><span class="desc">SMBC Indonesia, robots.txt iProc. </span><a class="url" href="https://smbci.pengadaan.com/robots.txt">https://smbci.pengadaan.com/robots.txt</a> HTTP 404.</li>
+<li><span class="desc">pengadaan.com. </span><a class="url" href="https://pengadaan.com/">https://pengadaan.com/</a> Dialihkan ke login SSO.</li>
+<li><span class="desc">SMBC Indonesia, Tentang Kami. </span><a class="url" href="https://www.smbci.com/en/tentang-kami">https://www.smbci.com/en/tentang-kami</a> Cuplikan pencarian.</li>
+<li><span class="desc">UOB Indonesia, robots.txt. </span><a class="url" href="https://www.uob.co.id/robots.txt">https://www.uob.co.id/robots.txt</a> HTTP 404.</li>
+<li><span class="desc">UOB Malaysia, UOB Procure-to-Pay. </span><a class="url" href="https://uob.com.my/business/transact/cards/uob-procure-to-pay.page">https://uob.com.my/business/transact/cards/uob-procure-to-pay.page</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Sinarmas, robots.txt. </span><a class="url" href="https://www.banksinarmas.com/robots.txt">https://www.banksinarmas.com/robots.txt</a> Gagal koneksi.</li>
+<li><span class="desc">Bank Sinarmas, promosi kartu kredit. </span><a class="url" href="https://www.banksinarmas.com/id/promosi/kartukredit">https://www.banksinarmas.com/id/promosi/kartukredit</a> Gagal koneksi.</li>
+</ul>
+<h3>BPD</h3>
+<ul class="sources">
+<li><span class="desc">Bank Sumut, Pengadaan Barang &amp; Jasa. </span><a class="url" href="https://www.banksumut.co.id/pengadaan-barang-jasa/">https://www.banksumut.co.id/pengadaan-barang-jasa/</a> Dibuka.</li>
+<li><span class="desc">Bank Sumut, arsip jasa barang. </span><a class="url" href="https://www.banksumut.co.id/archive-jasa-barang/">https://www.banksumut.co.id/archive-jasa-barang/</a> Tautan dari halaman detail tender.</li>
+<li><span class="desc">Bank Sumut, Procurement of Goods and Services (English). </span><a class="url" href="https://www.banksumut.co.id/en/procurement-of-goods-and-services/">https://www.banksumut.co.id/en/procurement-of-goods-and-services/</a> Dibuka.</li>
+<li><span class="desc">Bank Sumut, feed RSS. </span><a class="url" href="https://www.banksumut.co.id/feed/">https://www.banksumut.co.id/feed/</a> Menjawab <code>application/<wbr>rss+xml</code>; isi belum terbaca.</li>
+<li><span class="desc">Bank Sumut, REST WordPress jasa_barang. </span><a class="url" href="https://www.banksumut.co.id/wp-json/wp/v2/jasa_barang?per_page=5">https://www.banksumut.co.id/wp-json/wp/v2/jasa_barang?per_page=5</a> Menjawab <code>application/<wbr>json</code>; isi belum terbaca.</li>
+<li><span class="desc">Bank Sumut, menu lelang. </span><a class="url" href="https://www.banksumut.co.id/lelang/">https://www.banksumut.co.id/lelang/</a> Belum dibuka.</li>
+<li><span class="desc">Bank Jatim, Lelang Pengadaan. </span><a class="url" href="https://www.bankjatim.co.id/id/informasi/lelang-pengadaan">https://www.bankjatim.co.id/id/informasi/lelang-pengadaan</a> Dibuka.</li>
+<li><span class="desc">Bank Jatim, Pengumuman (bukan tender). </span><a class="url" href="https://www.bankjatim.co.id/id/informasi/pengumuman">https://www.bankjatim.co.id/id/informasi/pengumuman</a> Dibuka.</li>
+<li><span class="desc">Bank Jatim, robots.txt. </span><a class="url" href="https://www.bankjatim.co.id/robots.txt">https://www.bankjatim.co.id/robots.txt</a> Dibuka.</li>
+<li><span class="desc">Bank Jatim, pengumuman Mobile App Security 2025, PDF. </span><a class="url" href="https://www.bankjatim.co.id/files/pengumuman/2025/september/pengumuman_website_pengadaan_english.pdf">https://www.bankjatim.co.id/files/pengumuman/2025/september/pengumuman_website_pengadaan_english.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Jatim, ATM Machine Rental 2022, PDF. </span><a class="url" href="https://www.bankjatim.id/files/pengumuman/2022/juni/pengumuman_website_pengadaan_jasa_sewa_mesin_atm_2022_english.pdf">https://www.bankjatim.id/files/pengumuman/2022/juni/pengumuman_website_pengadaan_jasa_sewa_mesin_atm_2022_english.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Jatim, Sewa Mesin CRM 2022, PDF. </span><a class="url" href="https://www.bankjatim.id/files/pengumuman/2022/juli/pengumuman_website_pengadaan_jasa_sewa_mesin_crm_2022_english.pdf">https://www.bankjatim.id/files/pengumuman/2022/juli/pengumuman_website_pengadaan_jasa_sewa_mesin_crm_2022_english.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">bank bjb, beranda. </span><a class="url" href="https://www.bankbjb.co.id/">https://www.bankbjb.co.id/</a> Dibuka; hanya judul terbaca.</li>
+<li><span class="desc">bank bjb, eproc (tebakan). </span><a class="url" href="https://eproc.bankbjb.co.id/">https://eproc.bankbjb.co.id/</a> Halaman tantangan "Please wait a while...".</li>
+<li><span class="desc">VOI, KPK mendalami pengumpulan dana non-budgeter bjb. </span><a class="url" href="https://voi.id/en/news/597746">https://voi.id/en/news/597746</a> Cuplikan pencarian.</li>
+<li><span class="desc">VOI, 9 Agustus 2026, domain baru Bank Jakarta. </span><a class="url" href="https://voi.id/en/economy/588894">https://voi.id/en/economy/588894</a> Dibuka.</li>
+<li><span class="desc">Bank Jakarta, beranda. </span><a class="url" href="https://www.bankjakarta.co.id/">https://www.bankjakarta.co.id/</a> HTTP 403.</li>
+<li><span class="desc">Bank DKI, beranda. </span><a class="url" href="https://www.bankdki.co.id/">https://www.bankdki.co.id/</a> HTTP 403.</li>
+<li><span class="desc">Scribd, Vendor Management Bank DKI. </span><a class="url" href="https://www.scribd.com/document/775698019/Vendor-Management-Bank-DKI">https://www.scribd.com/document/775698019/Vendor-Management-Bank-DKI</a> Isi dari cuplikan pencarian.</li>
+<li><span class="desc">Bank Jateng, beranda. </span><a class="url" href="https://www.bankjateng.co.id/">https://www.bankjateng.co.id/</a> Dibuka; isi dimuat JavaScript.</li>
+<li><span class="desc">Bank Jateng, lelang agunan. </span><a class="url" href="https://lelang.bankjateng.co.id/">https://lelang.bankjateng.co.id/</a> Dibuka.</li>
+<li><span class="desc">Bank Nagari, beranda. </span><a class="url" href="https://www.banknagari.co.id/">https://www.banknagari.co.id/</a> Dibuka.</li>
+<li><span class="desc">Nagari Portal Lelang (andro.io). </span><a class="url" href="https://bn-webview.andro.io/">https://bn-webview.andro.io/</a> Cuplikan pencarian.</li>
+<li><span class="desc">BPD Bali, beranda. </span><a class="url" href="https://www.bpdbali.co.id/">https://www.bpdbali.co.id/</a> Dibuka.</li>
+<li><span class="desc">Bankaltimtara, beranda. </span><a class="url" href="https://www.bankaltimtara.co.id/">https://www.bankaltimtara.co.id/</a> Dibuka.</li>
+<li><span class="desc">Bank Kalbar, beranda. </span><a class="url" href="https://www.bankkalbar.co.id/">https://www.bankkalbar.co.id/</a> Dibuka; tidak ada teks menu yang berguna.</li>
+<li><span class="desc">Bank Sultra, e-tender. </span><a class="url" href="https://e-tender.banksultra.co.id/">https://e-tender.banksultra.co.id/</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Sulteng, eproc. </span><a class="url" href="https://eproc.banksulteng.co.id/">https://eproc.banksulteng.co.id/</a> Cuplikan pencarian.</li>
+</ul>
+<h3>Portal agregat, media, dan acuan</h3>
+<ul class="sources">
+<li><span class="desc">TenderKita. </span><a class="url" href="https://tenderkita.com/">https://tenderkita.com/</a> Dibuka.</li>
+<li><span class="desc">Tender Indonesia, beranda. </span><a class="url" href="https://tender-indonesia.com/">https://tender-indonesia.com/</a> Dibuka; isi tidak terbaca.</li>
+<li><span class="desc">Tender Indonesia, daftar proyek. </span><a class="url" href="https://tender-indonesia.com/tender_home/tender.php">https://tender-indonesia.com/tender_home/tender.php</a> Cuplikan pencarian.</li>
+<li><span class="desc">Blog tentang Tender Indonesia. </span><a class="url" href="https://abouttenderindonesia.blogspot.com/">https://abouttenderindonesia.blogspot.com/</a> Cuplikan pencarian.</li>
+<li><span class="desc">pengadaan.info. </span><a class="url" href="https://pengadaan.info/">https://pengadaan.info/</a> Cuplikan pencarian.</li>
+<li><span class="desc">IndoTender. </span><a class="url" href="http://indotender.com/">http://indotender.com/</a> Cuplikan pencarian.</li>
+<li><span class="desc">TenderTiger Indonesia. </span><a class="url" href="https://indonesia.tendertiger.com/">https://indonesia.tendertiger.com/</a> Cuplikan pencarian.</li>
+<li><span class="desc">tenderinfo.org Indonesia. </span><a class="url" href="http://indonesia.tenderinfo.org/">http://indonesia.tenderinfo.org/</a> Cuplikan pencarian.</li>
+<li><span class="desc">IndonesiaTenders. </span><a class="url" href="https://www.indonesiatenders.com/">https://www.indonesiatenders.com/</a> Cuplikan pencarian.</li>
+<li><span class="desc">pyproc di GitHub. </span><a class="url" href="https://github.com/wakataw/pyproc">https://github.com/wakataw/pyproc</a> Cuplikan pencarian.</li>
+<li><span class="desc">Nusantara Procurement Data. </span><a class="url" href="https://nusantara-platform.site/">https://nusantara-platform.site/</a> Cuplikan pencarian.</li>
+<li><span class="desc">PaDi UMKM Seller di App Store. </span><a class="url" href="https://apps.apple.com/it/app/padi-umkm-seller/id1588822356">https://apps.apple.com/it/app/padi-umkm-seller/id1588822356</a> Cuplikan pencarian.</li>
+<li><span class="desc">Bank Indonesia, contoh pengumuman pengadaan TA 2026. </span><a class="url" href="https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/Pengadaan-Infrastruktur-Software-Microsoft-Azure-Local-untuk-Infra-Dev-Test-Bank-Indonesia-TA-2026.aspx">https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/Pengadaan-Infrastruktur-Software-Microsoft-Azure-Local-untuk-Infra-Dev-Test-Bank-Indonesia-TA-2026.aspx</a> Cuplikan pencarian.</li>
+<li><span class="desc">Biro iklan, Iklan Lelang Bisnis Indonesia. </span><a class="url" href="https://pusatpemasanganiklan.com/koran/1-bisnis-indonesia">https://pusatpemasanganiklan.com/koran/1-bisnis-indonesia</a> Cuplikan pencarian.</li>
+</ul>
+<h3>Vendor dan pasar EDC</h3>
+<ul class="sources">
+<li><span class="desc">Telkomsel, IoT Managed EDC. </span><a class="url" href="https://www.telkomsel.com/enterprise/product-list-iot/iot-managed-edc">https://www.telkomsel.com/enterprise/product-list-iot/iot-managed-edc</a> Cuplikan pencarian.</li>
+<li><span class="desc">PitchBook, PT Prima Vista Solusi. </span><a class="url" href="https://pitchbook.com/profiles/company/154346-14">https://pitchbook.com/profiles/company/154346-14</a> Cuplikan pencarian.</li>
+<li><span class="desc">linktr.ee, PT Prima Vista Solusi. </span><a class="url" href="https://linktr.ee/primavistasolusi">https://linktr.ee/primavistasolusi</a> Cuplikan pencarian.</li>
+<li><span class="desc">PT Prima Vista Solusi, situs. </span><a class="url" href="https://primavista-solusi.com/">https://primavista-solusi.com/</a> Dibuka; tidak ada teks terbaca.</li>
+<li><span class="desc">eprints UPJ, abstrak kerja praktik mahasiswa tentang PVS-WIDE, PDF. </span><a class="url" href="http://eprints.upj.ac.id/id/eprint/6216/3/abstract.pdf">http://eprints.upj.ac.id/id/eprint/6216/3/abstract.pdf</a> Cuplikan pencarian.</li>
+<li><span class="desc">Preqin, PT Mitra Transaksi Indonesia. </span><a class="url" href="https://www.preqin.com/data/profile/asset/pt-mitra-transaksi-indonesia/449977">https://www.preqin.com/data/profile/asset/pt-mitra-transaksi-indonesia/449977</a> Cuplikan pencarian.</li>
+<li><span class="desc">Ingenico APAC, blog infrastruktur pembayaran. </span><a class="url" href="https://ingenico.com/apac/newsroom/blogs/beyond-payments-why-modern-infrastructure-becoming-strategic-across-apac">https://ingenico.com/apac/newsroom/blogs/beyond-payments-why-modern-infrastructure-becoming-strategic-across-apac</a> Cuplikan pencarian.</li>
+</ul>
+</section>
+</main>
+</body>
+</html>
