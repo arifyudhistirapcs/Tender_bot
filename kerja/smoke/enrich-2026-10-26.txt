@@ -1,0 +1,14 @@
+﻿# Smoke run pengayaan detail (deterministik, tanpa jaringan, tanpa webhook).
+# Dihasilkan oleh: python kerja/smoke/smoke_enrich.py --today 2026-10-26
+# Lampiran PDF asli: kerja/riset/vendor/lampiran-banksumut-smart-edc-005-2026.pdf
+
+=== SMOKE ENRICH --today 2026-10-26 ===
+kandidat: 2 | lolos saringan: 2 | baru di laporan: 0 (berjalan 0, akan dibuka 0)
+--- dibuang ---
+  [Bank Sumut] Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Sma -> sudah tutup
+  [Bank Jatim] Market Sounding Pengadaan Penyedia Jasa Managed Service Perangkat Elec -> tanggal tidak diketahui dan sudah lama
+--- status item baru ---
+--- payload Google Chat (dry-run, TIDAK dikirim) ---
+{
+  "text": "Tidak ada informasi tender baru.\nDicek 2 bank.\nSemua sumber bisa diakses."
+}
