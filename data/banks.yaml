@@ -13,7 +13,12 @@
 #   aliases : daftar nama/istilah untuk kueri berita Google News
 #   group   : bumn | swasta | bpd
 #   access  : public | vendor_login | not_found | blocked
-#   sources : daftar {url, type: rss|html|pdf_list}; kosong bila tak ada
+#   needs_js: true bila situs/portal dirender JavaScript. Kolektor light
+#             MELEWATI sumber/bank needs_js dan mencatatnya di coverage
+#             sebagai "butuh browser, dicek di mode full". (opsional, default false)
+#   vendor_registration_url: URL pendaftaran vendor (opsional, boleh kosong;
+#             diisi agen riset lain nanti)
+#   sources : daftar {url, type: rss|html|pdf_list, needs_js?}; kosong bila tak ada
 #   notes   : catatan akses dari riset
 
 banks:
@@ -22,6 +27,7 @@ banks:
     aliases: ["Bank Rakyat Indonesia", "BRI", "BBRI"]
     group: bumn
     access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (tdronline BRI)
     sources: []
     notes: >-
       Portal eproc.bri.co.id wajib login vendor; diblokir WAF Incapsula saat
@@ -50,6 +56,7 @@ banks:
     aliases: ["Bank Tabungan Negara", "BBTN"]
     group: bumn
     access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (e2eprocreg BTN)
     sources: []
     notes: >-
       Portal e2eprocreg.btn.co.id (Oracle E-Business Suite) wajib login
@@ -137,6 +144,7 @@ banks:
     aliases: ["SMBC Indonesia", "Bank SMBC Indonesia", "Bank BTPN", "BTPN"]
     group: swasta
     access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (iProc pengadaan.com)
     sources: []
     notes: >-
       Portal iProc di iprocsmbci.pengadaan.com / smbci.pengadaan.com hanya
@@ -217,6 +225,7 @@ banks:
     aliases: ["bank bjb", "Bank BJB", "Bank Pembangunan Daerah Jawa Barat dan Banten", "BJBR"]
     group: bpd
     access: blocked
+    needs_js: true
     sources: []
     notes: >-
       eproc.bankbjb.co.id menampilkan halaman tantangan "Please wait a
@@ -236,6 +245,7 @@ banks:
     aliases: ["Bank Jateng", "Bank Pembangunan Daerah Jawa Tengah"]
     group: bpd
     access: not_found
+    needs_js: true
     sources: []
     notes: >-
       Portal pengadaan tidak ditemukan; lelang.bankjateng.co.id adalah
@@ -246,6 +256,7 @@ banks:
     aliases: ["Bank Kalbar", "Bank Pembangunan Daerah Kalimantan Barat"]
     group: bpd
     access: not_found
+    needs_js: true
     sources: []
     notes: >-
       Portal tidak ditemukan; subdomain cms "Request Rejected". Pantau

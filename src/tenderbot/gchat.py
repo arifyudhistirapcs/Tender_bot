@@ -34,6 +34,12 @@ def _item_card(item: Item) -> dict:
         ("Terbit", item.published or "tidak tertera"),
         ("Batas waktu", item.deadline or "tidak tertera"),
     ]
+    # Untuk item berita, tampilkan nama media dan tandai bila tidak kredibel.
+    if item.source_type == "berita" or item.media_name:
+        media = item.media_name or "sumber tidak dikenal"
+        if item.unverified_source:
+            media += "  [unverified_source]"
+        rows.append(("Media", media))
     widgets = [
         {"decoratedText": {"topLabel": label, "text": val}} for label, val in rows
     ]

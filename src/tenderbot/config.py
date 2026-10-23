@@ -17,6 +17,7 @@ DATA_DIR = REPO_ROOT / "data"
 class Source:
     url: str
     type: str  # rss | html | pdf_list
+    needs_js: bool = False  # situs dirender JavaScript; kolektor light melewati
 
 
 @dataclass
@@ -27,6 +28,8 @@ class Bank:
     access: str = "not_found"  # public | vendor_login | not_found | blocked
     sources: list[Source] = field(default_factory=list)
     notes: str = ""
+    needs_js: bool = False  # portal utama bank dirender JavaScript (butuh browser)
+    vendor_registration_url: str = ""  # diisi agen riset lain nanti; boleh kosong
 
     @property
     def news_terms(self) -> list[str]:
@@ -39,6 +42,7 @@ class Keywords:
     procurement: list[str]
     edc: list[str]
     reject: list[str]
+    credible_news_domains: list[str] = field(default_factory=list)
 
 
 def _load_yaml(path: Path) -> dict:
@@ -55,7 +59,12 @@ def load_banks(path: Optional[Path] = None) -> list[Bank]:
     banks: list[Bank] = []
     for raw in data.get("banks", []):
         sources = [
-            Source(url=s["url"], type=s["type"]) for s in (raw.get("sources") or [])
+            Source(
+                url=s["url"],
+                type=s["type"],
+                needs_js=bool(s.get("needs_js", False)),
+            )
+            for s in (raw.get("sources") or [])
         ]
         banks.append(
             Bank(
@@ -65,6 +74,8 @@ def load_banks(path: Optional[Path] = None) -> list[Bank]:
                 access=raw.get("access", "not_found"),
                 sources=sources,
                 notes=raw.get("notes", "") or "",
+                needs_js=bool(raw.get("needs_js", False)),
+                vendor_registration_url=raw.get("vendor_registration_url", "") or "",
             )
         )
     if not banks:
@@ -79,6 +90,7 @@ def load_keywords(path: Optional[Path] = None) -> Keywords:
         procurement=list(data.get("procurement") or []),
         edc=list(data.get("edc") or []),
         reject=list(data.get("reject") or []),
+        credible_news_domains=list(data.get("credible_news_domains") or []),
     )
     if not kw.procurement or not kw.edc:
         raise ValueError(f"{path} harus memuat kata procurement dan edc")

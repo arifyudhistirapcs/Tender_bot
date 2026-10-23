@@ -39,3 +39,20 @@ reject:
   - everyday carry
   - uji klinis                # BSI Group memakai "Electronic Data Capture" untuk uji klinis
   - clinical trial
+
+# Media nasional/bisnis kredibel. Item berita dari domain lain tetap boleh
+# masuk, tetapi diberi label unverified_source (ditampilkan di pesan).
+# Dicocokkan pada host URL (termasuk subdomain, mis. www.kompas.com).
+credible_news_domains:
+  - kompas.com
+  - detik.com
+  - cnbcindonesia.com
+  - bisnis.com
+  - kontan.co.id
+  - katadata.co.id
+  - tempo.co
+  - antaranews.com
+  - infobanknews.com
+  - idxchannel.com
+  - investor.id
+  - cnnindonesia.com

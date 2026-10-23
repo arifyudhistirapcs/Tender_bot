@@ -23,6 +23,9 @@ class Item:
     value_idr: Optional[int] = None
     source_type: str = "portal"  # portal | berita | rilis
     evidence: str = ""
+    media_name: str = ""  # nama media untuk item berita (host atau nama sumber)
+    media_url: str = ""  # URL penerbit (dari Google News <source url>), untuk kredibilitas
+    unverified_source: bool = False  # True bila media di luar daftar kredibel
     fingerprint: str = field(default="", compare=False)
 
     def to_dict(self) -> dict:
@@ -88,3 +91,24 @@ def parse_iso_date(value: Optional[str]) -> Optional[date]:
         return date.fromisoformat(value[:10])
     except (ValueError, TypeError):
         return None
+
+
+def host_of(url: str) -> str:
+    """Host URL dalam huruf kecil tanpa port (kosong bila tak ada)."""
+    netloc = urlsplit(url or "").netloc.lower()
+    return netloc.split("@")[-1].split(":")[0]
+
+
+def is_credible_domain(url: str, credible_domains: list[str]) -> bool:
+    """True bila host URL sama dengan, atau subdomain dari, salah satu domain.
+
+    "www.kompas.com" cocok dengan "kompas.com"; "evilkompas.com" TIDAK.
+    """
+    host = host_of(url)
+    if not host:
+        return False
+    for dom in credible_domains:
+        dom = dom.lower().strip()
+        if host == dom or host.endswith("." + dom):
+            return True
+    return False

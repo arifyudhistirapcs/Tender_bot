@@ -45,6 +45,11 @@ def _print_report(report: RunReport) -> None:
     if report.failed:
         for name, reason in report.failed:
             print(f"    gagal {name}: {reason}", file=sys.stderr)
+    if report.deferred_js:
+        print(f"  butuh browser (ditunda ke mode full): {len(report.deferred_js)}",
+              file=sys.stderr)
+        for d in report.deferred_js:
+            print(f"    - {d}", file=sys.stderr)
     if report.unhealthy_sources:
         print("  sumber bermasalah (>=3 gagal berturut-turut):", file=sys.stderr)
         for url, fails, last in report.unhealthy_sources:

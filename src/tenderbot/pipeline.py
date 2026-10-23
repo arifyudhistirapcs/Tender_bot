@@ -29,6 +29,7 @@ class RunReport:
     new_items: list[Item] = field(default_factory=list)
     inbox_rejected: list[str] = field(default_factory=list)
     unhealthy_sources: list[tuple[str, int, Optional[str]]] = field(default_factory=list)
+    deferred_js: list[str] = field(default_factory=list)  # sumber/bank butuh browser
 
 
 _COLLECTOR_BY_TYPE = {
@@ -44,6 +45,11 @@ def _collect_public(
     """Kumpulkan dari sumber public bank + catat kesehatan sumber."""
     out: list[Item] = []
     for src in bank.sources:
+        if src.needs_js:
+            report.deferred_js.append(
+                f"{bank.name} ({src.url}): butuh browser, dicek di mode full"
+            )
+            continue
         collector = _COLLECTOR_BY_TYPE.get(src.type)
         if collector is None:
             report.failed.append((f"{bank.name} ({src.url})", f"tipe tak dikenal: {src.type}"))
@@ -66,10 +72,29 @@ def _collect_news(
     news_url = f"news:{bank.name}"
     if res.ok:
         state.record_source_ok(news_url, run_date)
+        for item in res.items:
+            _label_media(item, keywords)
         return res.items
     state.record_source_failure(news_url, res.error or "gagal", run_date)
     report.failed.append((f"{bank.name} (berita)", res.error or "gagal"))
     return []
+
+
+def _label_media(item: Item, keywords: Keywords) -> None:
+    """Isi media_name (fallback ke host) dan tandai unverified_source.
+
+    Google News membungkus tautan dalam redirect news.google.com, jadi
+    kredibilitas dinilai dari URL penerbit (<source url>) bila ada, selain
+    itu dari URL item. Host news.google.com sendiri tidak pernah kredibel.
+    """
+    from .models import host_of, is_credible_domain
+
+    judge_url = item.media_url or item.url
+    if not item.media_name:
+        item.media_name = host_of(judge_url) or "sumber tidak dikenal"
+    item.unverified_source = not is_credible_domain(
+        judge_url, keywords.credible_news_domains
+    )
 
 
 def collect_light(
@@ -84,6 +109,10 @@ def collect_light(
     raw: list[Item] = []
     for bank in banks:
         report.checked += 1
+        if bank.needs_js:
+            report.deferred_js.append(
+                f"{bank.name}: portal butuh browser, dicek di mode full"
+            )
         if bank.access == "public":
             raw.extend(_collect_public(fetcher, bank, state, run_date, report))
         # Berita dicoba untuk SEMUA bank, apa pun access-nya (menyentuh semua).

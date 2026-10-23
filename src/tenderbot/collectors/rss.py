@@ -14,6 +14,17 @@ from .base import CollectResult
 
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search?q={query}&hl=id&gl=ID&ceid=ID:id"
 
+# CATATAN KEPATUHAN (keputusan koordinator):
+#   news.google.com/robots.txt memuat "Disallow: /" dan allow-list pendek yang
+#   TIDAK mencakup /rss/search. Fetcher default MEMATUHI robots.txt, jadi kueri
+#   berita ini akan gagal dengan "dilarang oleh robots.txt" dan jalur Tier-3
+#   (berita per bank) tidak menghasilkan kandidat. Ini perilaku SENGAJA, sesuai
+#   DESIGN.md ("Robots.txt dipatuhi") dan laporan riset ("blokir tidak diakali").
+#   Bila koordinator memutuskan feed RSS sindikasi ini boleh diakses, caranya
+#   BUKAN mengakali blokir, melainkan keputusan kebijakan yang dicatat: jalankan
+#   Fetcher(respect_robots=False) HANYA untuk host news.google.com, atau pakai
+#   sumber berita lain. Jangan ubah deteksi blokir/robots secara diam-diam.
+
 
 def _text(elem: Optional[ET.Element]) -> str:
     return (elem.text or "").strip() if elem is not None else ""
@@ -50,6 +61,10 @@ def parse_rss(xml_text: str, bank_name: str, source_type: str) -> list[Item]:
         link = _text(node.find("link"))
         desc = _text(node.find("description"))
         pub = _parse_rss_date(_text(node.find("pubDate")))
+        # Google News RSS menaruh nama media di <source url="...">.
+        source_el = node.find("source")
+        media = _text(source_el) if source_el is not None else ""
+        source_url = source_el.get("url", "") if source_el is not None else ""
         if title and link:
             items.append(
                 Item(
@@ -59,6 +74,10 @@ def parse_rss(xml_text: str, bank_name: str, source_type: str) -> list[Item]:
                     published=pub,
                     source_type=source_type,
                     evidence=desc[:500],
+                    media_name=media,
+                    # Simpan URL penerbit sementara di evidence-tail tidak perlu;
+                    # dipakai langsung untuk penilaian kredibilitas via media_url.
+                    media_url=source_url,
                 )
             )
 
