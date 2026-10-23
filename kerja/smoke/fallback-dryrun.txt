@@ -1,0 +1,70 @@
+# smoke: python -m tenderbot run --mode light --dry-run --fallback-full-check --today 2026-10-26
+# Senin 2026-10-26, state kosong (belum ada run full). exit=0
+[tenderbot] cadangan: run full belum tercatat 2026-10-26; jalan light dengan catatan.
+[tenderbot] run 2026-10-26 mode=light
+  bank dicek: 43 | gagal akses: 0 | kandidat: 137 | lolos saringan: 1 | baru: 1
+  berita: 43 bank tercakup, 0 gagal lewat berita
+  butuh browser (ditunda ke mode full): 3
+    - bank bjb: portal butuh browser, dicek di mode full
+    - Bank Jateng: portal butuh browser, dicek di mode full
+    - Bank Kalbar: portal butuh browser, dicek di mode full
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
+{
+  "text": "Catatan: riset penuh tidak berjalan hari ini.\nAda 1 info tender EDC baru.",
+  "cardsV2": [
+    {
+      "cardId": "4d78d7eb62b602c7",
+      "card": {
+        "header": {
+          "title": "Tender EDC",
+          "subtitle": "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers..."
+        },
+        "sections": [
+          {
+            "widgets": [
+              {
+                "decoratedText": {
+                  "topLabel": "Bank",
+                  "text": "Bank Sumut"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Nilai",
+                  "text": "tidak tertera"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Terbit",
+                  "text": "tidak tertera"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Batas waktu",
+                  "text": "tidak tertera"
+                }
+              },
+              {
+                "buttonList": {
+                  "buttons": [
+                    {
+                      "text": "Buka sumber",
+                      "onClick": {
+                        "openLink": {
+                          "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
