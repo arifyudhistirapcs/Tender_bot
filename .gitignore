@@ -12,3 +12,6 @@ venv/
 *.egg-info/
 build/
 dist/
+
+# Hasil sementara agen riset penuh (digabung ke inbox/)
+kerja/full/
