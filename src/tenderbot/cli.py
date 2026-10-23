@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -23,10 +23,22 @@ from .state import State
 # state/ di akar repo.
 DEFAULT_STATE_DIR = config.REPO_ROOT / "state"
 
+# Zona waktu operasional bot. Semua "hari ini" dihitung di WIB, bukan UTC,
+# supaya cron Actions (UTC) tidak salah tanggal di sekitar tengah malam WIB.
+WIB = timezone(timedelta(hours=7))
+
+# Catatan cadangan bila riset penuh tidak berjalan (DESIGN.md mode full).
+FALLBACK_NOTE = "Catatan: riset penuh tidak berjalan hari ini."
+
+
+def _today_wib() -> date:
+    """Tanggal hari ini di zona Asia/Jakarta (WIB)."""
+    return datetime.now(WIB).date()
+
 
 def _parse_today(value: Optional[str]) -> date:
     if not value:
-        return date.today()
+        return _today_wib()
     return date.fromisoformat(value)
 
 
@@ -81,6 +93,21 @@ def cmd_run(args: argparse.Namespace) -> int:
     state_dir = Path(args.state_dir) if args.state_dir else DEFAULT_STATE_DIR
     state = State.load(state_dir)
 
+    note: Optional[str] = None
+
+    # Cadangan riset penuh (Senin/Rabu pagi, DESIGN.md).
+    # --fallback-full-check: bila state sudah mencatat run full hari ini (WIB),
+    # berhenti tanpa kirim; bila belum, lanjut light dengan catatan cadangan.
+    # Berlaku hanya untuk mode light.
+    if args.fallback_full_check and args.mode == "light":
+        if state.has_full_run_on(today.isoformat()):
+            print(f"[tenderbot] run full sudah tercatat {today.isoformat()}; "
+                  f"cadangan light tidak mengirim.", file=sys.stderr)
+            return 0
+        note = FALLBACK_NOTE
+        print(f"[tenderbot] cadangan: run full belum tercatat {today.isoformat()}; "
+              f"jalan light dengan catatan.", file=sys.stderr)
+
     # Cadangan mode full: bila run full sudah tercatat hari ini, light berhenti.
     if args.mode == "light" and state.has_full_run_on(today.isoformat()):
         print(f"[tenderbot] run full sudah berjalan {today.isoformat()}; "
@@ -104,7 +131,9 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     _print_report(report)
 
-    payload = gchat.build_message(report.new_items, report.checked, report.failed)
+    payload = gchat.build_message(
+        report.new_items, report.checked, report.failed, note=note
+    )
     outcome = gchat.send(payload, dry_run=args.dry_run)
     print(f"[tenderbot] {outcome.message}", file=sys.stderr)
 
@@ -120,6 +149,12 @@ def cmd_run(args: argparse.Namespace) -> int:
         print("[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.",
               file=sys.stderr)
 
+    # Pengiriman gagal (bukan dry-run): keluar dengan kode bukan nol supaya
+    # job Actions merah dan state TIDAK di-commit (seen tidak ditandai).
+    if not args.dry_run and not outcome.sent:
+        print("[tenderbot] pengiriman GAGAL; state tidak disimpan.", file=sys.stderr)
+        return 1
+
     return 0
 
 
@@ -134,6 +169,11 @@ def build_parser() -> argparse.ArgumentParser:
                        help="cetak JSON pesan, jangan kirim, jangan simpan state")
     run_p.add_argument("--today", help="override tanggal YYYY-MM-DD (uji)")
     run_p.add_argument("--state-dir", help="override folder state/ (uji)")
+    run_p.add_argument(
+        "--fallback-full-check", action="store_true",
+        help="cadangan Senin/Rabu: bila run full sudah tercatat hari ini (WIB) "
+             "keluar tanpa kirim; bila belum, jalan light dengan catatan cadangan",
+    )
     run_p.set_defaults(func=cmd_run)
     return parser
 

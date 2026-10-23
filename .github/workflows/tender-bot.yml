@@ -1,0 +1,150 @@
+name: tender-bot
+
+# Jadwal Actions memakai UTC; semua jam di DESIGN.md adalah WIB (UTC+7).
+# Cron disetel sedikit lebih awal karena Actions bisa terlambat 5-30 menit.
+#   light pagi : 40 0 * * 1-5  -> 07.40 WIB (Senin & Rabu sebagai cadangan)
+#   light sore : 40 9 * * 1-5  -> 16.40 WIB
+#   full       : lewat workflow_dispatch dari KiroCrew, bukan cron.
+on:
+  schedule:
+    - cron: "40 0 * * 1-5"
+    - cron: "40 9 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Mode run"
+        type: choice
+        options: [light, full]
+        default: light
+      inbox_ref:
+        description: "Ref branch inbox (mode full), mis. inbox/full-2026-10-26"
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Dry-run: cetak pesan, jangan kirim, jangan commit state"
+        type: boolean
+        default: true
+
+# Dua run tidak boleh menulis state/ bersamaan. Jangan batalkan run berjalan.
+concurrency:
+  group: tender-bot
+  cancel-in-progress: false
+
+# contents: write agar state/ bisa di-commit dan branch inbox bisa dihapus.
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -e .
+
+      # Tentukan mode run dan apakah dry-run.
+      #  - Run terjadwal (schedule): SELALU light dan BUKAN dry-run.
+      #  - Run dispatch: ikut input mode/dry_run (default light, dry_run true).
+      - name: Resolve run parameters
+        id: params
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          IN_MODE: ${{ github.event.inputs.mode }}
+          IN_DRY_RUN: ${{ github.event.inputs.dry_run }}
+          IN_INBOX_REF: ${{ github.event.inputs.inbox_ref }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "mode=light" >> "$GITHUB_OUTPUT"
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+            echo "inbox_ref=" >> "$GITHUB_OUTPUT"
+            # Cadangan hanya untuk run PAGI pada Senin (1) & Rabu (3) WIB.
+            dow="$(TZ=Asia/Jakarta date +%u)"
+            if [ "$SCHEDULE" = "40 0 * * 1-5" ] && { [ "$dow" = "1" ] || [ "$dow" = "3" ]; }; then
+              echo "fallback=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "fallback=false" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            case "$IN_MODE" in light|full) ;; *) echo "::error::mode tidak dikenal" >&2; exit 2;; esac
+            case "$IN_INBOX_REF" in ""|inbox/full-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;; *) echo "::error::inbox_ref harus inbox/full-YYYY-MM-DD" >&2; exit 2;; esac
+            echo "mode=$IN_MODE" >> "$GITHUB_OUTPUT"
+            echo "dry_run=$IN_DRY_RUN" >> "$GITHUB_OUTPUT"
+            echo "inbox_ref=$IN_INBOX_REF" >> "$GITHUB_OUTPUT"
+            echo "fallback=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Mode full: ambil file inbox dari ref inbox_ref ke path sementara.
+      - name: Fetch inbox (mode full)
+        id: inbox
+        if: steps.params.outputs.mode == 'full'
+        run: |
+          ref="${{ steps.params.outputs.inbox_ref }}"
+          if [ -z "$ref" ]; then
+            echo "::error::mode full wajib inbox_ref" >&2
+            exit 2
+          fi
+          git fetch origin "$ref"
+          dest="$RUNNER_TEMP/inbox.json"
+          # Nama file inbox: inbox/full-YYYY-MM-DD.json di ref tsebut.
+          date_part="${ref##*full-}"
+          git show "origin/${ref}:inbox/full-${date_part}.json" > "$dest"
+          echo "path=$dest" >> "$GITHUB_OUTPUT"
+
+      # Jalankan bot. GCHAT_WEBHOOK_URL diteruskan lewat env, TIDAK pernah
+      # dicetak (tanpa echo, tanpa set -x). CLI keluar bukan-nol bila kirim
+      # gagal, sehingga job merah dan state tidak di-commit.
+      - name: Run tender bot
+        id: run
+        env:
+          GCHAT_WEBHOOK_URL: ${{ secrets.GCHAT_WEBHOOK_URL }}
+        run: |
+          args="run --mode ${{ steps.params.outputs.mode }}"
+          if [ "${{ steps.params.outputs.dry_run }}" = "true" ]; then
+            args="$args --dry-run"
+          fi
+          if [ "${{ steps.params.outputs.fallback }}" = "true" ]; then
+            args="$args --fallback-full-check"
+          fi
+          if [ "${{ steps.params.outputs.mode }}" = "full" ]; then
+            args="$args --inbox ${{ steps.inbox.outputs.path }}"
+          fi
+          python -m tenderbot $args
+
+      # Commit state/ ke main hanya bila: run sukses, BUKAN dry-run, dan ada
+      # perubahan. pull --rebase dulu supaya tidak bentrok dengan run lain.
+      - name: Commit state
+        if: steps.params.outputs.dry_run == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # porcelain juga menangkap file state/ baru yang belum dilacak git.
+          if [ -z "$(git status --porcelain -- state/)" ]; then
+            echo "Tidak ada perubahan state/; tidak commit."
+            exit 0
+          fi
+          today="$(TZ=Asia/Jakarta date +%F)"
+          git add state/
+          git commit -m "chore(state): run ${today} ${{ steps.params.outputs.mode }}"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      # Mode full: hapus branch inbox setelah run sukses dan bukan dry-run.
+      - name: Delete inbox branch (mode full)
+        if: >-
+          steps.params.outputs.mode == 'full' &&
+          steps.params.outputs.dry_run == 'false'
+        run: |
+          ref="${{ steps.params.outputs.inbox_ref }}"
+          git push origin --delete "$ref" || echo "branch $ref sudah tidak ada."
