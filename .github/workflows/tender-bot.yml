@@ -58,16 +58,30 @@ jobs:
       #  - Run dispatch: ikut input mode/dry_run (default light, dry_run true).
       - name: Resolve run parameters
         id: params
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+          IN_MODE: ${{ github.event.inputs.mode }}
+          IN_DRY_RUN: ${{ github.event.inputs.dry_run }}
+          IN_INBOX_REF: ${{ github.event.inputs.inbox_ref }}
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
+          if [ "$EVENT_NAME" = "schedule" ]; then
             echo "mode=light" >> "$GITHUB_OUTPUT"
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
             echo "inbox_ref=" >> "$GITHUB_OUTPUT"
-            echo "fallback=true" >> "$GITHUB_OUTPUT"
+            # Cadangan hanya untuk run PAGI pada Senin (1) & Rabu (3) WIB.
+            dow="$(TZ=Asia/Jakarta date +%u)"
+            if [ "$SCHEDULE" = "40 0 * * 1-5" ] && { [ "$dow" = "1" ] || [ "$dow" = "3" ]; }; then
+              echo "fallback=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "fallback=false" >> "$GITHUB_OUTPUT"
+            fi
           else
-            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
-            echo "dry_run=${{ github.event.inputs.dry_run }}" >> "$GITHUB_OUTPUT"
-            echo "inbox_ref=${{ github.event.inputs.inbox_ref }}" >> "$GITHUB_OUTPUT"
+            case "$IN_MODE" in light|full) ;; *) echo "::error::mode tidak dikenal" >&2; exit 2;; esac
+            case "$IN_INBOX_REF" in ""|inbox/full-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;; *) echo "::error::inbox_ref harus inbox/full-YYYY-MM-DD" >&2; exit 2;; esac
+            echo "mode=$IN_MODE" >> "$GITHUB_OUTPUT"
+            echo "dry_run=$IN_DRY_RUN" >> "$GITHUB_OUTPUT"
+            echo "inbox_ref=$IN_INBOX_REF" >> "$GITHUB_OUTPUT"
             echo "fallback=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -115,7 +129,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- state/; then
+          # porcelain juga menangkap file state/ baru yang belum dilacak git.
+          if [ -z "$(git status --porcelain -- state/)" ]; then
             echo "Tidak ada perubahan state/; tidak commit."
             exit 0
           fi
