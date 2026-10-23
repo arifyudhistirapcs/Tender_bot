@@ -3,8 +3,6 @@ kerja/laporan/preview/
 kerja/laporan/.tmp/
 __pycache__/
 
-# Riset vendor ditulis oleh agen lain; jangan pernah di-commit dari sesi ini.
-kerja/riset/vendor/
 
 # Python
 *.pyc
