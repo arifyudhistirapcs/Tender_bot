@@ -47,9 +47,14 @@ def _print_report(report: RunReport) -> None:
     print(
         f"  bank dicek: {report.checked} | gagal akses: {len(report.failed)} | "
         f"kandidat: {report.candidates} | lolos saringan: {report.passed_filter} | "
-        f"baru: {len(report.new_items)}",
+        f"baru: {len(report.new_items)} (berjalan {report.ongoing_count}, "
+        f"akan dibuka {report.upcoming_count})",
         file=sys.stderr,
     )
+    if report.dropped:
+        print(f"  dibuang (status): {len(report.dropped)}", file=sys.stderr)
+        for bank, title, reason in report.dropped:
+            print(f"    - {bank}: {title[:60]} -> {reason}", file=sys.stderr)
     if report.inbox_rejected:
         print(f"  inbox ditolak: {len(report.inbox_rejected)}", file=sys.stderr)
         for r in report.inbox_rejected:

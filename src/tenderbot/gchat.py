@@ -14,25 +14,79 @@ from typing import Optional
 
 import requests
 
+from .dates_id import format_rupiah
 from .models import Item
 
 WEBHOOK_ENV = "GCHAT_WEBHOOK_URL"
 SEND_TIMEOUT = 20
 
+# Judul yang melebihi ambang ini ditaruh di widget teks sendiri (tidak dipotong),
+# bukan di subtitle header kartu Google Chat yang akan terpangkas.
+TITLE_SUBTITLE_MAX = 80
 
-def _format_idr(value: Optional[int]) -> str:
-    if value is None:
-        return "tidak tertera"
-    return "Rp" + f"{value:,}".replace(",", ".")
+_STATUS_LABEL = {
+    "akan_dibuka": "Akan dibuka",
+    "berjalan": "Berjalan",
+    "tutup": "Tutup",
+    "tidak_diketahui": "Tanggal belum pasti",
+}
+
+
+def _fmt_date(iso: Optional[str]) -> Optional[str]:
+    """ISO "YYYY-MM-DD" -> "DD Mon YYYY" ringkas; None -> None."""
+    if not iso:
+        return None
+    try:
+        from datetime import date as _date
+        d = _date.fromisoformat(iso[:10])
+    except (ValueError, TypeError):
+        return iso
+    bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+             "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+    return f"{d.day} {bulan[d.month - 1]} {d.year}"
+
+
+def _registration_line(item: Item) -> Optional[str]:
+    """Baris pendaftaran "buka - tutup" dari reg_open/reg_close; None bila kosong."""
+    o = _fmt_date(item.reg_open)
+    c = _fmt_date(item.reg_close)
+    if o and c:
+        return f"{o} - {c}"
+    if o:
+        return f"mulai {o}"
+    if c:
+        return f"sampai {c}"
+    return None
 
 
 def _item_card(item: Item) -> dict:
-    """Satu kartu Google Chat per tender."""
-    rows = [
+    """Satu kartu Google Chat per tender.
+
+    Field None TIDAK ditampilkan sama sekali (tidak ada "tidak tertera").
+    Judul utuh: bila panjang, taruh di widget teks sendiri agar tidak terpotong.
+    """
+    widgets: list[dict] = []
+
+    # Judul utuh bila panjang (subtitle header memotong di ~sekian karakter).
+    long_title = len(item.title) > TITLE_SUBTITLE_MAX
+    if long_title:
+        widgets.append({"textParagraph": {"text": f"<b>{item.title}</b>"}})
+
+    status_label = _STATUS_LABEL.get(item.status or "", None)
+
+    # Pasangan (label, nilai) hanya untuk nilai yang tidak None/kosong.
+    rows: list[tuple[str, Optional[str]]] = [
         ("Bank", item.bank),
-        ("Nilai", _format_idr(item.value_idr)),
-        ("Terbit", item.published or "tidak tertera"),
-        ("Batas waktu", item.deadline or "tidak tertera"),
+        ("Status", status_label),
+        ("Tanggal posting", _fmt_date(item.posted)),
+        ("Pendaftaran", _registration_line(item)),
+        ("Batas penawaran", _fmt_date(item.submit_close)),
+        ("Nilai/HPS", format_rupiah(item.value_idr)),
+        ("Volume", item.volume),
+        ("Durasi", item.duration),
+        ("Metode", item.method),
+        ("Tempat daftar", item.reg_place),
+        ("Kontak", item.contact),
     ]
     # Untuk item berita, tampilkan nama media dan tandai bila tidak kredibel.
     if item.source_type == "berita" or item.media_name:
@@ -40,28 +94,41 @@ def _item_card(item: Item) -> dict:
         if item.unverified_source:
             media += "  [unverified_source]"
         rows.append(("Media", media))
-    widgets = [
-        {"decoratedText": {"topLabel": label, "text": val}} for label, val in rows
+
+    for label, val in rows:
+        if val is None or val == "":
+            continue
+        widgets.append({"decoratedText": {"topLabel": label, "text": val}})
+
+    buttons = [
+        {"text": "Buka sumber", "onClick": {"openLink": {"url": item.url}}}
     ]
-    widgets.append(
-        {
-            "buttonList": {
-                "buttons": [
-                    {
-                        "text": "Buka sumber",
-                        "onClick": {"openLink": {"url": item.url}},
-                    }
-                ]
-            }
-        }
-    )
+    if item.attachment_url:
+        buttons.append(
+            {"text": "Lampiran", "onClick": {"openLink": {"url": item.attachment_url}}}
+        )
+    widgets.append({"buttonList": {"buttons": buttons}})
+
+    # Subtitle header: judul pendek utuh, atau ringkas bila sudah di widget teks.
+    subtitle = item.title if not long_title else (item.bank or "Tender EDC")
     return {
         "cardId": item.fingerprint[:16] or "tender",
         "card": {
-            "header": {"title": "Tender EDC", "subtitle": item.title[:120]},
+            "header": {"title": "Tender EDC", "subtitle": subtitle},
             "sections": [{"widgets": widgets}],
         },
     }
+
+
+def _opening_text(new_items: list[Item]) -> str:
+    """Kalimat pembuka menyebut jumlah berjalan dan jumlah akan dibuka."""
+    ongoing = sum(1 for i in new_items if i.status == "berjalan")
+    upcoming = sum(1 for i in new_items if i.status == "akan_dibuka")
+    other = len(new_items) - ongoing - upcoming
+    parts = [f"{ongoing} tender berjalan", f"{upcoming} akan dibuka"]
+    if other:
+        parts.append(f"{other} lainnya")
+    return "Info tender EDC: " + ", ".join(parts) + "."
 
 
 def build_message(
@@ -77,7 +144,7 @@ def build_message(
           yang disisipkan di baris pertama pesan.
     """
     if new_items:
-        text = f"Ada {len(new_items)} info tender EDC baru."
+        text = _opening_text(new_items)
         if note:
             text = f"{note}\n{text}"
         return {

@@ -12,10 +12,17 @@ from .collectors import html_list, pdf_list, rss
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate
+from .enrich import enrich_item
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
 from .models import Item
 from .state import State
+from .status import (
+    STATUS_ONGOING,
+    STATUS_UPCOMING,
+    compute_status,
+    report_decision,
+)
 
 
 @dataclass
@@ -32,6 +39,9 @@ class RunReport:
     deferred_js: list[str] = field(default_factory=list)  # sumber/bank butuh browser
     news_checked_banks: list[str] = field(default_factory=list)  # bank tercakup berita
     news_failed_banks: list[tuple[str, str]] = field(default_factory=list)  # (bank, alasan)
+    dropped: list[tuple[str, str, str]] = field(default_factory=list)  # (bank, judul, alasan)
+    ongoing_count: int = 0   # jumlah tender berjalan di laporan
+    upcoming_count: int = 0  # jumlah tender akan dibuka di laporan
 
 
 _COLLECTOR_BY_TYPE = {
@@ -172,8 +182,18 @@ def process_candidates(
     today: date,
     run_date: str,
     report: RunReport,
+    fetcher: Optional[Fetcher] = None,
+    enrich: bool = True,
 ) -> None:
-    """Saring, dedup, tandai seen, isi report.new_items."""
+    """Saring, dedup, pengayaan detail, hitung status, tandai seen.
+
+    Alur per item baru-unik:
+      1. pengayaan detail (buka halaman detail + lampiran PDF) bila fetcher ada;
+      2. hitung status dengan tanggal hari ini;
+      3. keputusan laporan: tutup dibuang (tetap seen); tidak_diketahui dibuang
+         bila lama; akan_dibuka/berjalan dikirim.
+    Item yang dibuang TETAP ditandai seen supaya tidak dicek lagi.
+    """
     report.candidates = len(candidates)
     # Judul yang sudah dilihat (untuk near-dup), ditambah yang lolos di run ini.
     seen_titles = state.seen_titles()
@@ -190,11 +210,31 @@ def process_candidates(
         if is_near_duplicate(item, seen_titles, today):
             continue
 
-        # Item baru dan unik.
-        report.new_items.append(item)
+        # Item baru dan unik: tandai seen lebih dulu (apa pun keputusannya).
         state.mark_seen(item, run_date)
         from .models import normalize_text  # lokal untuk hindari siklus
         seen_titles.append((item.bank, normalize_text(item.title), item.published or run_date))
+
+        # Pengayaan detail (opsional; butuh jaringan).
+        if enrich and fetcher is not None:
+            try:
+                enrich_item(item, fetcher)
+            except Exception:
+                pass  # kegagalan pengayaan tidak boleh menggagalkan run
+
+        # Status + keputusan laporan.
+        item.status = compute_status(item, today)
+        send_ok, reason = report_decision(item, today)
+        if not send_ok:
+            report.dropped.append((item.bank, item.title, reason))
+            continue
+
+        if item.status == STATUS_ONGOING:
+            report.ongoing_count += 1
+        elif item.status == STATUS_UPCOMING:
+            report.upcoming_count += 1
+
+        report.new_items.append(item)
 
 
 def run_light(
@@ -212,7 +252,8 @@ def run_light(
         fetcher, banks, feeds or [], keywords, state, run_date, report,
         gdelt_sleep=gdelt_sleep,
     )
-    process_candidates(candidates, keywords, state, today, run_date, report)
+    process_candidates(candidates, keywords, state, today, run_date, report,
+                       fetcher=fetcher)
     report.unhealthy_sources = state.unhealthy_sources()
     return report
 
@@ -246,6 +287,7 @@ def run_full(
         if isinstance(failed, dict):
             report.failed.append((failed.get("bank", "?"), failed.get("reason", "?")))
 
-    process_candidates(candidates, keywords, state, today, run_date, report)
+    process_candidates(candidates, keywords, state, today, run_date, report,
+                       fetcher=fetcher)
     report.unhealthy_sources = state.unhealthy_sources()
     return report
