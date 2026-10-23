@@ -25,6 +25,18 @@ class Item:
     evidence: str = ""
     media_name: str = ""  # nama media untuk item berita (domain feed atau host)
     unverified_source: bool = False  # True bila media di luar daftar kredibel
+    # ---- Field pengayaan detail (opsional; None bila tak tertulis di sumber) ----
+    posted: Optional[str] = None       # tanggal posting/pengumuman, ISO
+    reg_open: Optional[str] = None      # buka pendaftaran/pengambilan dokumen, ISO
+    reg_close: Optional[str] = None     # tutup pendaftaran/pengambilan dokumen, ISO
+    submit_close: Optional[str] = None  # batas pemasukan penawaran, ISO
+    volume: Optional[str] = None        # mis. "500 unit"
+    duration: Optional[str] = None      # mis. "36 bulan"
+    method: Optional[str] = None        # mis. "Pelelangan Umum Pascakualifikasi"
+    reg_place: Optional[str] = None     # tempat/cara daftar
+    contact: Optional[str] = None       # kontak panitia
+    attachment_url: Optional[str] = None  # URL lampiran PDF yang dibaca
+    status: Optional[str] = None        # akan_dibuka | berjalan | tutup | tidak_diketahui
     fingerprint: str = field(default="", compare=False)
 
     def to_dict(self) -> dict:

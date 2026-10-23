@@ -1,0 +1,118 @@
+﻿# Smoke run JALUR NYATA (CLI asli, tanpa webhook).
+# Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-23 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
+# --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
+# Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+[tenderbot] run 2026-10-23 mode=light
+  bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 1 (berjalan 1, akan dibuka 0)
+  dibuang (status): 1
+    - Bank Jatim: Market Sounding Pengadaan Penyedia Jasa Managed Service Pera -> tanggal tidak diketahui dan sudah lama
+  berita: 0 bank tercakup, 0 gagal lewat berita
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
+{
+  "text": "Info tender EDC: 1 tender berjalan, 0 akan dibuka.",
+  "cardsV2": [
+    {
+      "cardId": "4d78d7eb62b602c7",
+      "card": {
+        "header": {
+          "title": "Tender EDC",
+          "subtitle": "Bank Sumut"
+        },
+        "sections": [
+          {
+            "widgets": [
+              {
+                "textParagraph": {
+                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...</b>"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Bank",
+                  "text": "Bank Sumut"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Status",
+                  "text": "Berjalan"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Tanggal posting",
+                  "text": "13 Okt 2026"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Pendaftaran",
+                  "text": "13 Okt 2026 - 23 Okt 2026"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Nilai/HPS",
+                  "text": "Rp6.993.000.000"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Volume",
+                  "text": "500 unit"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Durasi",
+                  "text": "36 bulan"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Metode",
+                  "text": "Pelelangan Umum Pascakualifikasi"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Tempat daftar",
+                  "text": "Ruang Departemen Layanan Pengadaan Lt. 6 Gedung Kantor Pusat PT. Bank Sumut Jl. Imam Bonjol No. 18 Medan"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Kontak",
+                  "text": "Telp. 061-4515100, 061-4155100 (Ext. 1623)"
+                }
+              },
+              {
+                "buttonList": {
+                  "buttons": [
+                    {
+                      "text": "Buka sumber",
+                      "onClick": {
+                        "openLink": {
+                          "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
+                        }
+                      }
+                    },
+                    {
+                      "text": "Lampiran",
+                      "onClick": {
+                        "openLink": {
+                          "url": "https://drive.google.com/uc?export=download&id=1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

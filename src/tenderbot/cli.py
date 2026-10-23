@@ -47,9 +47,14 @@ def _print_report(report: RunReport) -> None:
     print(
         f"  bank dicek: {report.checked} | gagal akses: {len(report.failed)} | "
         f"kandidat: {report.candidates} | lolos saringan: {report.passed_filter} | "
-        f"baru: {len(report.new_items)}",
+        f"baru: {len(report.new_items)} (berjalan {report.ongoing_count}, "
+        f"akan dibuka {report.upcoming_count})",
         file=sys.stderr,
     )
+    if report.dropped:
+        print(f"  dibuang (status): {len(report.dropped)}", file=sys.stderr)
+        for bank, title, reason in report.dropped:
+            print(f"    - {bank}: {title[:60]} -> {reason}", file=sys.stderr)
     if report.inbox_rejected:
         print(f"  inbox ditolak: {len(report.inbox_rejected)}", file=sys.stderr)
         for r in report.inbox_rejected:
@@ -83,6 +88,19 @@ def cmd_run(args: argparse.Namespace) -> int:
     keywords = config.load_keywords()
     holidays = config.load_holidays()
     feeds = config.load_news_feeds()
+
+    # Penyaring cakupan untuk smoke/debug terarah (tetap jalur run_light nyata):
+    # --only-bank membatasi ke bank yang namanya memuat substring (boleh berulang);
+    # --skip-news mematikan kolektor berita (feed + GDELT) supaya deterministik.
+    if args.only_bank:
+        wanted = [s.lower() for s in args.only_bank]
+        banks = [b for b in banks if any(w in b.name.lower() for w in wanted)]
+        if not banks:
+            print(f"[tenderbot] --only-bank {args.only_bank} tak cocok bank mana pun.",
+                  file=sys.stderr)
+            return 2
+    if args.skip_news:
+        feeds = []
 
     skip, reason = should_skip(today, holidays)
     if skip:
@@ -127,7 +145,8 @@ def cmd_run(args: argparse.Namespace) -> int:
             return 2
         report = run_full(fetcher, banks, keywords, state, today, inbox, feeds=feeds)
     else:
-        report = run_light(fetcher, banks, keywords, state, today, feeds=feeds)
+        report = run_light(fetcher, banks, keywords, state, today, feeds=feeds,
+                           skip_news=args.skip_news)
 
     _print_report(report)
 
@@ -173,6 +192,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--fallback-full-check", action="store_true",
         help="cadangan Senin/Rabu: bila run full sudah tercatat hari ini (WIB) "
              "keluar tanpa kirim; bila belum, jalan light dengan catatan cadangan",
+    )
+    run_p.add_argument(
+        "--only-bank", action="append", metavar="SUBSTRING",
+        help="batasi ke bank yang namanya memuat SUBSTRING (boleh berulang; uji/debug)",
+    )
+    run_p.add_argument(
+        "--skip-news", action="store_true",
+        help="matikan kolektor berita (feed media + GDELT) untuk run deterministik",
     )
     run_p.set_defaults(func=cmd_run)
     return parser

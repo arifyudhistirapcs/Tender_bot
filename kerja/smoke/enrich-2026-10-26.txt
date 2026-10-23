@@ -1,0 +1,15 @@
+﻿# Smoke run JALUR NYATA (CLI asli, tanpa webhook).
+# Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-26 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
+# --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
+# Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+[tenderbot] run 2026-10-26 mode=light
+  bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 0 (berjalan 0, akan dibuka 0)
+  dibuang (status): 2
+    - Bank Sumut: Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Ca -> sudah tutup
+    - Bank Jatim: Market Sounding Pengadaan Penyedia Jasa Managed Service Pera -> tanggal tidak diketahui dan sudah lama
+  berita: 0 bank tercakup, 0 gagal lewat berita
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
+{
+  "text": "Tidak ada informasi tender baru.\nDicek 2 bank.\nSemua sumber bisa diakses."
+}

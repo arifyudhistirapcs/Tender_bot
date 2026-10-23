@@ -24,10 +24,11 @@ def test_pesan_tidak_ada_baru_tanpa_gagal():
 
 def test_pesan_ada_item_pakai_cards():
     it = Item(bank="Bank Sumut", title="Pengadaan Smart EDC",
-              url="https://x.example/1", value_idr=6993000000, published="2026-10-13")
+              url="https://x.example/1", value_idr=6993000000, published="2026-10-13",
+              status="berjalan")
     it.fingerprint = fingerprint(it.bank, it.title, it.url)
     payload = build_message([it], 42, [])
-    assert "1 info tender EDC baru" in payload["text"]
+    assert "1 tender berjalan" in payload["text"]
     assert payload["cardsV2"]
     card_text = str(payload["cardsV2"])
     assert "Rp6.993.000.000" in card_text
