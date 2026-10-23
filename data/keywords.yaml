@@ -1,0 +1,41 @@
+# Kata kunci saringan Tender Bot.
+# Sumber: docs/DESIGN.md (tahap "Saring") dan kerja/riset/riset-eproc-bank-edc.md.
+#
+# Aturan saringan (lihat DESIGN.md):
+#   Item lolos bila: memuat >=1 kata procurement DAN >=1 kata edc,
+#   DAN tidak memuat kata reject apa pun.
+# Pencocokan dilakukan case-insensitive pada teks yang sudah dinormalisasi.
+
+# Kata jenis pekerjaan pengadaan.
+procurement:
+  - pengadaan
+  - tender
+  - lelang pengadaan
+  - sewa beli
+  - sewa
+  - pemeliharaan
+  - managed service
+  - pengelolaan
+  - jasa layanan
+
+# Kata yang memastikan ini tentang mesin EDC (bukan singkatan lain).
+# "EDC" telanjang sengaja TIDAK dipakai karena bertabrakan dengan
+# Export Development Canada, Electric Daisy Carnival, "everyday carry".
+edc:
+  - mesin edc
+  - smart edc
+  - edc android
+  - terminal edc
+  - electronic data capture
+
+# Kata buang: bila muncul, item dibuang apa pun isinya.
+# "lelang" di bank sering berarti penjualan agunan, bukan pengadaan.
+reject:
+  - agunan
+  - jaminan
+  - ayda                      # Asset Yang Diambil Alih (katalog agunan)
+  - export development canada
+  - electric daisy carnival
+  - everyday carry
+  - uji klinis                # BSI Group memakai "Electronic Data Capture" untuk uji klinis
+  - clinical trial
