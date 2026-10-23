@@ -1,0 +1,20 @@
+Arah desain laporan riset Tender Bot (23 Oktober 2026)
+
+Proyek Tender Bot belum punya token desain, jadi arah dipilih untuk laporan ini saja.
+
+Mode Impeccable: Read. Pembacanya Arif dan tim yang membangun bot. Mereka akan
+membaca halaman 1 untuk keputusan, lalu memakai tabel per bank sebagai peta kerja
+saat menulis kode pemantau. Jadi tabel harus bisa dipindai per baris.
+
+Watak: berkas lapangan. Kertas putih, tinta hampir hitam, satu aksen merah tua
+(#6c2718 untuk judul seksi dan tautan) seperti cap pada map dokumen. Garis tipis
+abu-abu memisahkan baris tabel; tidak ada kartu, tidak ada warna status.
+
+Huruf: Cambria untuk judul (serif dengan angka lining, jadi nomor dan nilai rupiah
+terbaca benar), Segoe UI untuk isi dan tabel, Consolas hanya untuk path, endpoint,
+dan nama domain tebakan. Semua dari C:\Windows\Fonts, di-embed lewat @font-face.
+
+Struktur: ringkasan 8 butir di halaman 1; label sumber; tiga tabel bank; tender dan
+berita EDC; rekomendasi per tier; keterbatasan; daftar sumber di lampiran dua kolom.
+Label bukti ([PORTAL], [SNIPPET], dan seterusnya) ditulis sebagai teks kecil abu-abu,
+bukan warna, supaya tetap terbaca bila dicetak hitam putih.
