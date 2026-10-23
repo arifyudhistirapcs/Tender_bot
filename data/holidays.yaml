@@ -1,0 +1,171 @@
+# Hari libur nasional dan cuti bersama Indonesia yang dilewati Tender Bot.
+#
+# Bot tidak mengirim pada akhir pekan (Sabtu/Minggu) maupun tanggal di sini.
+#
+# Sumber:
+#   2026: SKB 3 Menteri (Menteri Agama, Menaker, MenPAN-RB)
+#         No 1497 Tahun 2025, No 2 Tahun 2025, No 45 Tahun 2025 tentang
+#         Hari Libur Nasional dan Cuti Bersama Tahun 2026.
+#         17 hari libur nasional + 8 hari cuti bersama. Dikonfirmasi lewat
+#         liputan pers (Tribunnews, Des 2025) 23 Oktober 2026.
+#   2027: SKB 3 Menteri Tahun 2026 (telah terbit). Tanggal nasional diambil
+#         dari qppstudio.net/public-holidays/indonesia.htm (diakses
+#         23 Oktober 2026), dicocokkan dengan pengumuman pers 2027.
+#
+# CATATAN KETIDAKPASTIAN:
+#   Tanggal berbasis kalender lunar/Hijriah (Idul Fitri, Idul Adha, Tahun Baru
+#   Islam, Maulid, Isra Mikraj, Waisak, Nyepi, Imlek) dapat bergeser 1 hari
+#   mengikuti sidang isbat/penetapan pemerintah. Tanggal cuti bersama juga
+#   kadang direvisi. Yang ditandai "uncertain: true" perlu diperiksa ulang
+#   terhadap SKB resmi sebelum tahun berjalan.
+#   Melewatkan satu hari ekstra sekadar berarti bot tidak kirim; tidak merusak.
+
+holidays:
+  # ---------------- 2026 (SKB No 1497/2/45 Tahun 2025) ----------------
+  - date: "2026-01-01"
+    name: "Tahun Baru Masehi 2026"
+  - date: "2026-01-16"
+    name: "Isra Mikraj Nabi Muhammad SAW"
+    uncertain: true
+  - date: "2026-02-17"
+    name: "Tahun Baru Imlek 2577 Kongzili"
+    uncertain: true
+  - date: "2026-02-18"
+    name: "Cuti Bersama Tahun Baru Imlek"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2026-03-19"
+    name: "Hari Suci Nyepi Tahun Baru Saka 1948"
+    uncertain: true
+  - date: "2026-03-20"
+    name: "Cuti Bersama Nyepi"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2026-03-20"
+    name: "Idul Fitri 1447 H (hari ke-1)"
+    uncertain: true
+  - date: "2026-03-21"
+    name: "Idul Fitri 1447 H (hari ke-2)"
+    uncertain: true
+  - date: "2026-03-18"
+    name: "Cuti Bersama Idul Fitri"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2026-03-23"
+    name: "Cuti Bersama Idul Fitri"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2026-03-24"
+    name: "Cuti Bersama Idul Fitri"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2026-04-03"
+    name: "Wafat Yesus Kristus (Jumat Agung)"
+  - date: "2026-04-05"
+    name: "Hari Paskah"
+  - date: "2026-05-01"
+    name: "Hari Buruh Internasional"
+  - date: "2026-05-14"
+    name: "Kenaikan Yesus Kristus"
+  - date: "2026-05-15"
+    name: "Cuti Bersama Kenaikan Yesus Kristus"
+    kind: cuti_bersama
+  - date: "2026-05-27"
+    name: "Idul Adha 1447 H"
+    uncertain: true
+  - date: "2026-05-31"
+    name: "Hari Raya Waisak 2570"
+    uncertain: true
+  - date: "2026-06-01"
+    name: "Hari Lahir Pancasila"
+  - date: "2026-06-16"
+    name: "Tahun Baru Islam 1448 H"
+    uncertain: true
+  - date: "2026-08-17"
+    name: "Hari Kemerdekaan RI"
+  - date: "2026-08-25"
+    name: "Maulid Nabi Muhammad SAW"
+    uncertain: true
+  - date: "2026-12-24"
+    name: "Cuti Bersama Natal"
+    kind: cuti_bersama
+  - date: "2026-12-25"
+    name: "Hari Raya Natal"
+
+  # ---------------- 2027 (SKB 3 Menteri Tahun 2026) ----------------
+  # Tanggal nasional dari qppstudio (diakses 23 Okt 2026).
+  - date: "2027-01-01"
+    name: "Tahun Baru Masehi 2027"
+  - date: "2027-01-05"
+    name: "Isra Mikraj Nabi Muhammad SAW"
+    uncertain: true
+  - date: "2027-02-05"
+    name: "Cuti Bersama Tahun Baru Imlek"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-02-06"
+    name: "Tahun Baru Imlek 2578 Kongzili"
+    uncertain: true
+  - date: "2027-03-08"
+    name: "Hari Suci Nyepi Tahun Baru Saka 1949"
+    uncertain: true
+  - date: "2027-03-09"
+    name: "Cuti Bersama Nyepi"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-03-10"
+    name: "Idul Fitri 1448 H (hari ke-1)"
+    uncertain: true
+  - date: "2027-03-11"
+    name: "Idul Fitri 1448 H (hari ke-2)"
+    uncertain: true
+  - date: "2027-03-12"
+    name: "Cuti Bersama Idul Fitri"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-03-15"
+    name: "Cuti Bersama Idul Fitri"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-03-25"
+    name: "Cuti Bersama Wafat Yesus Kristus"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-03-26"
+    name: "Wafat Yesus Kristus (Jumat Agung)"
+  - date: "2027-03-28"
+    name: "Hari Paskah"
+  - date: "2027-05-01"
+    name: "Hari Buruh Internasional"
+  - date: "2027-05-06"
+    name: "Kenaikan Yesus Kristus"
+  - date: "2027-05-17"
+    name: "Idul Adha 1448 H"
+    uncertain: true
+  - date: "2027-05-18"
+    name: "Cuti Bersama Idul Adha"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-05-19"
+    name: "Cuti Bersama Waisak"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-05-20"
+    name: "Hari Raya Waisak 2571"
+    uncertain: true
+  - date: "2027-06-01"
+    name: "Hari Lahir Pancasila"
+  - date: "2027-06-06"
+    name: "Tahun Baru Islam 1449 H"
+    uncertain: true
+  - date: "2027-08-15"
+    name: "Maulid Nabi Muhammad SAW 1449 H"
+    uncertain: true
+  - date: "2027-08-17"
+    name: "Hari Kemerdekaan RI"
+  - date: "2027-12-24"
+    name: "Cuti Bersama Natal"
+    kind: cuti_bersama
+    uncertain: true
+  - date: "2027-12-25"
+    name: "Hari Raya Natal"

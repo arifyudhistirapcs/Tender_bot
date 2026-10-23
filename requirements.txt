@@ -1,0 +1,5 @@
+# Tender Bot - dependensi runtime (versi dikunci).
+# Target: Python 3.12 (jalan juga di 3.13).
+requests==2.32.3
+PyYAML==6.0.2
+pypdf==6.1.0

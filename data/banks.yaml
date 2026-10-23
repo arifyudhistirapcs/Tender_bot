@@ -1,0 +1,397 @@
+# Daftar bank yang dipantau Tender Bot.
+#
+# Sumber isi: kerja/riset/riset-eproc-bank-edc.md (diakses 23 Oktober 2026).
+# Aturan pengisian:
+#   - access dan sources HANYA dari laporan riset. Bank yang tidak diriset
+#     diberi access: not_found tanpa sources.
+#   - URL tidak boleh dikarang. Subdomain "tebakan" di laporan yang gagal
+#     koneksi TIDAK dimasukkan sebagai source.
+#   - aliases = nama lengkap untuk kueri berita (akronim bank bertabrakan).
+#
+# Field per bank:
+#   name    : nama ringkas (dipakai di laporan & fingerprint)
+#   aliases : daftar nama/istilah untuk kueri berita Google News
+#   group   : bumn | swasta | bpd
+#   access  : public | vendor_login | not_found | blocked
+#   needs_js: true bila situs/portal dirender JavaScript. Kolektor light
+#             MELEWATI sumber/bank needs_js dan mencatatnya di coverage
+#             sebagai "butuh browser, dicek di mode full". (opsional, default false)
+#   vendor_registration_url: URL pendaftaran vendor (opsional, boleh kosong;
+#             diisi agen riset lain nanti)
+#   sources : daftar {url, type: rss|html|pdf_list, needs_js?}; kosong bila tak ada
+#   notes   : catatan akses dari riset
+
+banks:
+  # ======================= BANK BUMN =======================
+  - name: BRI
+    aliases: ["Bank Rakyat Indonesia", "BRI", "BBRI"]
+    group: bumn
+    access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (tdronline BRI)
+    sources: []
+    notes: >-
+      Portal eproc.bri.co.id wajib login vendor; diblokir WAF Incapsula saat
+      dicek HTTP biasa. Pantau lewat berita. Kasus KPK pengadaan mesin EDC
+      BRI 2020-2024.
+
+  - name: Bank Mandiri
+    aliases: ["Bank Mandiri", "Bank Mandiri Persero"]
+    group: bumn
+    access: not_found
+    sources: []
+    notes: >-
+      Portal e-procurement tidak ditemukan (subdomain tebakan gagal koneksi).
+      Pantau lewat berita.
+
+  - name: BNI
+    aliases: ["Bank Negara Indonesia", "BBNI"]
+    group: bumn
+    access: not_found
+    sources: []
+    notes: >-
+      Portal tidak ditemukan. Akronim "BNI" bertabrakan dengan Business
+      Network International; pakai nama lengkap. Pantau lewat berita.
+
+  - name: BTN
+    aliases: ["Bank Tabungan Negara", "BBTN"]
+    group: bumn
+    access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (e2eprocreg BTN)
+    sources: []
+    notes: >-
+      Portal e2eprocreg.btn.co.id (Oracle E-Business Suite) wajib login
+      vendor; Arif belum punya akun. Browser otomatis sempat menggantung,
+      wajib timeout keras. Pantau lewat berita.
+
+  - name: BSI
+    aliases: ["Bank Syariah Indonesia", "BRIS"]
+    group: bumn
+    access: not_found
+    sources: []
+    notes: >-
+      Portal tidak ditemukan. Akronim "BSI" bertabrakan dengan BSI Group
+      (uji klinis, juga memakai istilah Electronic Data Capture). Pantau
+      lewat berita dengan nama lengkap.
+
+  # ===================== BANK SWASTA (KBMI 3-4) =====================
+  - name: BCA
+    aliases: ["Bank Central Asia", "BBCA"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: "Portal tidak ditemukan. Pantau lewat berita."
+
+  - name: CIMB Niaga
+    aliases: ["Bank CIMB Niaga", "CIMB Niaga", "BNGA"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: "Portal tidak ditemukan (hanya Vendor Code of Conduct grup). Pantau lewat berita."
+
+  - name: Danamon
+    aliases: ["Bank Danamon", "Bank Danamon Indonesia", "BDMN"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: "Portal tidak ditemukan. robots.txt Allow /. Pantau lewat berita."
+
+  - name: PermataBank
+    aliases: ["PermataBank", "Bank Permata", "BNLI"]
+    group: swasta
+    access: blocked
+    sources: []
+    notes: >-
+      Seluruh situs menjawab HTTP 403 untuk alat otomatis, termasuk
+      robots.txt. Blokir dihormati, tidak diakali. Pantau lewat berita.
+
+  - name: Maybank Indonesia
+    aliases: ["Maybank Indonesia", "Bank Maybank Indonesia", "BNII"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: >-
+      Portal tidak ditemukan. Halaman NewsAndAnnouncement terindeks publik
+      tetapi pola tender belum tertangkap. Pantau lewat berita.
+
+  - name: OCBC Indonesia
+    aliases: ["OCBC Indonesia", "Bank OCBC NISP", "NISP"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: >-
+      Portal tidak ditemukan. robots.txt melarang semua URL ber-query
+      (/*?). Pantau lewat berita.
+
+  - name: Panin Bank
+    aliases: ["Panin Bank", "Bank Pan Indonesia", "PNBN"]
+    group: swasta
+    access: blocked
+    sources: []
+    notes: >-
+      Seluruh situs menjawab HTTP 403 untuk alat otomatis. Blokir dihormati.
+      Pantau lewat berita.
+
+  - name: Bank Mega
+    aliases: ["Bank Mega", "MEGA"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: >-
+      Portal tidak ditemukan. Menu "Catalog of AYDA" adalah katalog agunan,
+      bukan tender. Pantau lewat berita.
+
+  - name: SMBC Indonesia
+    aliases: ["SMBC Indonesia", "Bank SMBC Indonesia", "Bank BTPN", "BTPN"]
+    group: swasta
+    access: vendor_login
+    vendor_registration_url: ""   # diisi agen riset lain (iProc pengadaan.com)
+    sources: []
+    notes: >-
+      Portal iProc di iprocsmbci.pengadaan.com / smbci.pengadaan.com hanya
+      form login (tampak untuk staf internal). Kepemilikan baru klaim footer.
+      Pantau lewat berita.
+
+  - name: UOB Indonesia
+    aliases: ["UOB Indonesia", "Bank UOB Indonesia"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: "Riset singkat; portal tidak ditemukan. Pantau lewat berita."
+
+  - name: Bank Sinarmas
+    aliases: ["Bank Sinarmas", "BSIM"]
+    group: swasta
+    access: not_found
+    sources: []
+    notes: "Riset singkat; situs gagal koneksi dari alat riset. Pantau lewat berita."
+
+  # ================ BANK PEMBANGUNAN DAERAH (BPD) ================
+  - name: Bank Sumut
+    aliases: ["Bank Sumut", "PT Bank Sumut", "Bank Pembangunan Daerah Sumatera Utara"]
+    group: bpd
+    access: public
+    sources:
+      - url: "https://www.banksumut.co.id/feed/"
+        type: rss
+      - url: "https://www.banksumut.co.id/archive-jasa-barang/"
+        type: html
+    notes: >-
+      Daftar tender publik WordPress; tiap pengumuman post jasa_barang.
+      /feed/ menjawab RSS (feed seluruh situs). Arsip HTML server-side,
+      pola URL /jasa_barang/<slug>/. Rincian ada di lampiran unduhan.
+      Sedang menayangkan tender Sewa Beli Mesin Smart EDC (13 Okt 2026).
+
+  - name: Bank Jatim
+    aliases: ["Bank Jatim", "Bank Pembangunan Daerah Jawa Timur", "BJTM"]
+    group: bpd
+    access: public
+    sources:
+      - url: "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan"
+        type: html
+    notes: >-
+      Halaman "Lelang Pengadaan" HTML server-side berpaginasi; tiap item
+      tertaut PDF pola /files/pengumuman/<tahun>/<bulan>/. robots.txt tanpa
+      Disallow. Pendaftaran peserta luring. Pantau halaman ini, BUKAN
+      "Pengumuman".
+
+  - name: BPD Bali
+    aliases: ["BPD Bali", "Bank Pembangunan Daerah Bali"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Menu "INFO LELANG" ada tetapi URL belum tertangkap; isinya bisa
+      pengadaan atau lelang agunan. Perlu pemetaan URL manual dulu.
+
+  - name: Bankaltimtara
+    aliases: ["Bankaltimtara", "Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Menu "Info Lelang" (terpisah dari "Info Lelang Jaminan") belum dibuka;
+      URL belum tertangkap. Mengoperasikan layanan EDC sendiri.
+
+  - name: Bank Nagari
+    aliases: ["Bank Nagari", "Bank Pembangunan Daerah Sumatera Barat"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Menu "Informasi Lelang" dengan parameter URL terenkripsi; tidak bisa
+      ditebak. Portal Lelang terpisah untuk agunan.
+
+  - name: bank bjb
+    aliases: ["bank bjb", "Bank BJB", "Bank Pembangunan Daerah Jawa Barat dan Banten", "BJBR"]
+    group: bpd
+    access: blocked
+    needs_js: true
+    sources: []
+    notes: >-
+      eproc.bankbjb.co.id menampilkan halaman tantangan "Please wait a
+      while..." (situs dirender JavaScript). Pantau lewat berita.
+
+  - name: Bank Jakarta
+    aliases: ["Bank Jakarta", "Bank DKI"]
+    group: bpd
+    access: blocked
+    sources: []
+    notes: >-
+      Domain lama (bankdki.co.id) dan baru (bankjakarta.co.id) sama-sama
+      HTTP 403. Domain baru diumumkan 9 Agustus 2026. Pantau lewat berita
+      dengan kedua nama.
+
+  - name: Bank Jateng
+    aliases: ["Bank Jateng", "Bank Pembangunan Daerah Jawa Tengah"]
+    group: bpd
+    access: not_found
+    needs_js: true
+    sources: []
+    notes: >-
+      Portal pengadaan tidak ditemukan; lelang.bankjateng.co.id adalah
+      lelang agunan. Isi berita dimuat JavaScript, beberapa subdomain
+      "Request Rejected". Pantau lewat berita.
+
+  - name: Bank Kalbar
+    aliases: ["Bank Kalbar", "Bank Pembangunan Daerah Kalimantan Barat"]
+    group: bpd
+    access: not_found
+    needs_js: true
+    sources: []
+    notes: >-
+      Portal tidak ditemukan; subdomain cms "Request Rejected". Pantau
+      lewat berita.
+
+  - name: Bank Sultra
+    aliases: ["Bank Sultra", "Bank Pembangunan Daerah Sulawesi Tenggara"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Portal e-tender.banksultra.co.id ("Tender Online") hanya terlihat di
+      cuplikan pencarian, belum dibuka/dicek. Pantau lewat berita sampai
+      portal dipetakan manual.
+
+  - name: Bank Sulteng
+    aliases: ["Bank Sulteng", "Bank Pembangunan Daerah Sulawesi Tengah"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Portal eproc.banksulteng.co.id hanya terlihat di cuplikan pencarian,
+      belum dibuka/dicek. Pantau lewat berita sampai portal dipetakan manual.
+
+  - name: Bank Aceh
+    aliases: ["Bank Aceh", "Bank Aceh Syariah", "Bank Pembangunan Daerah Aceh"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Riau Kepri
+    aliases: ["Bank Riau Kepri", "Bank Riau Kepri Syariah", "BRK Syariah"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Jambi
+    aliases: ["Bank Jambi", "Bank Pembangunan Daerah Jambi"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Sumsel Babel
+    aliases: ["Bank Sumsel Babel", "Bank Pembangunan Daerah Sumatera Selatan dan Bangka Belitung"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Lampung
+    aliases: ["Bank Lampung", "Bank Pembangunan Daerah Lampung"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Bengkulu
+    aliases: ["Bank Bengkulu", "Bank Pembangunan Daerah Bengkulu"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: BPD DIY
+    aliases: ["BPD DIY", "Bank BPD DIY", "Bank Pembangunan Daerah Daerah Istimewa Yogyakarta"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank DKI
+    aliases: ["Bank DKI"]
+    group: bpd
+    access: blocked
+    sources: []
+    notes: >-
+      Nama lama Bank Jakarta; domain bankdki.co.id HTTP 403. Dipantau
+      sebagai alias di entri Bank Jakarta, dipertahankan terpisah untuk
+      kueri berita nama lama.
+
+  - name: Bank Kalsel
+    aliases: ["Bank Kalsel", "Bank Pembangunan Daerah Kalimantan Selatan"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Kalteng
+    aliases: ["Bank Kalteng", "Bank Pembangunan Daerah Kalimantan Tengah"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Sulselbar
+    aliases: ["Bank Sulselbar", "Bank Pembangunan Daerah Sulawesi Selatan dan Sulawesi Barat"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank SulutGo
+    aliases: ["Bank SulutGo", "Bank Pembangunan Daerah Sulawesi Utara dan Gorontalo"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank NTB Syariah
+    aliases: ["Bank NTB Syariah", "Bank Pembangunan Daerah Nusa Tenggara Barat Syariah"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank NTT
+    aliases: ["Bank NTT", "Bank Pembangunan Daerah Nusa Tenggara Timur"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Maluku Malut
+    aliases: ["Bank Maluku Malut", "Bank Pembangunan Daerah Maluku dan Maluku Utara"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
+
+  - name: Bank Papua
+    aliases: ["Bank Papua", "Bank Pembangunan Daerah Papua"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: "Tidak diriset; pantau lewat berita."
