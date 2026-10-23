@@ -1,19 +1,19 @@
-﻿# Smoke run pengayaan detail (deterministik, tanpa jaringan, tanpa webhook).
-# Dihasilkan oleh: python kerja/smoke/smoke_enrich.py --today 2026-10-23
-# Lampiran PDF asli: kerja/riset/vendor/lampiran-banksumut-smart-edc-005-2026.pdf
-
-=== SMOKE ENRICH --today 2026-10-23 ===
-kandidat: 2 | lolos saringan: 2 | baru di laporan: 1 (berjalan 1, akan dibuka 0)
---- dibuang ---
-  [Bank Jatim] Market Sounding Pengadaan Penyedia Jasa Managed Service Perangkat Elec -> tanggal tidak diketahui dan sudah lama
---- status item baru ---
-  [Bank Sumut] status=berjalan
---- payload Google Chat (dry-run, TIDAK dikirim) ---
+﻿# Smoke run JALUR NYATA (CLI asli, tanpa webhook).
+# Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-23 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
+# --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
+# Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+[tenderbot] run 2026-10-23 mode=light
+  bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 1 (berjalan 1, akan dibuka 0)
+  dibuang (status): 1
+    - Bank Jatim: Market Sounding Pengadaan Penyedia Jasa Managed Service Pera -> tanggal tidak diketahui dan sudah lama
+  berita: 0 bank tercakup, 0 gagal lewat berita
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
 {
   "text": "Info tender EDC: 1 tender berjalan, 0 akan dibuka.",
   "cardsV2": [
     {
-      "cardId": "04e2e0538140b002",
+      "cardId": "4d78d7eb62b602c7",
       "card": {
         "header": {
           "title": "Tender EDC",
@@ -24,7 +24,7 @@ kandidat: 2 | lolos saringan: 2 | baru di laporan: 1 (berjalan 1, akan dibuka 0)
             "widgets": [
               {
                 "textParagraph": {
-                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)</b>"
+                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...</b>"
                 }
               },
               {
@@ -102,7 +102,7 @@ kandidat: 2 | lolos saringan: 2 | baru di laporan: 1 (berjalan 1, akan dibuka 0)
                       "text": "Lampiran",
                       "onClick": {
                         "openLink": {
-                          "url": "https://www.banksumut.co.id/files/pengumuman/2026/oktober/lampiran-smart-edc-005-2026.pdf"
+                          "url": "https://drive.google.com/uc?export=download&id=1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px"
                         }
                       }
                     }

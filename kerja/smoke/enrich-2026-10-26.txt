@@ -1,14 +1,15 @@
-﻿# Smoke run pengayaan detail (deterministik, tanpa jaringan, tanpa webhook).
-# Dihasilkan oleh: python kerja/smoke/smoke_enrich.py --today 2026-10-26
-# Lampiran PDF asli: kerja/riset/vendor/lampiran-banksumut-smart-edc-005-2026.pdf
-
-=== SMOKE ENRICH --today 2026-10-26 ===
-kandidat: 2 | lolos saringan: 2 | baru di laporan: 0 (berjalan 0, akan dibuka 0)
---- dibuang ---
-  [Bank Sumut] Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Sma -> sudah tutup
-  [Bank Jatim] Market Sounding Pengadaan Penyedia Jasa Managed Service Perangkat Elec -> tanggal tidak diketahui dan sudah lama
---- status item baru ---
---- payload Google Chat (dry-run, TIDAK dikirim) ---
+﻿# Smoke run JALUR NYATA (CLI asli, tanpa webhook).
+# Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-26 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
+# --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
+# Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+[tenderbot] run 2026-10-26 mode=light
+  bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 0 (berjalan 0, akan dibuka 0)
+  dibuang (status): 2
+    - Bank Sumut: Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Ca -> sudah tutup
+    - Bank Jatim: Market Sounding Pengadaan Penyedia Jasa Managed Service Pera -> tanggal tidak diketahui dan sudah lama
+  berita: 0 bank tercakup, 0 gagal lewat berita
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
 {
   "text": "Tidak ada informasi tender baru.\nDicek 2 bank.\nSemua sumber bisa diakses."
 }
