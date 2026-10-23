@@ -1,6 +1,6 @@
 # Tender Bot — Desain
 
-Status: draf disetujui Arif 2026-10-23. Bagian bertanda **[TERBUKA]** menunggu keputusan.
+Status: disetujui Arif 2026-10-23.
 
 ## Tujuan
 
@@ -28,16 +28,63 @@ Setiap run harus menyentuh SEMUA bank di daftar, minimal lewat pencarian berita.
 
 | Mode | Kapan (WIB) | Isi |
 |---|---|---|
-| `full` | Senin & Rabu, mulai 06.30, laporan sebelum ±08.00 | semua langkah `light` + agen AI riset dengan web search, per kelompok bank (BUMN / swasta / BPD), untuk menemukan sumber dan tender yang tidak tertangkap aturan |
-| `light` | 08.00: Selasa, Kamis, Jumat. 17.00: Senin–Jumat | kolektor deterministik + pemeriksaan kandidat oleh model AI |
+| `full` | Senin & Rabu, mulai 06.30, laporan sebelum ±08.00 | riset agen AI KiroCrew (crew "Yang ngeriset") di laptop Arif yang menyala 24/7, dibagi tiga kelompok bank (BUMN / swasta / BPD), ditambah kolektor `light` |
+| `light` | 08.00: Selasa, Kamis, Jumat. 17.00: Senin–Jumat | kolektor deterministik + saringan aturan (tanpa model AI) di GitHub Actions |
 
 Hari libur nasional dilewati berdasarkan `data/holidays.yaml`, yang diperbarui tiap tahun.
 
-GitHub Actions cron memakai UTC, sedangkan jadwal di atas WIB (UTC+7). Jadwal Actions juga bisa terlambat 5–30 menit, jadi cron disetel sedikit lebih awal:
+### Mode `full`: KiroCrew → GitHub Actions
 
-- full: `30 23 * * 0,2` (Minggu & Selasa 23.30 UTC = Senin & Rabu 06.30 WIB)
-- light pagi: `40 0 * * 2,4,5` (07.40 WIB)
+Model AI-nya adalah KiroCrew sendiri, jadi tidak perlu kunci API.
+
+1. Cron KiroCrew (zona `Asia/Jakarta`, `30 6 * * 1,3`) mengecek hari libur, lalu menjalankan tiga agen riset paralel. Aturan agen:
+   - tanpa browser;
+   - membatasi jumlah panggilan per situs;
+   - menulis hasil secara bertahap.
+
+   Instruksi agen ada di `kiro/full-research-prompt.md`.
+2. Hasil digabung ke satu file `inbox/full-YYYY-MM-DD.json`. Skemanya bisa dilihat di bagian berikutnya.
+3. File itu di-push ke branch `inbox/full-YYYY-MM-DD` dengan `gh` yang sudah login di laptop. Setelah itu `gh workflow run tender-bot.yml -f mode=full -f inbox_ref=inbox/full-YYYY-MM-DD` dijalankan.
+4. Actions melakukan beberapa langkah berurutan:
+   - membaca file inbox;
+   - menggabungkannya dengan hasil kolektor `light`;
+   - membuang item duplikat;
+   - mengirim laporan ke Google Chat;
+   - meng-commit `state/`;
+   - menghapus branch inbox.
+
+   Laptop tidak memegang URL webhook.
+5. Cadangan: run `light` pagi tetap dijadwalkan Senin dan Rabu pukul 07.40. Bila `state/runs.json` sudah mencatat run `full` untuk hari itu, run ini berhenti tanpa mengirim apa pun. Bila belum ada, run ini berjalan sebagai `light`, dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
+
+Skema `inbox/full-*.json`:
+
+```json
+{
+  "run_date": "2026-10-26",
+  "mode": "full",
+  "items": [
+    {"bank": "Bank Sumut", "title": "...", "url": "https://...", "published": "2026-10-13",
+     "deadline": null, "value_idr": 6993000000, "source_type": "portal|berita|rilis",
+     "evidence": "kutipan singkat dari sumber"}
+  ],
+  "coverage": {
+    "checked": ["BRI", "..."],
+    "failed": [{"bank": "PermataBank", "reason": "HTTP 403"}]
+  }
+}
+```
+
+Setiap item wajib punya `url` sumber yang benar-benar dibuka. Field yang tidak diketahui diisi `null`, bukan ditebak.
+
+### Jadwal GitHub Actions
+
+Cron GitHub Actions memakai UTC, sedangkan semua jam di dokumen ini WIB (UTC+7). Jadwal Actions juga bisa terlambat 5–30 menit, jadi cron disetel sedikit lebih awal:
+
+- light pagi: `40 0 * * 1-5` (07.40 WIB; Senin & Rabu hanya sebagai cadangan)
 - light sore: `40 9 * * 1-5` (16.40 WIB)
+- full: lewat `workflow_dispatch` dari KiroCrew, tidak lewat cron Actions
+
+Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/` bersamaan.
 
 ## Alur satu run
 
@@ -46,7 +93,7 @@ GitHub Actions cron memakai UTC, sedangkan jadwal di atas WIB (UTC+7). Jadwal Ac
    - pencarian berita per bank, memakai kata kunci di `data/keywords.yaml`.
 
    Setiap request diberi timeout 20 detik dan retry satu kali. Robots.txt dipatuhi. Halaman blokir ("Request Rejected", Incapsula, HTTP 403) dicatat sebagai gagal akses.
-2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Sisanya diperiksa model AI: apakah item ini pengadaan EDC/managed service oleh bank? Ekstrak bank, judul, nilai, tanggal terbit, batas waktu, dan URL.
+2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Item yang tersisa harus memenuhi dua syarat: memuat salah satu kata pengadaan (pengadaan, tender, lelang pengadaan, sewa, sewa beli, pemeliharaan, managed service, jasa layanan), dan memuat salah satu kata EDC (mesin EDC, Smart EDC, EDC Android, terminal EDC, Electronic Data Capture). Dari item itu diambil bank, judul, nilai, tanggal terbit, batas waktu, dan URL, sejauh tertulis di sumber. Pada mode `full`, penilaian ini sudah dilakukan oleh agen KiroCrew.
 3. **Dedup.** `fingerprint = sha256(bank + judul dinormalisasi + url kanonik)`. Judul yang hampir sama dari bank yang sama dalam 60 hari dianggap item yang sama. Status tersimpan di `state/seen.json` dan di-commit oleh workflow.
 4. **Laporkan** ke Google Chat lewat incoming webhook (secret `GCHAT_WEBHOOK_URL`):
    - Ada item baru: satu kartu per tender (bank, judul, nilai, terbit, batas waktu, link sumber).
@@ -58,7 +105,8 @@ GitHub Actions cron memakai UTC, sedangkan jadwal di atas WIB (UTC+7). Jadwal Ac
 
 - Python 3.12. Dependensi dikunci di `requirements.txt` dengan versi pasti.
 - Workflow: `.github/workflows/tender-bot.yml` (cron + `workflow_dispatch` untuk uji manual).
-- Secret: `GCHAT_WEBHOOK_URL` (sudah diset). Kunci API model AI: **[TERBUKA]** provider dan nama secret.
+- Secret: `GCHAT_WEBHOOK_URL` (sudah diset). Tidak ada kunci API model AI: mode `full` memakai KiroCrew.
+- Sisi laptop: cron KiroCrew + `gh` (login sebagai arifyudhistirapcs).
 - Repo ini publik. Karena itu tidak boleh ada secret di file, log, atau commit. Isi `state/seen.json` hanya data tender publik.
 
 ## Tahapan
@@ -68,9 +116,11 @@ GitHub Actions cron memakai UTC, sedangkan jadwal di atas WIB (UTC+7). Jadwal Ac
 3. Penyaring, dedup, dan state.
 4. Pengirim Google Chat. Mode `--dry-run` mencetak pesan ke log, bukan mengirim.
 5. Workflow Actions dengan mode `light`. Uji `workflow_dispatch` dulu, kirim ke Space hanya setelah dry run benar.
-6. Mode `full` (agen AI).
+6. Mode `full`: input `inbox_ref` di workflow, `kiro/full-research-prompt.md`, dan cron KiroCrew.
 7. Uji coba 1 minggu, lalu evaluasi sumber yang sering gagal.
 
-## Keputusan terbuka
+## Keputusan (2026-10-23)
 
-- **[TERBUKA]** Provider model AI dan kuncinya. Kandidat: Gemini API (punya grounding Google Search), OpenAI, Anthropic.
+- Runner: GitHub Actions.
+- Riset penuh: Senin & Rabu pagi lewat KiroCrew. Slot lain memakai mode `light` tanpa AI.
+- Cakupan: BUMN + KBMI 3–4 + seluruh BPD.
