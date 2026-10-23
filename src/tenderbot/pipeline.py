@@ -153,6 +153,7 @@ def collect_light(
     run_date: str,
     report: RunReport,
     gdelt_sleep=None,
+    skip_news: bool = False,
 ) -> list[Item]:
     """Kolektor deterministik: tiap bank disentuh (public bila ada + berita)."""
     raw: list[Item] = []
@@ -166,11 +167,12 @@ def collect_light(
             raw.extend(_collect_public(fetcher, bank, state, run_date, report))
     # Berita dikumpulkan SEKALI untuk semua bank (satu ambil per feed per run,
     # kueri GDELT per kelompok bank), bukan sekali per bank.
-    raw.extend(
-        _collect_news(
-            fetcher, banks, feeds, keywords, state, run_date, report,
-            gdelt_sleep=gdelt_sleep,
-        )
+    if not skip_news:
+        raw.extend(
+            _collect_news(
+                fetcher, banks, feeds, keywords, state, run_date, report,
+                gdelt_sleep=gdelt_sleep,
+            )
     )
     return raw
 
@@ -245,12 +247,13 @@ def run_light(
     today: date,
     feeds: Optional[list[NewsFeed]] = None,
     gdelt_sleep=None,
+    skip_news: bool = False,
 ) -> RunReport:
     run_date = today.isoformat()
     report = RunReport(run_date=run_date, mode="light")
     candidates = collect_light(
         fetcher, banks, feeds or [], keywords, state, run_date, report,
-        gdelt_sleep=gdelt_sleep,
+        gdelt_sleep=gdelt_sleep, skip_news=skip_news,
     )
     process_candidates(candidates, keywords, state, today, run_date, report,
                        fetcher=fetcher)

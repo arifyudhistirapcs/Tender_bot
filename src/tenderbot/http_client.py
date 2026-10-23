@@ -113,12 +113,18 @@ class Fetcher:
         return rp.can_fetch(USER_AGENT, url)
 
     # ---- fetch ----
-    def fetch(self, url: str) -> FetchResult:
+    def fetch(self, url: str, bypass_robots: bool = False) -> FetchResult:
         """Ambil URL. Raise AccessError pada blokir, timeout, atau robots.
 
         Retry satu kali untuk kegagalan jaringan transien.
+
+        bypass_robots: HANYA untuk mengambil SATU berkas yang secara eksplisit
+        ditautkan sebagai unduhan oleh halaman sumber (mis. lampiran pengumuman
+        di Google Drive). Ini unduhan langsung satu dokumen, BUKAN perayapan
+        situs. Pemanggil (enrich) membatasinya ke host berbagi-berkas yang
+        dikenal; perayapan halaman biasa TETAP tunduk pada robots.txt.
         """
-        if not self.allowed_by_robots(url):
+        if not bypass_robots and not self.allowed_by_robots(url):
             raise AccessError("dilarang oleh robots.txt")
 
         last_exc: Optional[Exception] = None

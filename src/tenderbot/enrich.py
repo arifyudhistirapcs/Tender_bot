@@ -25,6 +25,17 @@ from .models import Item
 
 MAX_PDFS_PER_ITEM = 3
 
+# Host berbagi-berkas yang robots.txt-nya memblokir endpoint UNDUHAN (mis.
+# Google Drive memblokir /uc), padahal berkas itu SENGAJA ditautkan sebagai
+# unduhan oleh pengumuman resmi. Untuk host ini, langkah membaca lampiran
+# memakai unduhan langsung satu berkas (bypass_robots), BUKAN perayapan situs.
+# Perayapan halaman biasa dan host lain tetap tunduk penuh pada robots.txt.
+_DOWNLOAD_BYPASS_HOSTS = (
+    "drive.google.com",
+    "drive.usercontent.google.com",
+    "docs.google.com",
+)
+
 try:  # PyMuPDF
     import fitz  # type: ignore
     _HAVE_FITZ = True
@@ -283,16 +294,170 @@ def _is_pdf(href: str, content_type: str = "") -> bool:
     return ".pdf" in href.lower() or "application/pdf" in content_type.lower()
 
 
+# Google Drive: ubah tautan "view" menjadi unduh langsung.
+_RE_GDRIVE_FILE = re.compile(r"drive\.google\.com/file/d/([A-Za-z0-9_-]+)", re.I)
+_RE_GDRIVE_OPEN = re.compile(r"drive\.google\.com/open\?id=([A-Za-z0-9_-]+)", re.I)
+_RE_GDRIVE_UC = re.compile(r"drive\.google\.com/uc\?[^\"'<> ]*\bid=([A-Za-z0-9_-]+)", re.I)
+_RE_DOCS_GDRIVE = re.compile(r"docs\.google\.com/[^\"'<> ]*?/d/([A-Za-z0-9_-]+)", re.I)
+
+
+def _gdrive_download_url(file_id: str) -> str:
+    return f"https://drive.google.com/uc?export=download&id={file_id}"
+
+
+def _gdrive_id(url: str) -> Optional[str]:
+    """ID berkas Google Drive dari berbagai bentuk URL, atau None."""
+    for rx in (_RE_GDRIVE_FILE, _RE_GDRIVE_OPEN, _RE_GDRIVE_UC, _RE_DOCS_GDRIVE):
+        m = rx.search(url or "")
+        if m:
+            return m.group(1)
+    return None
+
+
+# Atribut yang bisa memuat URL lampiran selain href (tombol/gambar/onclick).
+# Menangkap NILAI penuh dengan menghormati jenis kutip pembuka, supaya kutip
+# bagian dalam (mis. onclick="window.open('/x.pdf')") tidak memotong nilai.
+_RE_ATTR_URLS = re.compile(
+    r"""(?:href|src|data-[\w-]+|onclick)\s*=\s*"([^"]*)"|"""
+    r"""(?:href|src|data-[\w-]+|onclick)\s*=\s*'([^']*)'""",
+    re.IGNORECASE,
+)
+# URL "telanjang" di dalam onclick (window.open('...')) atau teks.
+_RE_BARE_URL = re.compile(r"""https?://[^\s"'<>()]+""", re.IGNORECASE)
+# Token path .pdf (relatif atau absolut) di dalam nilai atribut / onclick,
+# mis. window.open('/files/a.pdf') atau data-file="docs/x.pdf".
+_RE_PDF_TOKEN = re.compile(r"""['"(]?([^\s"'<>()]+\.pdf)\b""", re.IGNORECASE)
+
+
+def discover_attachments(html: str, base_url: str) -> list[str]:
+    """Daftar URL lampiran (PDF langsung atau unduhan Google Drive) dari HTML.
+
+    Urutan penemuan (brief): tautan .pdf di HTML -> tautan di elemen
+    gambar/tombol/onclick/data-* -> tautan Google Drive (diubah ke unduh
+    langsung). Duplikat dibuang, urutan kemunculan dipertahankan.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def _add(u: str) -> None:
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
+
+    if not html:
+        return out
+
+    # 1. Tautan <a> eksplisit (href + teks) — termasuk yang membungkus <img>.
+    for href, _ in extract_links(html):
+        _consider(href, base_url, _add)
+
+    # 2. URL di atribut apa pun (src/data-*/onclick) dan di dalamnya.
+    for m in _RE_ATTR_URLS.finditer(html):
+        val = m.group(1) if m.group(1) is not None else m.group(2)
+        if not val:
+            continue
+        _consider(val, base_url, _add)
+        for bm in _RE_BARE_URL.finditer(val):  # onclick="window.open('https://...')"
+            _consider(bm.group(0), base_url, _add)
+        for pm in _RE_PDF_TOKEN.finditer(val):  # onclick="window.open('/files/a.pdf')"
+            _consider(pm.group(1), base_url, _add)
+
+    return out
+
+
+def _consider(raw: str, base_url: str, add) -> None:
+    """Pertimbangkan satu kandidat URL: tambahkan bila PDF atau Google Drive."""
+    if not raw:
+        return
+    gid = _gdrive_id(raw)
+    if gid:
+        add(_gdrive_download_url(gid))
+        return
+    if _is_pdf(raw):
+        add(urljoin(base_url, raw))
+
+
+# ---- Fallback WordPress REST API ----
+
+# Tipe post custom yang dipakai portal bank (mis. Bank Sumut "jasa_barang").
+def _wp_rest_from_url(url: str) -> Optional[tuple[str, str, str]]:
+    """Dari URL detail WordPress "/<type>/<slug>/" kembalikan
+    (base, type, slug) untuk membangun endpoint REST, atau None.
+    """
+    m = re.match(r"(https?://[^/]+)/([a-z0-9_]+)/([^/?#]+)/?", url or "", re.I)
+    if not m:
+        return None
+    base, ptype, slug = m.group(1), m.group(2), m.group(3)
+    # Abaikan path yang jelas bukan post (mis. file statis).
+    if "." in slug:
+        return None
+    return (base, ptype, slug)
+
+
+def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str]]:
+    """Fallback: ambil detail lewat WP REST API bila HTML tak terakses.
+
+    Kembalikan (teks_konten, daftar_lampiran). Mencoba:
+      /wp-json/wp/v2/<type>?slug=<slug>  -> content.rendered (+ post id)
+      /wp-json/wp/v2/media?parent=<id>   -> media attachment PDF milik post.
+    """
+    parsed = _wp_rest_from_url(item.url)
+    if parsed is None:
+        return ("", [])
+    base, ptype, slug = parsed
+
+    import json as _json
+    text = ""
+    attachments: list[str] = []
+    post_id: Optional[int] = None
+
+    rest_url = f"{base}/wp-json/wp/v2/{ptype}?slug={slug}"
+    try:
+        res = fetcher.fetch(rest_url)
+    except AccessError:
+        return ("", [])
+    try:
+        data = _json.loads(res.text)
+    except (ValueError, TypeError):
+        data = None
+    if isinstance(data, list) and data:
+        post = data[0]
+        post_id = post.get("id")
+        rendered = (post.get("content") or {}).get("rendered") or ""
+        text = html_to_text(rendered)
+        attachments.extend(discover_attachments(rendered, item.url))
+
+    # Media attachment milik post (PDF yang diunggah ke WP).
+    if post_id is not None:
+        media_url = f"{base}/wp-json/wp/v2/media?parent={post_id}"
+        try:
+            mres = fetcher.fetch(media_url)
+            mdata = _json.loads(mres.text)
+        except (AccessError, ValueError, TypeError):
+            mdata = None
+        if isinstance(mdata, list):
+            for m in mdata:
+                src = (m.get("source_url") or "")
+                mime = (m.get("mime_type") or "")
+                if _is_pdf(src, mime):
+                    if src and src not in attachments:
+                        attachments.append(src)
+
+    return (text, attachments)
+
+
 def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM) -> Item:
     """Buka halaman detail item lalu lampiran PDF; isi field yang kosong.
 
+    Penemuan lampiran: tautan PDF/gambar/tombol/onclick/data-* di HTML, lalu
+    tautan Google Drive, lalu (bila HTML tak terakses) WordPress REST API.
     Tidak pernah menimpa field yang SUDAH terisi (mis. dari inbox agen AI).
     Gagal akses (robots/timeout/blokir) -> item dikembalikan apa adanya.
     """
     detail_text = ""
-    pdf_links: list[str] = []
+    attachments: list[str] = []
 
-    # 1. Halaman detail.
+    # 1. Halaman detail (HTML atau PDF langsung).
     try:
         res = fetcher.fetch(item.url)
     except AccessError:
@@ -300,24 +465,37 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
     if res is not None:
         ctype = res.content_type.lower()
         if _is_pdf(item.url, ctype):
-            # URL item sendiri adalah PDF.
             detail_text = pdf_bytes_to_text(res.content)
             item.attachment_url = item.attachment_url or item.url
         else:
             detail_text = html_to_text(res.text)
-            for href, _ in extract_links(res.text):
-                if _is_pdf(href):
-                    pdf_links.append(urljoin(item.url, href))
+            attachments.extend(discover_attachments(res.text, item.url))
 
-    # Terapkan field dari halaman detail.
+    # 2. Fallback WordPress REST API bila HTML gagal atau tak memuat lampiran.
+    if (res is None or not attachments) and not _is_pdf(item.url, ""):
+        wp_text, wp_attachments = _fetch_wp_detail(item, fetcher)
+        if wp_text and not detail_text:
+            detail_text = wp_text
+        elif wp_text:
+            detail_text = f"{detail_text}\n{wp_text}"
+        for a in wp_attachments:
+            if a not in attachments:
+                attachments.append(a)
+
+    # Terapkan field dari teks detail (HTML + konten REST).
     _apply_fields(item, extract_fields(detail_text))
 
-    # 2. Lampiran PDF (maksimal N).
-    for pdf_url in pdf_links[:max_pdfs]:
+    # 3. Baca lampiran PDF (maksimal N).
+    for pdf_url in attachments[:max_pdfs]:
+        bypass = _host_of(pdf_url) in _DOWNLOAD_BYPASS_HOSTS
         try:
-            pres = fetcher.fetch(pdf_url)
-        except AccessError:
-            continue
+            pres = fetcher.fetch(pdf_url, bypass_robots=bypass)
+        except (AccessError, TypeError):
+            # TypeError: Fetcher palsu lama tanpa parameter -> coba tanpa.
+            try:
+                pres = fetcher.fetch(pdf_url)
+            except AccessError:
+                continue
         ptext = pdf_bytes_to_text(pres.content)
         if not ptext:
             continue
@@ -326,11 +504,14 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
         if item.attachment_url is None and _snapshot(item) != before:
             item.attachment_url = pdf_url
         elif item.attachment_url is None:
-            # Simpan lampiran pertama yang terbaca walau tak menambah field,
-            # supaya tombol "Lampiran" tetap ada dan perkiraan tanggal URL jalan.
             item.attachment_url = pdf_url
 
     return item
+
+
+def _host_of(url: str) -> str:
+    from urllib.parse import urlsplit
+    return urlsplit(url or "").netloc.lower().split("@")[-1].split(":")[0]
 
 
 _ENRICH_FIELDS = (
