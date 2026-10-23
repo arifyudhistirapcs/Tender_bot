@@ -68,23 +68,31 @@ def build_message(
     new_items: list[Item],
     checked_count: int,
     failed: list[tuple[str, str]],
+    note: Optional[str] = None,
 ) -> dict:
     """Bangun payload Google Chat.
 
     failed: daftar (nama_bank_atau_sumber, alasan).
+    note: catatan tambahan (mis. cadangan "riset penuh tidak berjalan hari ini")
+          yang disisipkan di baris pertama pesan.
     """
     if new_items:
         text = f"Ada {len(new_items)} info tender EDC baru."
+        if note:
+            text = f"{note}\n{text}"
         return {
             "text": text,
             "cardsV2": [_item_card(it) for it in new_items],
         }
 
     # Tidak ada yang baru: wajib memuat jumlah bank dicek + daftar gagal.
-    lines = [
+    lines = []
+    if note:
+        lines.append(note)
+    lines.extend([
         "Tidak ada informasi tender baru.",
         f"Dicek {checked_count} bank.",
-    ]
+    ])
     if failed:
         lines.append(f"{len(failed)} tidak bisa diakses:")
         for name, reason in failed:
