@@ -135,3 +135,96 @@ def test_enrich_gagal_akses_tidak_meledak():
     # URL tidak ada rute -> AccessError ditangani, item tetap utuh.
     enrich_item(item, ff)
     assert item.value_idr is None
+
+
+# ---- Penemuan lampiran pada halaman NYATA Bank Sumut ----
+
+from tenderbot.enrich import discover_attachments  # noqa: E402
+
+GDRIVE_ID = "1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px"
+GDRIVE_DL = f"https://drive.google.com/uc?export=download&id={GDRIVE_ID}"
+
+
+def test_discover_attachments_gdrive_di_tombol_gambar():
+    # Link Google Drive membungkus <img> tombol, TIDAK ada ".pdf" di href.
+    html = read_fixture("banksumut_detail_smart_edc.html")
+    atts = discover_attachments(html, "https://www.banksumut.co.id/jasa_barang/x/")
+    assert GDRIVE_DL in atts  # diubah ke unduhan langsung
+
+
+def test_discover_attachments_pdf_di_onclick_dan_data_attr():
+    html = (
+        '<a onclick="window.open(\'/files/a.pdf\')">x</a>'
+        '<button data-href="https://x.example/b.PDF">y</button>'
+    )
+    atts = discover_attachments(html, "https://x.example/post/")
+    assert "https://x.example/files/a.pdf" in atts
+    assert "https://x.example/b.PDF" in atts
+
+
+class _RealFetcher(FakeFetcher):
+    """Melayani HTML detail + byte PDF Google Drive (uji penemuan nyata)."""
+
+    def __init__(self, routes, pdf_routes):
+        super().__init__(routes)
+        self.pdf_routes = pdf_routes
+        self.bypass_calls: list[str] = []
+
+    def fetch(self, url, bypass_robots=False):
+        if bypass_robots:
+            self.bypass_calls.append(url)
+        if url in self.pdf_routes:
+            self.calls.append(url)
+            return FetchResult(url=url, status=200, text="",
+                               content=self.pdf_routes[url],
+                               content_type="application/pdf")
+        return super().fetch(url)
+
+
+def test_enrich_real_detail_html_baca_lampiran_gdrive():
+    detail_url = "https://www.banksumut.co.id/jasa_barang/smart-edc/"
+    html = read_fixture("banksumut_detail_smart_edc.html")
+    item = Item(bank="Bank Sumut",
+                title="Pengadaan Sewa Beli Mesin Smart EDC",
+                url=detail_url, source_type="portal")
+    ff = _RealFetcher(
+        routes={detail_url: (200, html)},
+        pdf_routes={GDRIVE_DL: VENDOR_PDF.read_bytes()},
+    )
+    enrich_item(item, ff)
+    # Nilai + metode dari HTML; tanggal/volume/durasi dari PDF Google Drive.
+    assert item.value_idr == 6_993_000_000
+    assert item.reg_open == "2026-10-13"
+    assert item.reg_close == "2026-10-23"
+    assert item.volume == "500 unit"
+    assert item.duration == "36 bulan"
+    assert "Pelelangan Umum" in item.method
+    assert item.attachment_url == GDRIVE_DL
+    # Lampiran Google Drive diambil lewat jalur unduhan-langsung (bypass_robots).
+    assert GDRIVE_DL in ff.bypass_calls
+
+
+def test_enrich_fallback_wp_rest_saat_html_terblokir():
+    # Halaman detail 403 (seperti situs nyata ke klien polos) -> fallback REST.
+    detail_url = "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
+    rest_url = ("https://www.banksumut.co.id/wp-json/wp/v2/jasa_barang?slug="
+                "pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda")
+    media_url = "https://www.banksumut.co.id/wp-json/wp/v2/media?parent=10580"
+    item = Item(bank="Bank Sumut", title="Smart EDC", url=detail_url,
+                source_type="portal")
+    ff = _RealFetcher(
+        routes={
+            detail_url: (403, ""),                       # HTML terblokir
+            rest_url: (200, read_fixture("banksumut_wp_jasa_barang.json")),
+            media_url: (200, "[]"),                       # tak ada media WP
+        },
+        pdf_routes={GDRIVE_DL: VENDOR_PDF.read_bytes()},
+    )
+    enrich_item(item, ff)
+    assert item.value_idr == 6_993_000_000           # dari content REST
+    assert "Pelelangan Umum" in item.method          # dari content REST
+    assert item.reg_open == "2026-10-13"             # dari PDF Google Drive
+    assert item.reg_close == "2026-10-23"
+    assert item.volume == "500 unit"
+    assert item.duration == "36 bulan"
+    assert item.attachment_url == GDRIVE_DL
