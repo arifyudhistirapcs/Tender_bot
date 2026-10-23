@@ -28,7 +28,7 @@ Setiap run harus menyentuh SEMUA bank di daftar, minimal lewat pencarian berita.
 
 | Mode | Kapan (WIB) | Isi |
 |---|---|---|
-| `full` | Senin & Rabu, mulai 06.30, laporan sebelum ±08.00 | riset agen AI KiroCrew (crew "Yang ngeriset") di laptop Arif yang menyala 24/7, dibagi tiga kelompok bank (BUMN / swasta / BPD), ditambah kolektor `light` |
+| `full` | Senin, Rabu & Jumat, mulai 06.30, laporan sebelum ±08.00 | riset agen AI KiroCrew (crew "Yang ngeriset") di laptop Arif yang menyala 24/7, dibagi tiga kelompok bank (BUMN / swasta / BPD), ditambah kolektor `light` |
 | `light` | 08.00: Selasa, Kamis, Jumat. 17.00: Senin–Jumat | kolektor deterministik + saringan aturan (tanpa model AI) di GitHub Actions |
 
 Hari libur nasional dilewati berdasarkan `data/holidays.yaml`, yang diperbarui tiap tahun.
@@ -37,7 +37,7 @@ Hari libur nasional dilewati berdasarkan `data/holidays.yaml`, yang diperbarui t
 
 Model AI-nya adalah KiroCrew sendiri, jadi tidak perlu kunci API.
 
-1. Cron KiroCrew (zona `Asia/Jakarta`, `30 6 * * 1,3`) mengecek hari libur, lalu menjalankan tiga agen riset paralel. Aturan agen:
+1. Cron KiroCrew (zona `Asia/Jakarta`, `30 6 * * 1,3,5`) mengecek hari libur, lalu menjalankan tiga agen riset paralel. Aturan agen:
    - utamakan web_search/web_fetch; untuk sumber `needs_js` pakai `playwright-cli` headed dengan sesi sendiri per agen (`-s=<nama>`) dan batas waktu keras 60 detik per perintah; tab Chrome milik Arif tidak disentuh;
    - riset berita hanya dari media kredibel (`credible_news_domains`), sumber lain diberi label belum terverifikasi;
    - membatasi jumlah panggilan per situs;
@@ -55,7 +55,7 @@ Model AI-nya adalah KiroCrew sendiri, jadi tidak perlu kunci API.
    - menghapus branch inbox.
 
    Laptop tidak memegang URL webhook.
-5. Cadangan: run `light` pagi tetap dijadwalkan Senin dan Rabu pukul 07.40. Bila `state/runs.json` sudah mencatat run `full` untuk hari itu, run ini berhenti tanpa mengirim apa pun. Bila belum ada, run ini berjalan sebagai `light`, dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
+5. Cadangan: run `light` pagi tetap dijadwalkan Senin, Rabu, dan Jumat pukul 07.40. Bila `state/runs.json` sudah mencatat run `full` untuk hari itu, run ini berhenti tanpa mengirim apa pun. Bila belum ada, run ini berjalan sebagai `light`, dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
 
 Skema `inbox/full-*.json`:
 
@@ -81,7 +81,7 @@ Setiap item wajib punya `url` sumber yang benar-benar dibuka. Field yang tidak d
 
 Cron GitHub Actions memakai UTC, sedangkan semua jam di dokumen ini WIB (UTC+7). Jadwal Actions juga bisa terlambat 5–30 menit, jadi cron disetel sedikit lebih awal:
 
-- light pagi: `40 0 * * 1-5` (07.40 WIB; Senin & Rabu hanya sebagai cadangan)
+- light pagi: `40 0 * * 1-5` (07.40 WIB; Senin, Rabu & Jumat hanya sebagai cadangan)
 - light sore: `40 9 * * 1-5` (16.40 WIB)
 - full: lewat `workflow_dispatch` dari KiroCrew, tidak lewat cron Actions
 
@@ -125,5 +125,5 @@ Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/`
 ## Keputusan (2026-10-23)
 
 - Runner: GitHub Actions.
-- Riset penuh: Senin & Rabu pagi lewat KiroCrew. Slot lain memakai mode `light` tanpa AI.
+- Riset penuh: Senin, Rabu & Jumat pagi lewat KiroCrew. Slot lain memakai mode `light` tanpa AI.
 - Cakupan: BUMN + KBMI 3–4 + seluruh BPD.

@@ -2,7 +2,7 @@ name: tender-bot
 
 # Jadwal Actions memakai UTC; semua jam di DESIGN.md adalah WIB (UTC+7).
 # Cron disetel sedikit lebih awal karena Actions bisa terlambat 5-30 menit.
-#   light pagi : 40 0 * * 1-5  -> 07.40 WIB (Senin & Rabu sebagai cadangan)
+#   light pagi : 40 0 * * 1-5  -> 07.40 WIB (Senin, Rabu & Jumat sebagai cadangan)
 #   light sore : 40 9 * * 1-5  -> 16.40 WIB
 #   full       : lewat workflow_dispatch dari KiroCrew, bukan cron.
 on:
@@ -69,9 +69,9 @@ jobs:
             echo "mode=light" >> "$GITHUB_OUTPUT"
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
             echo "inbox_ref=" >> "$GITHUB_OUTPUT"
-            # Cadangan hanya untuk run PAGI pada Senin (1) & Rabu (3) WIB.
+            # Cadangan hanya untuk run PAGI pada Senin (1), Rabu (3) & Jumat (5) WIB.
             dow="$(TZ=Asia/Jakarta date +%u)"
-            if [ "$SCHEDULE" = "40 0 * * 1-5" ] && { [ "$dow" = "1" ] || [ "$dow" = "3" ]; }; then
+            if [ "$SCHEDULE" = "40 0 * * 1-5" ] && { [ "$dow" = "1" ] || [ "$dow" = "3" ] || [ "$dow" = "5" ]; }; then
               echo "fallback=true" >> "$GITHUB_OUTPUT"
             else
               echo "fallback=false" >> "$GITHUB_OUTPUT"
