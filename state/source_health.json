@@ -1,0 +1,77 @@
+{
+  "feed:https://finance.detik.com/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://investasi.kontan.co.id/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://katadata.co.id/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://keuangan.kontan.co.id/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://news.detik.com/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://rss.tempo.co/": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://www.antaranews.com/rss/ekonomi.xml": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://www.cnbcindonesia.com/market/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://www.cnbcindonesia.com/news/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://www.cnnindonesia.com/ekonomi/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "feed:https://www.idxchannel.com/rss": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "gdelt": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "https://www.banksumut.co.id/archive-jasa-barang/": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  },
+  "https://www.banksumut.co.id/feed/": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-10-23"
+  }
+}
