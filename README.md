@@ -18,15 +18,15 @@ disetel sedikit lebih awal karena Actions bisa terlambat 5-30 menit.
 
 | Slot | Cron (UTC) | WIB | Mode |
 |---|---|---|---|
-| Pagi | `40 0 * * 1-5` | 07.40 Sen-Jum | light (Senin & Rabu sebagai cadangan riset penuh) |
+| Pagi | `40 0 * * 1-5` | 07.40 Sen-Jum | light (Senin, Rabu & Jumat sebagai cadangan riset penuh) |
 | Sore | `40 9 * * 1-5` | 16.40 Sen-Jum | light |
-| Riset penuh | `workflow_dispatch` dari KiroCrew | Senin & Rabu pagi | full |
+| Riset penuh | `workflow_dispatch` dari KiroCrew | Senin, Rabu & Jumat pagi | full |
 
 Akhir pekan dan hari libur nasional (`data/holidays.yaml`) dilewati.
 
 Mode `full` memakai hasil riset agen AI KiroCrew yang dikirim lewat file inbox
 (`inbox/full-YYYY-MM-DD.json`) ke branch, lalu dipicu dengan `workflow_dispatch`.
-Bila riset penuh tidak berjalan, run light cadangan pagi Senin/Rabu mengambil
+Bila riset penuh tidak berjalan, run light cadangan pagi Senin/Rabu/Jumat mengambil
 alih dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
 
 ## Menjalankan dry-run manual
@@ -48,7 +48,7 @@ python -m tenderbot run --mode light --dry-run
 Opsi uji berguna:
 
 - `--today YYYY-MM-DD` memaksa tanggal (dihitung WIB bila tidak diisi).
-- `--fallback-full-check` mengaktifkan logika cadangan Senin/Rabu.
+- `--fallback-full-check` mengaktifkan logika cadangan Senin/Rabu/Jumat.
 - `--state-dir PATH` memakai folder state lain (uji).
 
 Mode full lokal butuh file inbox:
