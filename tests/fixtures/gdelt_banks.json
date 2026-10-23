@@ -1,0 +1,34 @@
+{
+  "articles": [
+    {
+      "url": "https://kontan.co.id/news/bank-sumut-pengadaan-smart-edc",
+      "url_mobile": "",
+      "title": "Bank Sumut gelar pengadaan mesin Smart EDC untuk perluasan merchant",
+      "seendate": "20261013T081500Z",
+      "socialimage": "",
+      "domain": "kontan.co.id",
+      "language": "Indonesian",
+      "sourcecountry": "Indonesia"
+    },
+    {
+      "url": "https://blogtender.example.com/bank-jatim-edc-android",
+      "url_mobile": "",
+      "title": "Bank Jatim umumkan tender pengadaan terminal EDC Android",
+      "seendate": "20261014T100000Z",
+      "socialimage": "",
+      "domain": "blogtender.example.com",
+      "language": "Indonesian",
+      "sourcecountry": "Indonesia"
+    },
+    {
+      "url": "https://detik.com/x/berita-tanpa-bank",
+      "url_mobile": "",
+      "title": "Ekonomi digital Indonesia tumbuh pesat tahun ini",
+      "seendate": "20261014T120000Z",
+      "socialimage": "",
+      "domain": "detik.com",
+      "language": "Indonesian",
+      "sourcecountry": "Indonesia"
+    }
+  ]
+}

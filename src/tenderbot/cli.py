@@ -42,6 +42,14 @@ def _print_report(report: RunReport) -> None:
         print(f"  inbox ditolak: {len(report.inbox_rejected)}", file=sys.stderr)
         for r in report.inbox_rejected:
             print(f"    - {r}", file=sys.stderr)
+    print(
+        f"  berita: {len(report.news_checked_banks)} bank tercakup, "
+        f"{len(report.news_failed_banks)} gagal lewat berita",
+        file=sys.stderr,
+    )
+    if report.news_failed_banks:
+        for name, reason in report.news_failed_banks:
+            print(f"    gagal berita {name}: {reason}", file=sys.stderr)
     if report.failed:
         for name, reason in report.failed:
             print(f"    gagal {name}: {reason}", file=sys.stderr)
@@ -62,6 +70,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     banks = config.load_banks()
     keywords = config.load_keywords()
     holidays = config.load_holidays()
+    feeds = config.load_news_feeds()
 
     skip, reason = should_skip(today, holidays)
     if skip:
@@ -89,9 +98,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         except InboxError as exc:
             print(f"[tenderbot] inbox tidak sah: {exc}", file=sys.stderr)
             return 2
-        report = run_full(fetcher, banks, keywords, state, today, inbox)
+        report = run_full(fetcher, banks, keywords, state, today, inbox, feeds=feeds)
     else:
-        report = run_light(fetcher, banks, keywords, state, today)
+        report = run_light(fetcher, banks, keywords, state, today, feeds=feeds)
 
     _print_report(report)
 

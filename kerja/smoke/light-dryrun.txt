@@ -1,75 +1,30 @@
-﻿# Smoke run Tender Bot - mode light --dry-run
-# Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-23
-# Dijalankan: 2026-10-23 (Jumat, hari kerja). Akses internet SUNGGUHAN. TIDAK dikirim ke webhook.
+﻿# Smoke run: light --dry-run --today 2026-10-23
+# Dijalankan ulang setelah sumber berita diganti (feed media kredibel + GDELT).
 #
-# HASIL: Tender "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture
-# (Smart EDC) PT Bank Sumut (Perseroda)" (diposting 13 Okt 2026) TERTANGKAP lewat
-# kolektor HTML arsip Bank Sumut (sumber public), lolos saringan, jadi 1 item baru.
+# RINGKASAN:
+#   Bank dicek            : 43
+#   Gagal akses           : 0
+#   Gagal karena robots.txt berita : 0   <-- target tercapai (sebelumnya 43)
+#   Bank tercakup berita  : 43
+#   Bank gagal via berita : 0
+#   Kandidat              : 137
+#   Lolos saringan        : 1
+#   Baru                  : 1
+#   Tender Smart EDC Bank Sumut : TERTANGKAP (cardId 4d78d7eb62b602c7)
+#   Pengiriman webhook    : TIDAK (dry-run)
 #
-# TEMUAN PENTING untuk koordinator - Google News RSS diblokir robots.txt:
-#   news.google.com/robots.txt memuat "Disallow: /" dengan allow-list pendek yang
-#   TIDAK mencakup /rss/search. Karena DESIGN.md dan laporan riset mewajibkan
-#   mematuhi robots.txt (blokir tidak diakali), SEMUA 43 kueri berita per-bank
-#   gagal dengan alasan "dilarang oleh robots.txt". Konsekuensinya: jalur Tier-3
-#   (berita per bank) saat ini tidak menghasilkan kandidat. Bot TETAP berfungsi
-#   untuk sumber public (Bank Sumut, Bank Jatim). Keputusan apakah feed RSS Google
-#   News (endpoint sindikasi, bukan scraping HTML) boleh dikecualikan dari aturan
-#   robots.txt ada di tangan koordinator; default aman saat ini = patuh (diblokir).
-#   Perilaku ini terdokumentasi dan bisa diubah di satu tempat (lihat http_client).
-#
-# ========================= RINGKASAN (stderr) =========================
-  bank dicek: 43 | gagal akses: 43 | kandidat: 137 | lolos saringan: 1 | baru: 1
-    gagal BRI (berita): dilarang oleh robots.txt
-    gagal Bank Mandiri (berita): dilarang oleh robots.txt
-    gagal BNI (berita): dilarang oleh robots.txt
-    gagal BTN (berita): dilarang oleh robots.txt
-    gagal BSI (berita): dilarang oleh robots.txt
-    gagal BCA (berita): dilarang oleh robots.txt
-    gagal CIMB Niaga (berita): dilarang oleh robots.txt
-    gagal Danamon (berita): dilarang oleh robots.txt
-    gagal PermataBank (berita): dilarang oleh robots.txt
-    gagal Maybank Indonesia (berita): dilarang oleh robots.txt
-    gagal OCBC Indonesia (berita): dilarang oleh robots.txt
-    gagal Panin Bank (berita): dilarang oleh robots.txt
-    gagal Bank Mega (berita): dilarang oleh robots.txt
-    gagal SMBC Indonesia (berita): dilarang oleh robots.txt
-    gagal UOB Indonesia (berita): dilarang oleh robots.txt
-    gagal Bank Sinarmas (berita): dilarang oleh robots.txt
-    gagal Bank Sumut (berita): dilarang oleh robots.txt
-    gagal Bank Jatim (berita): dilarang oleh robots.txt
-    gagal BPD Bali (berita): dilarang oleh robots.txt
-    gagal Bankaltimtara (berita): dilarang oleh robots.txt
-    gagal Bank Nagari (berita): dilarang oleh robots.txt
-    gagal bank bjb (berita): dilarang oleh robots.txt
-    gagal Bank Jakarta (berita): dilarang oleh robots.txt
-    gagal Bank Jateng (berita): dilarang oleh robots.txt
-    gagal Bank Kalbar (berita): dilarang oleh robots.txt
-    gagal Bank Sultra (berita): dilarang oleh robots.txt
-    gagal Bank Sulteng (berita): dilarang oleh robots.txt
-    gagal Bank Aceh (berita): dilarang oleh robots.txt
-    gagal Bank Riau Kepri (berita): dilarang oleh robots.txt
-    gagal Bank Jambi (berita): dilarang oleh robots.txt
-    gagal Bank Sumsel Babel (berita): dilarang oleh robots.txt
-    gagal Bank Lampung (berita): dilarang oleh robots.txt
-    gagal Bank Bengkulu (berita): dilarang oleh robots.txt
-    gagal BPD DIY (berita): dilarang oleh robots.txt
-    gagal Bank DKI (berita): dilarang oleh robots.txt
-    gagal Bank Kalsel (berita): dilarang oleh robots.txt
-    gagal Bank Kalteng (berita): dilarang oleh robots.txt
-    gagal Bank Sulselbar (berita): dilarang oleh robots.txt
-    gagal Bank SulutGo (berita): dilarang oleh robots.txt
-    gagal Bank NTB Syariah (berita): dilarang oleh robots.txt
-    gagal Bank NTT (berita): dilarang oleh robots.txt
-    gagal Bank Maluku Malut (berita): dilarang oleh robots.txt
-    gagal Bank Papua (berita): dilarang oleh robots.txt
+# Catatan: 3 bank (bank bjb, Bank Jateng, Bank Kalbar) portalnya butuh browser,
+# ditunda ke mode full -- ini bukan kegagalan akses berita.
+# ------------------------------------------------------------------------------
+[tenderbot] run 2026-10-23 mode=light
+  bank dicek: 43 | gagal akses: 0 | kandidat: 137 | lolos saringan: 1 | baru: 1
+  berita: 43 bank tercakup, 0 gagal lewat berita
   butuh browser (ditunda ke mode full): 3
     - bank bjb: portal butuh browser, dicek di mode full
     - Bank Jateng: portal butuh browser, dicek di mode full
     - Bank Kalbar: portal butuh browser, dicek di mode full
 [tenderbot] dry-run: tidak dikirim
 [tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
-
-# ===================== PAYLOAD PESAN GOOGLE CHAT (stdout, dry-run) =====================
 {
   "text": "Ada 1 info tender EDC baru.",
   "cardsV2": [

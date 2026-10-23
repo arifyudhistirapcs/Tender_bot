@@ -45,6 +45,15 @@ class Keywords:
     credible_news_domains: list[str] = field(default_factory=list)
 
 
+@dataclass
+class NewsFeed:
+    """Satu feed RSS media kredibel (sudah diverifikasi ada + diizinkan robots)."""
+
+    name: str
+    url: str
+    domain: str = ""  # host kredibel yang menerbitkan feed ini
+
+
 def _load_yaml(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
@@ -102,3 +111,27 @@ def load_holidays(path: Optional[Path] = None) -> set[str]:
     path = path or (DATA_DIR / "holidays.yaml")
     data = _load_yaml(path)
     return {str(h["date"]) for h in (data.get("holidays") or []) if h.get("date")}
+
+
+def load_news_feeds(path: Optional[Path] = None) -> list[NewsFeed]:
+    """Muat daftar feed RSS media dari data/news_feeds.yaml.
+
+    File boleh tidak ada (kolektor feed lalu tidak berjalan) atau kosong.
+    """
+    path = path or (DATA_DIR / "news_feeds.yaml")
+    if not path.exists():
+        return []
+    data = _load_yaml(path)
+    feeds: list[NewsFeed] = []
+    for raw in data.get("feeds", []) or []:
+        url = (raw.get("url") or "").strip()
+        if not url:
+            continue
+        feeds.append(
+            NewsFeed(
+                name=raw.get("name", "") or url,
+                url=url,
+                domain=(raw.get("domain", "") or "").strip(),
+            )
+        )
+    return feeds
