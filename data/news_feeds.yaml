@@ -1,0 +1,63 @@
+# Feed RSS resmi media kredibel (dipakai kolektor berita mode light).
+#
+# SETIAP feed di bawah sudah DICEK pada 2026-10-23 memakai Fetcher produksi:
+#   - HTTP 200,
+#   - isi benar-benar RSS/Atom (dibuka dengan <rss / <feed),
+#   - diizinkan robots.txt untuk User-Agent TenderBot.
+# Hanya host yang ada di data/keywords.yaml#credible_news_domains yang dipakai,
+# supaya item dari feed ini selalu "terverifikasi" (bukan unverified_source).
+#
+# Cara kerja: tiap feed diambil SATU KALI per run (bukan per bank), lalu
+# item disaring dengan (nama/alias bank) + (kata EDC). Jadi menambah bank
+# TIDAK menambah jumlah request.
+#
+# Google News RSS (news.google.com/rss/search) TIDAK dipakai: robots.txt
+# news.google.com memuat "Disallow: /" tanpa allow-list untuk /rss/search,
+# jadi mengambilnya berarti mengakali robots.txt. Lihat DESIGN.md.
+
+feeds:
+  - name: detik Finance
+    url: https://finance.detik.com/rss
+    domain: detik.com
+  - name: detik News
+    url: https://news.detik.com/rss
+    domain: detik.com
+  - name: CNBC Indonesia Market
+    url: https://www.cnbcindonesia.com/market/rss
+    domain: cnbcindonesia.com
+  - name: CNBC Indonesia News
+    url: https://www.cnbcindonesia.com/news/rss
+    domain: cnbcindonesia.com
+  - name: Kontan Keuangan
+    url: https://keuangan.kontan.co.id/rss
+    domain: kontan.co.id
+  - name: Kontan Investasi
+    url: https://investasi.kontan.co.id/rss
+    domain: kontan.co.id
+  - name: Katadata
+    url: https://katadata.co.id/rss
+    domain: katadata.co.id
+  - name: Antara Ekonomi
+    url: https://www.antaranews.com/rss/ekonomi.xml
+    domain: antaranews.com
+  - name: Tempo
+    url: https://rss.tempo.co/
+    domain: tempo.co
+  - name: IDX Channel
+    url: https://www.idxchannel.com/rss
+    domain: idxchannel.com
+  - name: CNN Indonesia Ekonomi
+    url: https://www.cnnindonesia.com/ekonomi/rss
+    domain: cnnindonesia.com
+
+# Feed yang DIBUANG beserta alasan (dicek 2026-10-23):
+#   - kompas.com: tidak ada feed RSS yang stabil. Beberapa pola dicoba
+#     (rss.kompas.com/api/rss/ekonomi -> 404; www.kompas.com/rss,
+#     money.kompas.com/rss, lestari.kompas.com/rss -> koneksi ditutup
+#     sepihak oleh server). Dibuang: tidak boleh karang URL.
+#   - bisnis.com: www.bisnis.com/rss dan /index/rss -> HTTP 403 (menolak
+#     klien otomatis). bisnisindonesia.id/rss -> HTTP 403. Dibuang.
+#   - infobanknews.com: /feed -> HTTP 200 tapi isinya HTML (SPA), bukan
+#     RSS; /feed/ -> HTTP 308 redirect berulang. Tidak ada feed RSS sah.
+#     Dibuang.
+#   - investor.id: /rss dan /feed -> HTTP 404. Tidak ada feed RSS. Dibuang.
