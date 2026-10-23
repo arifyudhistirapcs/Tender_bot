@@ -38,7 +38,8 @@ Hari libur nasional dilewati berdasarkan `data/holidays.yaml`, yang diperbarui t
 Model AI-nya adalah KiroCrew sendiri, jadi tidak perlu kunci API.
 
 1. Cron KiroCrew (zona `Asia/Jakarta`, `30 6 * * 1,3`) mengecek hari libur, lalu menjalankan tiga agen riset paralel. Aturan agen:
-   - tanpa browser;
+   - utamakan web_search/web_fetch; untuk sumber `needs_js` pakai `playwright-cli` headed dengan sesi sendiri per agen (`-s=<nama>`) dan batas waktu keras 60 detik per perintah; tab Chrome milik Arif tidak disentuh;
+   - riset berita hanya dari media kredibel (`credible_news_domains`), sumber lain diberi label belum terverifikasi;
    - membatasi jumlah panggilan per situs;
    - menulis hasil secara bertahap.
 
@@ -90,7 +91,8 @@ Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/`
 
 1. **Kumpulkan** kandidat dari:
    - sumber `public` di `banks.yaml`, contohnya RSS dan arsip `jasa_barang` Bank Sumut, serta daftar Lelang Pengadaan Bank Jatim;
-   - pencarian berita per bank, memakai kata kunci di `data/keywords.yaml`.
+   - berita dari RSS resmi media di `credible_news_domains`, disaring dengan nama bank + kata EDC, ditambah GDELT DOC 2.0 API per bank. Google News RSS TIDAK dipakai karena robots.txt news.google.com melarang `/rss/search`;
+   - sumber `needs_js` dilewati di mode `light` dan dicatat "dicek di mode full".
 
    Setiap request diberi timeout 20 detik dan retry satu kali. Robots.txt dipatuhi. Halaman blokir ("Request Rejected", Incapsula, HTTP 403) dicatat sebagai gagal akses.
 2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Item yang tersisa harus memenuhi dua syarat: memuat salah satu kata pengadaan (pengadaan, tender, lelang pengadaan, sewa, sewa beli, pemeliharaan, managed service, jasa layanan), dan memuat salah satu kata EDC (mesin EDC, Smart EDC, EDC Android, terminal EDC, Electronic Data Capture). Dari item itu diambil bank, judul, nilai, tanggal terbit, batas waktu, dan URL, sejauh tertulis di sumber. Pada mode `full`, penilaian ini sudah dilakukan oleh agen KiroCrew.
@@ -118,6 +120,7 @@ Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/`
 5. Workflow Actions dengan mode `light`. Uji `workflow_dispatch` dulu, kirim ke Space hanya setelah dry run benar.
 6. Mode `full`: input `inbox_ref` di workflow, `kiro/full-research-prompt.md`, dan cron KiroCrew.
 7. Uji coba 1 minggu, lalu evaluasi sumber yang sering gagal.
+8. Pembaca email undangan tender di Gmail perusahaan (Gmail API, akses baca saja, butuh izin admin Google Workspace). Dikerjakan setelah perusahaan terdaftar sebagai vendor; daftar situs registrasi ada di field `vendor_registration_url` di `banks.yaml`.
 
 ## Keputusan (2026-10-23)
 
