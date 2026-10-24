@@ -95,6 +95,10 @@ def _item_card(item: Item) -> dict:
             media += "  [unverified_source]"
         rows.append(("Media", media))
 
+    # Catatan cara daftar vendor (bila ada).
+    if item.vendor_registration_note:
+        rows.append(("Daftar vendor", item.vendor_registration_note))
+
     for label, val in rows:
         if val is None or val == "":
             continue
@@ -106,6 +110,11 @@ def _item_card(item: Item) -> dict:
     if item.attachment_url:
         buttons.append(
             {"text": "Lampiran", "onClick": {"openLink": {"url": item.attachment_url}}}
+        )
+    if item.vendor_registration_url:
+        buttons.append(
+            {"text": "Daftar vendor",
+             "onClick": {"openLink": {"url": item.vendor_registration_url}}}
         )
     widgets.append({"buttonList": {"buttons": buttons}})
 
