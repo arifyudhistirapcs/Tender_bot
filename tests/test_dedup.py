@@ -48,3 +48,23 @@ def test_ensure_fingerprint_mengisi_sekali():
     it = Item(bank="B", title="T", url="https://x.example/1")
     fp = ensure_fingerprint(it)
     assert fp and it.fingerprint == fp
+
+
+def test_fingerprint_dari_judul_daftar_tidak_pecah_setelah_judul_diperpanjang():
+    """Fix judul terpotong: fingerprint dihitung dari judul DAFTAR asli; setelah
+    judul item diperpanjang ke versi utuh, fingerprint TETAP sama -- jadi
+    seen.json yang sudah ada tetap mengenali item itu sebagai sama."""
+    list_title = "Pekerjaan Pengadaan Sewa Beli Mesin Smart EDC PT Bank Sumut (Pers..."
+    url = "https://www.banksumut.co.id/jasa_barang/smart-edc/"
+    # Fingerprint seperti yang tersimpan di seen.json (dari judul daftar).
+    stored_fp = fingerprint("Bank Sumut", list_title, url)
+
+    it = Item(bank="Bank Sumut", title=list_title, url=url)
+    # Pemanggil (pipeline) mengunci fingerprint SEBELUM enrich memperpanjang judul.
+    ensure_fingerprint(it)
+    assert it.fingerprint == stored_fp
+
+    # Enrich memperpanjang judul ke versi utuh (tanpa menyentuh fingerprint).
+    it.title = "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)"
+    # Fingerprint tidak berubah -> item lama di seen tetap dianggap sama.
+    assert it.fingerprint == stored_fp

@@ -36,6 +36,8 @@ class Item:
     reg_place: Optional[str] = None     # tempat/cara daftar
     contact: Optional[str] = None       # kontak panitia
     attachment_url: Optional[str] = None  # URL lampiran PDF yang dibaca
+    vendor_registration_url: Optional[str] = None  # URL daftar vendor bank (dari banks.yaml)
+    vendor_registration_note: Optional[str] = None  # catatan singkat cara daftar
     status: Optional[str] = None        # akan_dibuka | berjalan | tutup | tidak_diketahui
     fingerprint: str = field(default="", compare=False)
 

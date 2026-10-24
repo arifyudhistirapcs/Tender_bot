@@ -228,3 +228,60 @@ def test_enrich_fallback_wp_rest_saat_html_terblokir():
     assert item.volume == "500 unit"
     assert item.duration == "36 bulan"
     assert item.attachment_url == GDRIVE_DL
+
+
+# ---- Judul utuh dari halaman detail (fix judul terpotong) ----
+
+from tenderbot.enrich import (  # noqa: E402
+    choose_title, clean_title, extract_detail_title,
+)
+from tenderbot.models import fingerprint  # noqa: E402
+
+FULL_TITLE = ("Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data "
+              "Capture (Smart EDC) PT Bank Sumut (Perseroda)")
+
+
+def test_clean_title_entity_dan_suffix_situs():
+    assert clean_title("Market Sounding EDC | Bank Jatim") == "Market Sounding EDC"
+    assert clean_title("Pengumuman &amp; Lelang EDC") == "Pengumuman & Lelang EDC"
+    # Suffix tidak dibuang bila menyisakan judul terlalu pendek.
+    assert clean_title("EDC - A") == "EDC - A"
+
+
+def test_extract_detail_title_urutan_h1_og_title():
+    assert extract_detail_title(f"<h1>{FULL_TITLE}</h1>") == FULL_TITLE
+    og = f'<meta property="og:title" content="{FULL_TITLE} | Bank Sumut">'
+    assert extract_detail_title(og) == FULL_TITLE
+
+
+def test_choose_title_judul_daftar_terpotong_pakai_detail():
+    lst = "Pekerjaan Pengadaan Sewa Beli Mesin Smart EDC PT Bank Sumut (Pers..."
+    assert choose_title(lst, FULL_TITLE) == FULL_TITLE
+
+
+def test_choose_title_detail_lebih_panjang_dan_prefiks():
+    lst = "Pekerjaan Pengadaan Sewa Beli Mesin Smart"
+    detail = "Pekerjaan Pengadaan Sewa Beli Mesin Smart EDC PT Bank Sumut"
+    assert choose_title(lst, detail) == detail
+
+
+def test_choose_title_pertahankan_daftar_bila_detail_beda():
+    lst = "Pengadaan Smart EDC"
+    detail = "Berita lain yang tidak terkait sama sekali"
+    assert choose_title(lst, detail) == lst
+
+
+def test_enrich_perpanjang_judul_terpotong_dari_h1():
+    detail_url = "https://www.banksumut.co.id/jasa_barang/smart-edc/"
+    truncated = "Pekerjaan Pengadaan Sewa Beli Mesin Smart EDC PT Bank Sumut (Pers..."
+    html = f"<html><body><h1>{FULL_TITLE}</h1></body></html>"
+    item = Item(bank="Bank Sumut", title=truncated, url=detail_url,
+                source_type="portal")
+    # Fingerprint dikunci dari judul DAFTAR (seperti pipeline), sebelum enrich.
+    item.fingerprint = fingerprint(item.bank, item.title, item.url)
+    fp_before = item.fingerprint
+    ff = FakeFetcher({detail_url: (200, html)})
+    enrich_item(item, ff)
+    assert item.title == FULL_TITLE           # judul diperpanjang
+    assert not item.title.endswith("...")     # tidak lagi terpotong
+    assert item.fingerprint == fp_before      # fingerprint tidak berubah
