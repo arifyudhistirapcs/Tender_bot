@@ -36,6 +36,9 @@ GDELT_MIN_INTERVAL_SECONDS = 5.0
 GDELT_MAX_RECORDS = 75  # <= 250 (batas API); dibuat kecil karena per-kelompok
 GDELT_TIMESPAN = "7d"   # jendela 7 hari pada mode light
 GDELT_BANKS_PER_QUERY = 8  # berapa bank digabung per satu request (OR)
+# Backoff saat HTTP 429 (rate limited): coba ulang maksimal 2 kali dengan jeda
+# 10 lalu 20 detik. Jeda >=5 detik antar-request tetap dipertahankan.
+GDELT_429_BACKOFFS = (10.0, 20.0)
 
 
 def _text(elem: Optional[ET.Element]) -> str:
@@ -262,14 +265,20 @@ def collect_gdelt(
     sleep: Callable[[float], None] = time.sleep,
     min_interval: float = GDELT_MIN_INTERVAL_SECONDS,
     banks_per_query: int = GDELT_BANKS_PER_QUERY,
-) -> tuple[list[Item], bool, Optional[str]]:
+) -> tuple[list[Item], set[str], Optional[str]]:
     """Kueri GDELT per kelompok bank (jumlah request kecil, dijeda >=5 detik).
 
-    Return (items_tanpa_bank, ok, error). Penautan item->bank dilakukan oleh
-    map_gdelt_to_banks. `sleep` dapat disuntik di uji supaya tidak menunggu.
+    Penanganan HTTP 429 (rate limited): coba ulang maksimal 2 kali dengan jeda
+    10 lalu 20 detik; jeda antar-request tetap >=5 detik.
+
+    Return (items_tanpa_bank, banks_tercakup, error). `banks_tercakup` adalah
+    nama bank yang kueri kelompoknya BERHASIL diambil (HTTP 200) -- itulah arti
+    "GDELT mencakup bank ini" (sumber benar-benar dikueri untuknya), terlepas
+    apakah ada artikel yang cocok. `error` None bila semua kelompok berhasil;
+    selain itu berisi alasan kegagalan terakhir. `sleep` dapat disuntik di uji.
     """
     all_items: list[Item] = []
-    ok_any = False
+    covered: set[str] = set()
     last_error: Optional[str] = None
     groups = list(_chunks(banks, max(1, banks_per_query)))
 
@@ -282,15 +291,57 @@ def collect_gdelt(
             f"&mode=artlist&format=json&timespan={GDELT_TIMESPAN}"
             f"&maxrecords={GDELT_MAX_RECORDS}"
         )
+        text = _fetch_gdelt_with_backoff(fetcher, url, sleep)
+        if text is None:
+            # Kegagalan non-transien atau 429 setelah semua percobaan.
+            last_error = _LAST_GDELT_ERROR[0] or "gagal"
+            continue
+        for bank in group:
+            covered.add(bank.name)
+        all_items.extend(parse_gdelt(text, credible_domains))
+
+    error = None if not last_error else last_error
+    return all_items, covered, error
+
+
+# Alasan kegagalan terakhir dari _fetch_gdelt_with_backoff (dibaca collect_gdelt).
+_LAST_GDELT_ERROR: list[Optional[str]] = [None]
+
+
+def _is_rate_limited(reason: str) -> bool:
+    low = (reason or "").lower()
+    return "429" in low or "rate limited" in low
+
+
+def _fetch_gdelt_with_backoff(
+    fetcher: Fetcher, url: str, sleep: Callable[[float], None]
+) -> Optional[str]:
+    """Ambil satu kueri GDELT; pada 429 coba ulang 10 lalu 20 detik.
+
+    Kembalikan teks respons, atau None bila gagal (dengan alasan di
+    _LAST_GDELT_ERROR). Kegagalan non-429 tidak di-retry (langsung None).
+    """
+    _LAST_GDELT_ERROR[0] = None
+    try:
+        res = fetcher.fetch(url)
+        return res.text
+    except AccessError as exc:
+        _LAST_GDELT_ERROR[0] = exc.reason
+        if not _is_rate_limited(exc.reason):
+            return None
+
+    # 429: coba ulang dengan backoff.
+    for backoff in GDELT_429_BACKOFFS:
+        sleep(backoff)
         try:
             res = fetcher.fetch(url)
+            _LAST_GDELT_ERROR[0] = None
+            return res.text
         except AccessError as exc:
-            last_error = exc.reason
-            continue
-        ok_any = True
-        all_items.extend(parse_gdelt(res.text, credible_domains))
-
-    return all_items, ok_any, (None if ok_any else (last_error or "gagal"))
+            _LAST_GDELT_ERROR[0] = exc.reason
+            if not _is_rate_limited(exc.reason):
+                return None
+    return None
 
 
 def map_gdelt_to_banks(
