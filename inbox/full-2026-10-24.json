@@ -1,0 +1,86 @@
+﻿{
+    "run_date":  "2026-10-24",
+    "mode":  "full",
+    "items":  [
+
+              ],
+    "coverage":  {
+                     "checked":  [
+                                     "BRI",
+                                     "Bank Mandiri",
+                                     "BNI",
+                                     "BTN",
+                                     "BSI",
+                                     "BCA",
+                                     "CIMB Niaga",
+                                     "Danamon",
+                                     "PermataBank",
+                                     "Maybank Indonesia",
+                                     "OCBC Indonesia",
+                                     "Panin Bank",
+                                     "Bank Mega",
+                                     "SMBC Indonesia",
+                                     "UOB Indonesia",
+                                     "Bank Sumut",
+                                     "Bank Jatim",
+                                     "Bank Sumsel Babel",
+                                     "Bank Jambi",
+                                     "Bank Nagari",
+                                     "Bank Aceh",
+                                     "Bank Riau Kepri",
+                                     "Bank Bengkulu",
+                                     "Bank Lampung",
+                                     "bank bjb",
+                                     "Bank Jateng",
+                                     "BPD DIY",
+                                     "Bank Banten",
+                                     "BPD Bali",
+                                     "Bank NTB Syariah",
+                                     "Bank NTT",
+                                     "Bank Kalbar",
+                                     "Bank Kalteng",
+                                     "Bank Kalsel",
+                                     "Bankaltimtara",
+                                     "Bank SulutGo",
+                                     "Bank Sulselbar",
+                                     "Bank Sultra",
+                                     "Bank Sulteng",
+                                     "Bank Maluku Malut",
+                                     "Bank Papua"
+                                 ],
+                     "failed":  [
+                                    {
+                                        "bank":  "BRI",
+                                        "reason":  "portal eproc.bri.co.id diblokir WAF Incapsula (\u0027Request unsuccessful\u0027) untuk alat otomatis; tidak diakali. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "BNI",
+                                        "reason":  "portal e-proc.bni.co.id menjawab HTTP 503. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "BTN",
+                                        "reason":  "portal e2eprocreg.btn.co.id hanya login vendor (Oracle EBS), fetch tanpa isi. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "BSI",
+                                        "reason":  "portal rekanan.bankbsi.co.id diblokir WAF Incapsula (\u0027Request unsuccessful\u0027); tidak diakali. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "PermataBank",
+                                        "reason":  "seluruh situs permatabank.com HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "Panin Bank",
+                                        "reason":  "seluruh situs panin.co.id HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita."
+                                    },
+                                    {
+                                        "bank":  "Bank Jakarta",
+                                        "reason":  "bankjakarta.co.id menjawab HTTP 403 untuk web_fetch dan skrip (blokir dihormati, tidak diakali); Google News 60 hari terakhir tidak memuat tender/pengadaan EDC Bank Jakarta atau Bank DKI."
+                                    },
+                                    {
+                                        "bank":  "Bank NTT",
+                                        "reason":  "situs www.bankntt.co.id hanya menampilkan \u0027Website Under Maintenance\u0027 saat dicek 24 Okt 2026; pengumuman pengadaan tidak bisa dibaca. Dicek lewat berita (Google News 45-60 hari): tidak ada berita tender EDC."
+                                    }
+                                ]
+                 }
+}
