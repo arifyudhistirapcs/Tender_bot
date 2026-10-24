@@ -2,6 +2,7 @@
 # Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-23 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
 # --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
 # Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+# Judul Bank Sumut kini UTUH (dari halaman detail), ada baris "Daftar vendor" (datang langsung Medan; tanpa URL -> tanpa tombol).
 [tenderbot] run 2026-10-23 mode=light
   bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 1 (berjalan 1, akan dibuka 0)
   dibuang (status): 1
@@ -24,7 +25,7 @@
             "widgets": [
               {
                 "textParagraph": {
-                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...</b>"
+                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)</b>"
                 }
               },
               {
@@ -85,6 +86,12 @@
                 "decoratedText": {
                   "topLabel": "Kontak",
                   "text": "Telp. 061-4515100, 061-4155100 (Ext. 1623)"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Daftar vendor",
+                  "text": "Daftar per tender, datang langsung ke kantor pusat Medan. Telp 061-4515100 ext. 1623."
                 }
               },
               {

@@ -39,6 +39,8 @@ class RunReport:
     deferred_js: list[str] = field(default_factory=list)  # sumber/bank butuh browser
     news_checked_banks: list[str] = field(default_factory=list)  # bank tercakup berita
     news_failed_banks: list[tuple[str, str]] = field(default_factory=list)  # (bank, alasan)
+    news_feed_failures: list[tuple[str, str]] = field(default_factory=list)  # (nama feed, alasan)
+    news_gdelt_failure: Optional[str] = None  # alasan GDELT gagal (None bila ok)
     dropped: list[tuple[str, str, str]] = field(default_factory=list)  # (bank, judul, alasan)
     ongoing_count: int = 0   # jumlah tender berjalan di laporan
     upcoming_count: int = 0  # jumlah tender akan dibuka di laporan
@@ -109,39 +111,57 @@ def _collect_news(
             state.record_source_failure(f"feed:{url}", "gagal", run_date)
     for name, reason in feed_failures:
         report.failed.append((f"feed {name}", reason))
+    # Catat kegagalan feed untuk ringkasan jujur (nama feed + alasan).
+    report.news_feed_failures.extend(feed_failures)
 
-    # 2. GDELT DOC 2.0 (kueri per kelompok bank, dijeda >=5 detik).
+    # 2. GDELT DOC 2.0 (kueri per kelompok bank, dijeda >=5 detik, backoff 429).
     kwargs = {}
     if gdelt_sleep is not None:
         kwargs["sleep"] = gdelt_sleep
-    gdelt_raw, gdelt_ok, gdelt_err = rss.collect_gdelt(
+    gdelt_raw, gdelt_covered_query, gdelt_err = rss.collect_gdelt(
         fetcher, banks, keywords.edc, keywords.credible_news_domains, **kwargs
     )
-    gdelt_items, gdelt_covered = rss.map_gdelt_to_banks(gdelt_raw, banks)
+    gdelt_items, _gdelt_article_covered = rss.map_gdelt_to_banks(gdelt_raw, banks)
     items.extend(gdelt_items)
-    if gdelt_ok:
+    if not gdelt_err:
         state.record_source_ok("gdelt", run_date)
     else:
-        state.record_source_failure("gdelt", gdelt_err or "gagal", run_date)
-        report.failed.append(("GDELT", gdelt_err or "gagal"))
+        state.record_source_failure("gdelt", gdelt_err, run_date)
+        report.failed.append(("GDELT", gdelt_err))
+        report.news_gdelt_failure = gdelt_err
 
-    # 3. Peta cakupan berita per bank.
-    # Sebuah bank "dicek lewat berita" bila ADA sumber berita yang berhasil
-    # diambil dan mencakupnya. Feed yang berhasil mencakup SEMUA bank (satu feed
-    # menyentuh semua bank lewat penyaringan), jadi feed sukses = bank tercakup.
+    # 3. Peta cakupan berita per bank (JUJUR).
+    # Sebuah bank "tercakup berita" hanya bila ADA sumber berita yang BERHASIL
+    # mencakupnya:
+    #   - GDELT kelompoknya berhasil diambil (bank ada di gdelt_covered_query), ATAU
+    #   - setidaknya satu feed RSS berhasil (feed menyentuh semua bank lewat saring).
+    # Bila keduanya gagal untuk bank itu -> masuk failed dengan alasan gabungan.
     for bank in banks:
-        covered = (bank.name in gdelt_covered) or any_feed_ok
+        covered = (bank.name in gdelt_covered_query) or any_feed_ok
         if covered:
             report.news_checked_banks.append(bank.name)
         else:
-            if gdelt_err:
-                reason = f"semua feed media + GDELT gagal ({gdelt_err})"
-            else:
-                reason = "semua feed media gagal; GDELT tidak mencakup bank ini"
+            reason = _news_failure_reason(gdelt_err, feed_failures, any_feed_ok)
             report.news_failed_banks.append((bank.name, reason))
             report.failed.append((f"{bank.name} (berita)", reason))
 
     return items
+
+
+def _news_failure_reason(
+    gdelt_err: Optional[str],
+    feed_failures: list[tuple[str, str]],
+    any_feed_ok: bool,
+) -> str:
+    """Alasan ringkas kenapa sebuah bank tidak tercakup berita."""
+    gdelt_part = f"GDELT {gdelt_err}" if gdelt_err else "GDELT tidak mencakup bank ini"
+    if any_feed_ok:
+        feed_part = "feed media ok tapi tidak mencakup bank ini"
+    elif feed_failures:
+        feed_part = "feed gagal"
+    else:
+        feed_part = "tidak ada feed media"
+    return f"berita: {gdelt_part}, {feed_part}"
 
 
 def collect_light(
@@ -186,6 +206,7 @@ def process_candidates(
     report: RunReport,
     fetcher: Optional[Fetcher] = None,
     enrich: bool = True,
+    banks: Optional[list[Bank]] = None,
 ) -> None:
     """Saring, dedup, pengayaan detail, hitung status, tandai seen.
 
@@ -197,6 +218,13 @@ def process_candidates(
     Item yang dibuang TETAP ditandai seen supaya tidak dicek lagi.
     """
     report.candidates = len(candidates)
+    # Peta nama bank -> info daftar vendor (dari banks.yaml), untuk kartu.
+    vendor_by_bank: dict[str, tuple[Optional[str], Optional[str]]] = {}
+    for b in banks or []:
+        vendor_by_bank[b.name] = (
+            b.vendor_registration_url or None,
+            b.vendor_registration_note or None,
+        )
     # Judul yang sudah dilihat (untuk near-dup), ditambah yang lolos di run ini.
     seen_titles = state.seen_titles()
 
@@ -236,6 +264,14 @@ def process_candidates(
         elif item.status == STATUS_UPCOMING:
             report.upcoming_count += 1
 
+        # Info daftar vendor bank (untuk tombol "Daftar vendor" di kartu).
+        vinfo = vendor_by_bank.get(item.bank)
+        if vinfo:
+            if item.vendor_registration_url is None:
+                item.vendor_registration_url = vinfo[0]
+            if item.vendor_registration_note is None:
+                item.vendor_registration_note = vinfo[1]
+
         report.new_items.append(item)
 
 
@@ -256,7 +292,7 @@ def run_light(
         gdelt_sleep=gdelt_sleep, skip_news=skip_news,
     )
     process_candidates(candidates, keywords, state, today, run_date, report,
-                       fetcher=fetcher)
+                       fetcher=fetcher, banks=banks)
     report.unhealthy_sources = state.unhealthy_sources()
     return report
 
@@ -291,6 +327,6 @@ def run_full(
             report.failed.append((failed.get("bank", "?"), failed.get("reason", "?")))
 
     process_candidates(candidates, keywords, state, today, run_date, report,
-                       fetcher=fetcher)
+                       fetcher=fetcher, banks=banks)
     report.unhealthy_sources = state.unhealthy_sources()
     return report

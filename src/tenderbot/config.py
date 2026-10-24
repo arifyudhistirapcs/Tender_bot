@@ -30,6 +30,7 @@ class Bank:
     notes: str = ""
     needs_js: bool = False  # portal utama bank dirender JavaScript (butuh browser)
     vendor_registration_url: str = ""  # diisi agen riset lain nanti; boleh kosong
+    vendor_registration_note: str = ""  # catatan singkat cara/ syarat daftar
 
     @property
     def news_terms(self) -> list[str]:
@@ -85,6 +86,7 @@ def load_banks(path: Optional[Path] = None) -> list[Bank]:
                 notes=raw.get("notes", "") or "",
                 needs_js=bool(raw.get("needs_js", False)),
                 vendor_registration_url=raw.get("vendor_registration_url", "") or "",
+                vendor_registration_note=raw.get("vendor_registration_note", "") or "",
             )
         )
     if not banks:

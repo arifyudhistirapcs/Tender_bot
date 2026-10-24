@@ -27,7 +27,8 @@ banks:
     aliases: ["Bank Rakyat Indonesia", "BRI", "BBRI"]
     group: bumn
     access: vendor_login
-    vendor_registration_url: ""   # diisi agen riset lain (tdronline BRI)
+    vendor_registration_url: "https://tdronline.bri.co.id/"
+    vendor_registration_note: "Daftar akun di tdronline, lalu login di eproc.bri.co.id (dilindungi Incapsula)."
     sources: []
     notes: >-
       Portal eproc.bri.co.id wajib login vendor; diblokir WAF Incapsula saat
@@ -47,6 +48,8 @@ banks:
     aliases: ["Bank Negara Indonesia", "BBNI"]
     group: bumn
     access: not_found
+    vendor_registration_url: "https://e-proc.bni.co.id/"
+    vendor_registration_note: "Portal e-proc.bni.co.id; saat dicek menjawab HTTP 503, konfirmasi ke bank."
     sources: []
     notes: >-
       Portal tidak ditemukan. Akronim "BNI" bertabrakan dengan Business
@@ -56,7 +59,8 @@ banks:
     aliases: ["Bank Tabungan Negara", "BBTN"]
     group: bumn
     access: vendor_login
-    vendor_registration_url: ""   # diisi agen riset lain (e2eprocreg BTN)
+    vendor_registration_url: "https://e2eprocreg.btn.co.id/"
+    vendor_registration_note: "Registrasi Oracle EBS. Helpdesk WA +62 822 5888 2676."
     sources: []
     notes: >-
       Portal e2eprocreg.btn.co.id (Oracle E-Business Suite) wajib login
@@ -67,6 +71,8 @@ banks:
     aliases: ["Bank Syariah Indonesia", "BRIS"]
     group: bumn
     access: not_found
+    vendor_registration_url: "https://rekanan.bankbsi.co.id/"
+    vendor_registration_note: "Portal rekanan.bankbsi.co.id; fungsi disimpulkan dari nama alamat, konfirmasi ke bank."
     sources: []
     notes: >-
       Portal tidak ditemukan. Akronim "BSI" bertabrakan dengan BSI Group
@@ -144,7 +150,8 @@ banks:
     aliases: ["SMBC Indonesia", "Bank SMBC Indonesia", "Bank BTPN", "BTPN"]
     group: swasta
     access: vendor_login
-    vendor_registration_url: ""   # diisi agen riset lain (iProc pengadaan.com)
+    vendor_registration_url: "https://eprocsmbci.pengadaan.com/index.php/registrasi"
+    vendor_registration_note: "Login lewat akun vendor.pengadaan.com; satu tautan mengarah ke server uji, konfirmasi ke bank."
     sources: []
     notes: >-
       Portal iProc di iprocsmbci.pengadaan.com / smbci.pengadaan.com hanya
@@ -170,6 +177,7 @@ banks:
     aliases: ["Bank Sumut", "PT Bank Sumut", "Bank Pembangunan Daerah Sumatera Utara"]
     group: bpd
     access: public
+    vendor_registration_note: "Daftar per tender, datang langsung ke kantor pusat Medan. Telp 061-4515100 ext. 1623."
     sources:
       - url: "https://www.banksumut.co.id/feed/"
         type: rss
@@ -185,6 +193,8 @@ banks:
     aliases: ["Bank Jatim", "Bank Pembangunan Daerah Jawa Timur", "BJTM"]
     group: bpd
     access: public
+    vendor_registration_url: "https://eprocurement.bankjatim.co.id/main/index/registrasi"
+    vendor_registration_note: "Isi NPWP dan email resmi perusahaan, aktivasi lewat email. vendormanagement@bankjatim.co.id"
     sources:
       - url: "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan"
         type: html
@@ -226,6 +236,8 @@ banks:
     group: bpd
     access: blocked
     needs_js: true
+    vendor_registration_url: "https://eproc.bankbjb.co.id/"
+    vendor_registration_note: "Portal e-Procurement Promise; ada menu pendaftaran. Situs dirender JavaScript."
     sources: []
     notes: >-
       eproc.bankbjb.co.id menampilkan halaman tantangan "Please wait a
@@ -266,6 +278,8 @@ banks:
     aliases: ["Bank Sultra", "Bank Pembangunan Daerah Sulawesi Tenggara"]
     group: bpd
     access: not_found
+    vendor_registration_url: "https://e-tender.banksultra.co.id/auth/register"
+    vendor_registration_note: "Daftar online; akun aktif setelah direktur membawa dokumen asli ke kantor Kendari. barangjasa@banksultra.co.id"
     sources: []
     notes: >-
       Portal e-tender.banksultra.co.id ("Tender Online") hanya terlihat di
@@ -276,6 +290,8 @@ banks:
     aliases: ["Bank Sulteng", "Bank Pembangunan Daerah Sulawesi Tengah"]
     group: bpd
     access: not_found
+    vendor_registration_url: "https://eproc.banksulteng.co.id/#/daftar"
+    vendor_registration_note: "Satu kali daftar berlaku untuk semua tender; halaman berlabel UAT, konfirmasi ke bank."
     sources: []
     notes: >-
       Portal eproc.banksulteng.co.id hanya terlihat di cuplikan pencarian,
@@ -306,6 +322,8 @@ banks:
     aliases: ["Bank Sumsel Babel", "Bank Pembangunan Daerah Sumatera Selatan dan Bangka Belitung"]
     group: bpd
     access: not_found
+    vendor_registration_url: "https://eproc.banksumselbabel.com/index.php/homepage/register.shtml"
+    vendor_registration_note: "Dokumen: NIB, NPWP, SPPKP, akta, SPT 1771, neraca, bukti pengalaman. e-Proc@banksumselbabel.com"
     sources: []
     notes: "Tidak diriset; pantau lewat berita."
 
@@ -358,6 +376,8 @@ banks:
     aliases: ["Bank Sulselbar", "Bank Pembangunan Daerah Sulawesi Selatan dan Sulawesi Barat"]
     group: bpd
     access: not_found
+    vendor_registration_url: "https://eproc.banksulselbar.co.id/register"
+    vendor_registration_note: "Wajib terdaftar sebelum ikut tender. Dokumen: akta, NIB, NPWP+PKP, laporan keuangan 2 tahun."
     sources: []
     notes: "Tidak diriset; pantau lewat berita."
 

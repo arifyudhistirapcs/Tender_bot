@@ -149,8 +149,10 @@ def test_gdelt_collect_dan_map_ke_bank():
            f"&mode=artlist&format=json&timespan={GDELT_TIMESPAN}"
            f"&maxrecords={GDELT_MAX_RECORDS}")
     ff = FakeFetcher({url: (200, read_fixture("gdelt_banks.json"))})
-    raw, ok, err = collect_gdelt(ff, banks, EDC_TERMS, CREDIBLE, sleep=fake_sleep)
-    assert ok and err is None
+    raw, covered_query, err = collect_gdelt(ff, banks, EDC_TERMS, CREDIBLE, sleep=fake_sleep)
+    assert err is None
+    # Kueri kelompok berhasil -> kedua bank tercakup (sumber benar-benar dikueri).
+    assert covered_query == {"Bank Sumut", "Bank Jatim"}
     # Satu kelompok bank (<=8) -> tidak ada jeda antar-request.
     assert calls["n"] == 0
     linked, covered = map_gdelt_to_banks(raw, banks)
@@ -163,7 +165,78 @@ def test_gdelt_collect_dan_map_ke_bank():
 def test_gdelt_semua_gagal():
     banks = [Bank(name="A", aliases=["A"])]
     ff = FakeFetcher({})  # tidak ada rute -> AccessError
-    raw, ok, err = collect_gdelt(ff, banks, EDC_TERMS, CREDIBLE, sleep=lambda _: None)
+    raw, covered_query, err = collect_gdelt(ff, banks, EDC_TERMS, CREDIBLE, sleep=lambda _: None)
     assert raw == []
-    assert ok is False
+    assert covered_query == set()  # tidak ada kelompok yang berhasil
     assert err
+
+
+# ---- GDELT 429: retry dengan backoff ----
+
+class _FlakyGdeltFetcher(FakeFetcher):
+    """Melayani 429 untuk beberapa percobaan pertama, lalu 200.
+
+    `fail_times` = berapa kali pertama membalas 429 sebelum sukses.
+    """
+
+    def __init__(self, url, body, fail_times):
+        super().__init__({})
+        self._url = url
+        self._body = body
+        self._fail_times = fail_times
+        self._n = 0
+        from tenderbot.http_client import FetchResult
+        self._FetchResult = FetchResult
+
+    def fetch(self, url, bypass_robots=False):
+        self.calls.append(url)
+        self._n += 1
+        if self._n <= self._fail_times:
+            raise AccessError("HTTP 429 (rate limited)")
+        return self._FetchResult(url=url, status=200, text=self._body,
+                                 content=self._body.encode("utf-8"),
+                                 content_type="application/json")
+
+
+def _gdelt_url_for(banks):
+    from urllib.parse import quote_plus
+    from tenderbot.collectors.rss import (
+        GDELT_DOC_URL, GDELT_TIMESPAN, GDELT_MAX_RECORDS,
+    )
+    q = build_gdelt_query(banks, EDC_TERMS)
+    return (f"{GDELT_DOC_URL}?query={quote_plus(q)}"
+            f"&mode=artlist&format=json&timespan={GDELT_TIMESPAN}"
+            f"&maxrecords={GDELT_MAX_RECORDS}")
+
+
+def test_gdelt_429_lalu_sukses_setelah_backoff():
+    banks = [Bank(name="Bank Sumut", aliases=["Bank Sumut"])]
+    url = _gdelt_url_for(banks)
+    body = read_fixture("gdelt_banks.json")
+    slept: list[float] = []
+    # Gagal 429 sekali, lalu sukses pada percobaan kedua (backoff 10 detik).
+    ff = _FlakyGdeltFetcher(url, body, fail_times=1)
+    raw, covered, err = collect_gdelt(
+        ff, banks, EDC_TERMS, CREDIBLE, sleep=lambda s: slept.append(s),
+    )
+    assert err is None
+    assert covered == {"Bank Sumut"}
+    assert len(raw) >= 1
+    assert slept == [10.0]           # satu backoff 10 detik
+    assert ff._n == 2                # satu gagal + satu sukses
+
+
+def test_gdelt_429_menyerah_setelah_dua_retry():
+    banks = [Bank(name="Bank Sumut", aliases=["Bank Sumut"])]
+    url = _gdelt_url_for(banks)
+    slept: list[float] = []
+    # Selalu 429 -> 1 percobaan awal + 2 retry (10, 20 detik), lalu menyerah.
+    ff = _FlakyGdeltFetcher(url, "{}", fail_times=99)
+    raw, covered, err = collect_gdelt(
+        ff, banks, EDC_TERMS, CREDIBLE, sleep=lambda s: slept.append(s),
+    )
+    assert raw == []
+    assert covered == set()
+    assert err and "429" in err
+    assert slept == [10.0, 20.0]     # dua backoff, maksimal 2 retry
+    assert ff._n == 3

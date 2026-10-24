@@ -13,6 +13,7 @@ detail + teks PDF). Bila label tidak ada, field dibiarkan None. JANGAN menebak.
 
 from __future__ import annotations
 
+import html as _html
 import io
 import re
 from typing import Optional
@@ -58,6 +59,106 @@ def pdf_bytes_to_text(data: bytes) -> str:
     finally:
         doc.close()
     return "\n".join(parts)
+
+
+# ---- Ekstraksi judul utuh dari halaman detail ----
+
+# Suffix nama situs yang sering menempel di <title> / og:title, mis.
+# "Judul | Bank Jatim" atau "Judul - Bank Sumut". Dibuang saat membersihkan.
+_RE_SITE_SUFFIX = re.compile(r"\s*[|\u2013\u2014-]\s*[^|\u2013\u2014-]{1,60}$")
+_RE_H1 = re.compile(r"<h1[^>]*>(.*?)</h1>", re.IGNORECASE | re.DOTALL)
+_RE_H2 = re.compile(r"<h2[^>]*>(.*?)</h2>", re.IGNORECASE | re.DOTALL)
+_RE_OG_TITLE = re.compile(
+    r"<meta[^>]+(?:property|name)\s*=\s*[\"']og:title[\"'][^>]*>",
+    re.IGNORECASE,
+)
+_RE_META_CONTENT = re.compile(
+    r"content\s*=\s*(?:\"([^\"]*)\"|'([^']*)')", re.IGNORECASE
+)
+_RE_TITLE_TAG = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
+_RE_TAGS = re.compile(r"<[^>]+>")
+
+
+def clean_title(raw: str, strip_site_suffix: bool = True) -> str:
+    """Bersihkan judul: buang tag sisa, unescape entity HTML, rapatkan spasi,
+    dan (opsional) buang suffix nama situs seperti " | Bank Jatim".
+    """
+    if not raw:
+        return ""
+    text = _RE_TAGS.sub(" ", raw)
+    text = _html.unescape(text)
+    text = re.sub(r"\s+", " ", text).strip()
+    if strip_site_suffix:
+        # Hanya buang suffix bila judul masih cukup panjang setelahnya.
+        stripped = _RE_SITE_SUFFIX.sub("", text).strip()
+        if len(stripped) >= 12:
+            text = stripped
+    return text
+
+
+def extract_detail_title(html: str) -> Optional[str]:
+    """Judul utuh dari HTML detail: urutan h1 -> og:title -> h2 -> <title>.
+
+    Suffix nama situs dibuang hanya untuk og:title dan <title> (yang biasanya
+    memuatnya); h1/h2 adalah judul isi, dipakai apa adanya.
+    """
+    if not html:
+        return None
+    m = _RE_H1.search(html)
+    if m:
+        t = clean_title(m.group(1), strip_site_suffix=False)
+        if t:
+            return t
+    m = _RE_OG_TITLE.search(html)
+    if m:
+        cm = _RE_META_CONTENT.search(m.group(0))
+        if cm:
+            t = clean_title(cm.group(1) or cm.group(2) or "", strip_site_suffix=True)
+            if t:
+                return t
+    m = _RE_H2.search(html)
+    if m:
+        t = clean_title(m.group(1), strip_site_suffix=False)
+        if t:
+            return t
+    m = _RE_TITLE_TAG.search(html)
+    if m:
+        t = clean_title(m.group(1), strip_site_suffix=True)
+        if t:
+            return t
+    return None
+
+
+def _is_truncated(title: str) -> bool:
+    """True bila judul daftar jelas terpotong (diakhiri "..." atau "\u2026")."""
+    t = (title or "").rstrip()
+    return t.endswith("...") or t.endswith("\u2026")
+
+
+def choose_title(list_title: str, detail_title: Optional[str]) -> str:
+    """Pilih judul akhir untuk tampilan.
+
+    Pakai judul detail bila:
+      - judul daftar berakhir "..." / "\u2026" (jelas terpotong); ATAU
+      - judul detail lebih panjang DAN diawali judul daftar (tanpa "...")
+        setelah normalisasi, jadi benar-benar versi yang diperpanjang.
+    Selain itu pertahankan judul daftar.
+    Fingerprint TIDAK dihitung dari sini (tetap dari judul daftar asli).
+    """
+    lst = (list_title or "").strip()
+    det = (detail_title or "").strip()
+    if not det:
+        return lst
+    if _is_truncated(lst):
+        return det
+
+    def _norm(s: str) -> str:
+        return re.sub(r"\s+", " ", s).strip().lower()
+
+    base = _norm(lst)
+    if len(det) > len(lst) and _norm(det).startswith(base) and base:
+        return det
+    return lst
 
 
 # ---- Ekstraksi field dari teks ----
@@ -394,28 +495,29 @@ def _wp_rest_from_url(url: str) -> Optional[tuple[str, str, str]]:
     return (base, ptype, slug)
 
 
-def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str]]:
+def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str], Optional[str]]:
     """Fallback: ambil detail lewat WP REST API bila HTML tak terakses.
 
-    Kembalikan (teks_konten, daftar_lampiran). Mencoba:
-      /wp-json/wp/v2/<type>?slug=<slug>  -> content.rendered (+ post id)
+    Kembalikan (teks_konten, daftar_lampiran, judul_rendered). Mencoba:
+      /wp-json/wp/v2/<type>?slug=<slug>  -> content.rendered (+ post id + title)
       /wp-json/wp/v2/media?parent=<id>   -> media attachment PDF milik post.
     """
     parsed = _wp_rest_from_url(item.url)
     if parsed is None:
-        return ("", [])
+        return ("", [], None)
     base, ptype, slug = parsed
 
     import json as _json
     text = ""
     attachments: list[str] = []
     post_id: Optional[int] = None
+    wp_title: Optional[str] = None
 
     rest_url = f"{base}/wp-json/wp/v2/{ptype}?slug={slug}"
     try:
         res = fetcher.fetch(rest_url)
     except AccessError:
-        return ("", [])
+        return ("", [], None)
     try:
         data = _json.loads(res.text)
     except (ValueError, TypeError):
@@ -426,6 +528,8 @@ def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str]]:
         rendered = (post.get("content") or {}).get("rendered") or ""
         text = html_to_text(rendered)
         attachments.extend(discover_attachments(rendered, item.url))
+        title_rendered = (post.get("title") or {}).get("rendered") or ""
+        wp_title = clean_title(title_rendered, strip_site_suffix=True) or None
 
     # Media attachment milik post (PDF yang diunggah ke WP).
     if post_id is not None:
@@ -443,7 +547,7 @@ def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str]]:
                     if src and src not in attachments:
                         attachments.append(src)
 
-    return (text, attachments)
+    return (text, attachments, wp_title)
 
 
 def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM) -> Item:
@@ -456,6 +560,7 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
     """
     detail_text = ""
     attachments: list[str] = []
+    detail_title: Optional[str] = None
 
     # 1. Halaman detail (HTML atau PDF langsung).
     try:
@@ -470,10 +575,11 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
         else:
             detail_text = html_to_text(res.text)
             attachments.extend(discover_attachments(res.text, item.url))
+            detail_title = extract_detail_title(res.text)
 
     # 2. Fallback WordPress REST API bila HTML gagal atau tak memuat lampiran.
     if (res is None or not attachments) and not _is_pdf(item.url, ""):
-        wp_text, wp_attachments = _fetch_wp_detail(item, fetcher)
+        wp_text, wp_attachments, wp_title = _fetch_wp_detail(item, fetcher)
         if wp_text and not detail_text:
             detail_text = wp_text
         elif wp_text:
@@ -481,6 +587,14 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
         for a in wp_attachments:
             if a not in attachments:
                 attachments.append(a)
+        if detail_title is None and wp_title:
+            detail_title = wp_title
+
+    # Judul utuh: pakai judul detail bila lebih baik (lihat choose_title).
+    # Fingerprint TIDAK dihitung ulang -- tetap dari judul daftar asli yang
+    # sudah di-set pemanggil sebelum enrich, jadi state/seen.json tidak pecah.
+    if detail_title:
+        item.title = choose_title(item.title, detail_title)
 
     # Terapkan field dari teks detail (HTML + konten REST).
     _apply_fields(item, extract_fields(detail_text))

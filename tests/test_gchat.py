@@ -40,3 +40,40 @@ def test_dry_run_tidak_mengirim(capsys):
     assert outcome.dry_run and not outcome.sent
     out = capsys.readouterr().out
     assert "Tidak ada informasi tender baru" in out
+
+
+def _tombol_teks(card: dict) -> list[str]:
+    """Ambil semua label tombol di satu kartu."""
+    labels: list[str] = []
+    for section in card["card"]["sections"]:
+        for w in section["widgets"]:
+            for b in w.get("buttonList", {}).get("buttons", []):
+                labels.append(b["text"])
+    return labels
+
+
+def test_kartu_tampilkan_tombol_daftar_vendor_bila_ada_url():
+    it = Item(bank="Bank Jatim", title="Pengadaan EDC",
+              url="https://x.example/1", status="berjalan",
+              vendor_registration_url="https://eprocurement.bankjatim.co.id/main/index/registrasi",
+              vendor_registration_note="Isi NPWP dan email resmi.")
+    it.fingerprint = fingerprint(it.bank, it.title, it.url)
+    payload = build_message([it], 42, [])
+    card = payload["cardsV2"][0]
+    labels = _tombol_teks(card)
+    assert "Daftar vendor" in labels
+    assert "Buka sumber" in labels
+    # URL vendor benar-benar tertaut di tombol.
+    s = str(card)
+    assert "eprocurement.bankjatim.co.id" in s
+    # Catatan daftar vendor muncul sebagai baris.
+    assert "Isi NPWP" in s
+
+
+def test_kartu_tanpa_tombol_daftar_vendor_bila_tanpa_url():
+    it = Item(bank="Bank Sumut", title="Pengadaan Smart EDC",
+              url="https://x.example/2", status="berjalan")
+    it.fingerprint = fingerprint(it.bank, it.title, it.url)
+    payload = build_message([it], 42, [])
+    labels = _tombol_teks(payload["cardsV2"][0])
+    assert "Daftar vendor" not in labels

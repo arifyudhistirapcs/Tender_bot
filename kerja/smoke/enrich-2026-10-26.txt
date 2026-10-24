@@ -1,7 +1,7 @@
 ﻿# Smoke run JALUR NYATA (CLI asli, tanpa webhook).
 # Perintah: python -m tenderbot run --mode light --dry-run --today 2026-10-26 --state-dir <tmp kosong> --only-bank "Bank Sumut" --only-bank "Bank Jatim" --skip-news
 # --only-bank/--skip-news hanya menyempitkan cakupan; jalur enrich+status identik dengan run penuh.
-# Lampiran Bank Sumut diambil dari Google Drive (ditaut pengumuman), dibaca PyMuPDF.
+# Hasil: tidak ada tender baru (Smart EDC tutup 23 Okt; Jatim market sounding sudah lama). Tanpa kegagalan -> "Semua sumber bisa diakses".
 [tenderbot] run 2026-10-26 mode=light
   bank dicek: 2 | gagal akses: 0 | kandidat: 510 | lolos saringan: 2 | baru: 0 (berjalan 0, akan dibuka 0)
   dibuang (status): 2
