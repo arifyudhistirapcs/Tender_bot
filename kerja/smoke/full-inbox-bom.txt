@@ -1,15 +1,10 @@
 [tenderbot] run 2026-10-23 mode=full
-  bank dicek: 84 | gagal akses: 9 | kandidat: 510 | lolos saringan: 2 | baru: 0 (berjalan 0, akan dibuka 0)
+  bank dicek: 42 | gagal akses: 4 | kandidat: 510 | lolos saringan: 2 | baru: 0 (berjalan 0, akan dibuka 0)
   berita: 43 bank tercakup, 0 gagal lewat berita
     gagal GDELT: HTTP 429 (rate limited)
     gagal BRI: portal eproc.bri.co.id diblokir WAF Incapsula ('Request unsuccessful') untuk alat otomatis; tidak diakali. Dicek lewa...
     gagal BNI: portal e-proc.bni.co.id menjawab HTTP 503. Dicek lewat berita.
-    gagal BTN: portal e2eprocreg.btn.co.id hanya login vendor (Oracle EBS), fetch tanpa isi. Dicek lewat berita.
-    gagal BSI: portal rekanan.bankbsi.co.id diblokir WAF Incapsula ('Request unsuccessful'); tidak diakali. Dicek lewat berita.
-    gagal PermataBank: seluruh situs permatabank.com HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita.
-    gagal Panin Bank: seluruh situs panin.co.id HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita.
-    gagal Bank Jakarta: bankjakarta.co.id menjawab HTTP 403 untuk web_fetch dan skrip (blokir dihormati, tidak diakali); Google News 60 hari...
-    gagal Bank NTT: situs www.bankntt.co.id hanya menampilkan 'Website Under Maintenance' saat dicek 24 Okt 2026; pengumuman pengadaan ti...
+    gagal Bank DKI: domain bankdki.co.id dan bankjakarta.co.id sama-sama HTTP 403; blokir dihormati. Dicek lewat berita.
   butuh browser (ditunda ke mode full): 3
     - bank bjb: portal butuh browser, dicek di mode full
     - Bank Jateng: portal butuh browser, dicek di mode full
@@ -17,7 +12,7 @@
 [tenderbot] dry-run: tidak dikirim
 [tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
 {
-  "text": "Tidak ada informasi tender baru.\nDicek 84 bank.\n9 tidak bisa diakses:\n- GDELT: HTTP 429 (rate limited)\n- BRI: portal eproc.bri.co.id diblokir WAF Incapsula ('Request unsuccessful') untuk alat otomatis; tidak diakali. Dicek lewa...\n- BNI: portal e-proc.bni.co.id menjawab HTTP 503. Dicek lewat berita.\n- BTN: portal e2eprocreg.btn.co.id hanya login vendor (Oracle EBS), fetch tanpa isi. Dicek lewat berita.\n- BSI: portal rekanan.bankbsi.co.id diblokir WAF Incapsula ('Request unsuccessful'); tidak diakali. Dicek lewat berita.\n- PermataBank: seluruh situs permatabank.com HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita.\n- Panin Bank: seluruh situs panin.co.id HTTP 403 (termasuk robots.txt); blokir dihormati. Dicek lewat berita.\n- Bank Jakarta: bankjakarta.co.id menjawab HTTP 403 untuk web_fetch dan skrip (blokir dihormati, tidak diakali); Google News 60 hari...\n- Bank NTT: situs www.bankntt.co.id hanya menampilkan 'Website Under Maintenance' saat dicek 24 Okt 2026; pengumuman pengadaan ti..."
+  "text": "Tidak ada informasi tender baru.\nDicek 42 bank.\n4 tidak bisa diakses:\n- GDELT: HTTP 429 (rate limited)\n- BRI: portal eproc.bri.co.id diblokir WAF Incapsula ('Request unsuccessful') untuk alat otomatis; tidak diakali. Dicek lewa...\n- BNI: portal e-proc.bni.co.id menjawab HTTP 503. Dicek lewat berita.\n- Bank DKI: domain bankdki.co.id dan bankjakarta.co.id sama-sama HTTP 403; blokir dihormati. Dicek lewat berita."
 }
 
 [EXIT CODE] 0

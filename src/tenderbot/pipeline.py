@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -297,6 +298,71 @@ def run_light(
     return report
 
 
+def _build_alias_map(banks: list[Bank]) -> dict[str, str]:
+    """Peta nama/alias bank (dinormalisasi) -> nama kanonik tunggal per bank.
+
+    Dua entri bank yang BERBAGI minimal satu nama/alias dianggap satu
+    institusi dan digabung (union-find), sehingga "Bank Aceh" &
+    "Bank Aceh Syariah" dan "Bank DKI" & "Bank Jakarta" (yang di banks.yaml
+    sengaja dibuat dua entri untuk kueri berita nama lama) tetap dihitung
+    SATU saat menghitung cakupan.
+
+    Nama yang tidak dikenal tidak ada di peta: pemanggil memakai nama
+    dinormalisasinya sendiri sebagai kunci (tetap dihitung, sekali).
+    """
+    from .models import normalize_text  # lokal untuk hindari siklus
+
+    # Union-find sederhana atas indeks bank.
+    parent = list(range(len(banks)))
+
+    def _find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def _union(a: int, b: int) -> None:
+        ra, rb = _find(a), _find(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+
+    # Kumpulkan semua kunci (name + alias) tiap bank; gabung bank yang berbagi kunci.
+    first_owner: dict[str, int] = {}
+    bank_keys: list[set[str]] = []
+    for i, b in enumerate(banks):
+        keys = {normalize_text(b.name)}
+        for alias in b.aliases:
+            k = normalize_text(alias)
+            if k:
+                keys.add(k)
+        keys.discard("")
+        bank_keys.append(keys)
+        for k in keys:
+            if k in first_owner:
+                _union(first_owner[k], i)
+            else:
+                first_owner[k] = i
+
+    # Nama kanonik per kelompok = Bank.name dari indeks root (indeks terkecil).
+    out: dict[str, str] = {}
+    for i, keys in enumerate(bank_keys):
+        canon = banks[_find(i)].name
+        for k in keys:
+            out[k] = canon
+    return out
+
+
+def _canon_bank(name: str, alias_map: dict[str, str]) -> str:
+    """Nama kanonik untuk sebuah nama bank; nama tak dikenal dikembalikan
+    apa adanya (di-strip) sebagai identitasnya sendiri."""
+    from .models import normalize_text  # lokal untuk hindari siklus
+
+    key = normalize_text(name)
+    if key in alias_map:
+        return alias_map[key]
+    return name.strip() or name
+
+
 def run_full(
     fetcher: Fetcher,
     banks: list[Bank],
@@ -312,6 +378,10 @@ def run_full(
     report = RunReport(run_date=run_date, mode="full")
     report.inbox_rejected = list(inbox.rejected)
 
+    # Kolektor light menaikkan report.checked per bank (= jumlah bank di yaml).
+    # Kita abaikan angka itu dan hitung ulang sebagai GABUNGAN UNIK di bawah,
+    # supaya bank yang muncul di yaml DAN di coverage inbox tidak dihitung dua
+    # kali. report.failed dari kolektor tetap dipakai, lalu digabung dedup.
     candidates = collect_light(
         fetcher, banks, feeds or [], keywords, state, run_date, report,
         gdelt_sleep=gdelt_sleep,
@@ -319,16 +389,77 @@ def run_full(
     # Item inbox sudah dinilai agen; tetap lewat saringan + dedup sebagai jaring.
     candidates.extend(inbox.items)
 
-    # Cakupan inbox ikut dihitung untuk pelaporan.
+    alias_map = _build_alias_map(banks)
+
+    # ---- Hitung bank DICEK sebagai gabungan unik (kanonik) ----
+    # Mulai dari semua bank yang dipantau (yaml) + semua yang disebut inbox.
+    checked_canon: set[str] = {_canon_bank(b.name, alias_map) for b in banks}
     for name in inbox.coverage_checked:
-        report.checked += 1
+        if name and str(name).strip():
+            checked_canon.add(_canon_bank(str(name), alias_map))
+    report.checked = len(checked_canon)
+
+    # ---- Gabung daftar GAGAL tanpa duplikat (kanonik), alasan digabung ----
+    # report.failed sudah berisi kegagalan kolektor (berita/sumber). Entri itu
+    # memakai nama berhias ("Bank X (berita)", "BRI (html)", "feed ...",
+    # "GDELT"). Kita kupas akhiran " (...)" lalu cek apakah sisanya sebuah bank
+    # kanonik; bila ya, dedup terhadap entri inbox bank yang sama. Entri non-bank
+    # ("feed ...", "GDELT") tidak punya kanonik -> selalu dipertahankan.
+    from .models import normalize_text as _norm  # lokal untuk hindari siklus
+
+    def _bank_canon_from_failed_name(name: str) -> Optional[str]:
+        """Kanonik bank dari nama gagal kolektor, atau None bila bukan bank.
+
+        'BRI (berita)' -> 'BRI'; 'feed detik' / 'GDELT' -> None. Nama bank tak
+        dikenal yang berhias (mis. 'Bank X (berita)') tetap dikembalikan sebagai
+        identitasnya sendiri supaya bisa didedup dengan entri inbox bank itu.
+        """
+        base = re.sub(r"\s*\([^()]*\)\s*$", "", name).strip()
+        if not base:
+            return None
+        low = base.lower()
+        if low == "gdelt" or low.startswith("feed "):
+            return None
+        key = _norm(base)
+        if key in alias_map:
+            return alias_map[key]
+        return base  # bank tak dikenal: identitas = namanya sendiri
+
+    merged_failed: list[tuple[str, str]] = []
+    failed_index: dict[str, int] = {}  # canon -> posisi di merged_failed
+
+    def _add_failed(display: str, reason: str, canon: Optional[str]) -> None:
+        reason = str(reason)
+        if len(reason) > 120:
+            reason = reason[:117].rstrip() + "..."
+        if canon is not None and canon in failed_index:
+            # Bank sudah tercatat gagal: gabungkan alasan (tanpa menduplikasi).
+            idx = failed_index[canon]
+            prev_name, prev_reason = merged_failed[idx]
+            if reason and reason not in prev_reason:
+                combined = f"{prev_reason}; {reason}"
+                if len(combined) > 120:
+                    combined = combined[:117].rstrip() + "..."
+                merged_failed[idx] = (prev_name, combined)
+            return
+        if canon is not None:
+            failed_index[canon] = len(merged_failed)
+        merged_failed.append((display, reason))
+
+    # 1. Kegagalan dari kolektor (berita/sumber).
+    for name, reason in report.failed:
+        canon = _bank_canon_from_failed_name(name)
+        _add_failed(name, reason, canon)
+
+    # 2. Kegagalan dari coverage inbox (dedup terhadap kolektor di atas).
     for failed in inbox.coverage_failed:
         if isinstance(failed, dict):
+            bank = str(failed.get("bank", "?"))
             reason = str(failed.get("reason", "?"))
-            # Potong alasan panjang agar pesan ringkas (maks ~120 karakter).
-            if len(reason) > 120:
-                reason = reason[:117].rstrip() + "..."
-            report.failed.append((failed.get("bank", "?"), reason))
+            canon = _canon_bank(bank, alias_map)
+            _add_failed(bank, reason, canon)
+
+    report.failed = merged_failed
 
     process_candidates(candidates, keywords, state, today, run_date, report,
                        fetcher=fetcher, banks=banks)
