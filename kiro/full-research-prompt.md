@@ -49,6 +49,10 @@ Sumber lain boleh dipakai, tetapi item dari sumber itu ditandai `"unverified_sou
 
 **Batas kerja**
 - Maksimal ~8 panggilan alat per bank.
+- Minimal per bank, sebelum bank boleh masuk `coverage.checked`:
+  - (a) buka halaman pengadaan/pengumuman resmi bila ada di `banks.yaml` atau `docs/registrasi-vendor.md`;
+  - (b) satu pencarian web `"<nama lengkap bank>" tender OR pengadaan EDC` dibatasi 60 hari terakhir.
+- Bank yang langkah (a)-nya gagal tetap boleh masuk `checked` bila (b) jalan. Alasan kegagalan (a) dicatat di `failed`.
 - Total ~45 menit.
 
 **Output**
@@ -78,9 +82,12 @@ Skema `part-<n>.json`, sama dengan `inbox` di `docs/DESIGN.md`:
    - `items`: gabungan dari ketiga part, buang yang URL-nya sama.
    - `coverage.checked` dan `coverage.failed`: gabungan dari ketiga part.
    - Bila sebuah part tidak ada atau JSON-nya rusak, catat semua bank di kelompok itu ke `coverage.failed` dengan alasan "agen riset gagal".
+   - Gabungkan dan tulis file dengan **Python** (`json.dump(..., ensure_ascii=False, indent=2)`, `encoding="utf-8"`). JANGAN pakai PowerShell `ConvertTo-Json`/`Out-File`/`Set-Content`, karena keduanya menambah BOM dan bot pernah menolak file seperti itu.
 2. Validasi dengan bot sendiri tanpa mengirim:
-   `python -m tenderbot run --mode full --inbox "O:\Work\Tender Bot\inbox\full-<TGL>.json" --dry-run --today <TGL> --state-dir <folder sementara>`
-   (`PYTHONPATH=O:\Work\Tender Bot\src`). Bila validasi gagal, perbaiki JSON-nya dan jalankan ulang.
+   `python -m tenderbot run --mode full --inbox "O:\Work\Tender Bot\inbox\full-<TGL>.json" --dry-run --today <TGL> --state-dir <salinan folder state/ di folder sementara>`
+   (`PYTHONPATH=O:\Work\Tender Bot\src`).
+   - Validasi LULUS bila exit code 0 DAN stderr tidak memuat "inbox tidak sah". Cetak juga stdout untuk memastikan pesannya berisi tender atau "Tidak ada informasi tender baru".
+   - Bila gagal: perbaiki JSON-nya, lalu jalankan ulang (maksimal 2 kali). Bila tetap gagal, laporkan ke Arif dan jangan lanjut ke langkah 3.
 
 ## 3. Serahkan ke GitHub Actions
 
