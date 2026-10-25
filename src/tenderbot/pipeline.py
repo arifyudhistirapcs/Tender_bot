@@ -324,7 +324,11 @@ def run_full(
         report.checked += 1
     for failed in inbox.coverage_failed:
         if isinstance(failed, dict):
-            report.failed.append((failed.get("bank", "?"), failed.get("reason", "?")))
+            reason = str(failed.get("reason", "?"))
+            # Potong alasan panjang agar pesan ringkas (maks ~120 karakter).
+            if len(reason) > 120:
+                reason = reason[:117].rstrip() + "..."
+            report.failed.append((failed.get("bank", "?"), reason))
 
     process_candidates(candidates, keywords, state, today, run_date, report,
                        fetcher=fetcher, banks=banks)

@@ -1,0 +1,3 @@
+[tenderbot] inbox tidak sah: JSON tidak valid: Expecting property name enclosed in double quotes: line 1 column 3 (char 2)
+
+[EXIT CODE] 3

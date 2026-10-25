@@ -33,9 +33,12 @@ def load_inbox(path: Path) -> InboxLoadResult:
     if not path.exists():
         raise InboxError(f"file inbox tidak ditemukan: {path.name}")
     try:
-        with path.open("r", encoding="utf-8") as fh:
+        # utf-8-sig menerima file DENGAN atau TANPA BOM: file inbox sering
+        # dibuat lewat PowerShell yang mengawali dengan BOM UTF-8 (EF BB BF).
+        # JSON yang benar-benar rusak tetap memunculkan InboxError di bawah.
+        with path.open("r", encoding="utf-8-sig") as fh:
             data = json.load(fh)
-    except json.JSONDecodeError as exc:
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise InboxError(f"JSON tidak valid: {exc}") from exc
 
     if not isinstance(data, dict):

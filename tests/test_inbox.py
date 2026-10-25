@@ -64,3 +64,40 @@ def test_coverage_terbaca(tmp_path):
     res = load_inbox(_write(tmp_path, data))
     assert res.coverage_checked == ["BRI", "BNI"]
     assert res.coverage_failed[0]["reason"] == "HTTP 403"
+
+
+def test_inbox_dengan_bom_diterima(tmp_path):
+    """File inbox yang dibuat PowerShell diawali BOM UTF-8 (EF BB BF).
+    Loader harus menerimanya (utf-8-sig), bukan menolaknya sebagai rusak."""
+    data = {
+        "run_date": "2026-10-26",
+        "mode": "full",
+        "items": [{"bank": "Bank Sumut", "title": "Tender EDC",
+                   "url": "https://x.example/1"}],
+    }
+    p = tmp_path / "full-bom.json"
+    # Tulis byte mentah DENGAN BOM di depan.
+    raw = b"\xef\xbb\xbf" + json.dumps(data).encode("utf-8")
+    p.write_bytes(raw)
+    res = load_inbox(p)
+    assert res.run_date == "2026-10-26"
+    assert len(res.items) == 1
+    assert res.items[0].bank == "Bank Sumut"
+
+
+def test_inbox_tanpa_bom_tetap_diterima(tmp_path):
+    """utf-8-sig juga membaca file TANPA BOM apa adanya."""
+    data = {"run_date": "2026-10-26", "mode": "full",
+            "items": [{"bank": "B", "title": "t", "url": "https://x.example/1"}]}
+    p = tmp_path / "full-nobom.json"
+    p.write_bytes(json.dumps(data).encode("utf-8"))  # tanpa BOM
+    res = load_inbox(p)
+    assert len(res.items) == 1
+
+
+def test_json_rusak_tetap_ditolak(tmp_path):
+    """JSON benar-benar rusak (meski ber-BOM) tetap memunculkan InboxError."""
+    p = tmp_path / "rusak.json"
+    p.write_bytes(b"\xef\xbb\xbf{ ini bukan json }")
+    with pytest.raises(InboxError):
+        load_inbox(p)

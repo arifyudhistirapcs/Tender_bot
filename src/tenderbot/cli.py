@@ -141,8 +141,12 @@ def cmd_run(args: argparse.Namespace) -> int:
         try:
             inbox = load_inbox(Path(args.inbox))
         except InboxError as exc:
+            # Inbox tidak sah / tidak ada: run GAGAL (exit bukan nol), pesan ke
+            # stderr, dan state TIDAK disimpan (kita return sebelum record_run).
+            # Kode 3 dibedakan dari 2 (salah pakai argumen) supaya CI bisa
+            # membedakan "inbox rusak" dari "perintah salah".
             print(f"[tenderbot] inbox tidak sah: {exc}", file=sys.stderr)
-            return 2
+            return 3
         report = run_full(fetcher, banks, keywords, state, today, inbox, feeds=feeds)
     else:
         report = run_light(fetcher, banks, keywords, state, today, feeds=feeds,
