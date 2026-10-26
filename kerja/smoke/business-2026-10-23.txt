@@ -1,0 +1,146 @@
+[tenderbot] run 2026-10-23 mode=light
+  bank dicek: 1 | gagal akses: 0 | kandidat: 137 | lolos saringan: 1 | baru: 1 (berjalan 1, akan dibuka 0)
+  berita: 0 bank tercakup, 0 gagal lewat berita
+[tenderbot] dry-run: tidak dikirim
+[tenderbot] laporan ditulis: O:\Work\Kiro Crew\data\scratch\runtime-ab9a3740\smoke-report-23\report.json ; O:\Work\Kiro Crew\data\scratch\runtime-ab9a3740\smoke-report-23\report.md
+[tenderbot] dry-run: state tidak disimpan, seen tidak ditandai.
+{
+  "text": "Info tender EDC: 1 berjalan, 0 akan dibuka.",
+  "cardsV2": [
+    {
+      "cardId": "4d78d7eb62b602c7",
+      "card": {
+        "header": {
+          "title": "Tender EDC",
+          "subtitle": "Bank Sumut"
+        },
+        "sections": [
+          {
+            "widgets": [
+              {
+                "textParagraph": {
+                  "text": "<b>Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)</b>"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Bank",
+                  "text": "Bank Sumut"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Status",
+                  "text": "Berjalan, tutup 23 Okt 2026"
+                }
+              },
+              {
+                "decoratedText": {
+                  "topLabel": "Nilai/HPS",
+                  "text": "Rp6.993.000.000"
+                }
+              },
+              {
+                "buttonList": {
+                  "buttons": [
+                    {
+                      "text": "Lihat pengumuman",
+                      "onClick": {
+                        "openLink": {
+                          "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
+                        }
+                      }
+                    },
+                    {
+                      "text": "Lampiran",
+                      "onClick": {
+                        "openLink": {
+                          "url": "https://drive.google.com/uc?export=download&id=1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+
+=== report.json ===
+{
+  "counts": {
+    "candidates": 137,
+    "checked": 1,
+    "failed": 0,
+    "new": 1,
+    "ongoing": 1,
+    "passed": 1,
+    "upcoming": 0
+  },
+  "dropped": [],
+  "dry_run": true,
+  "event": "run",
+  "failures": [],
+  "fallback_note": false,
+  "items": [
+    {
+      "attachment_url": "https://drive.google.com/uc?export=download&id=1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px",
+      "bank": "Bank Sumut",
+      "contact": "Telp. 061-4515100, 061-4155100 (Ext. 1623)",
+      "deadline": null,
+      "duration": "36 bulan",
+      "evidence": "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...",
+      "fingerprint": "4d78d7eb62b602c7299779e7868e03a8e33f4251e4b901d291bb205043edf64b",
+      "media_name": "",
+      "method": "Pelelangan Umum Pascakualifikasi",
+      "posted": "2026-10-13",
+      "published": null,
+      "reg_close": "2026-10-23",
+      "reg_open": "2026-10-13",
+      "reg_place": "Ruang Departemen Layanan Pengadaan Lt. 6 Gedung Kantor Pusat PT. Bank Sumut Jl. Imam Bonjol No. 18 Medan",
+      "source_type": "portal",
+      "status": "berjalan",
+      "submit_close": null,
+      "title": "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)",
+      "unverified_source": false,
+      "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/",
+      "value_idr": 6993000000,
+      "vendor_registration_note": "Daftar per tender, datang langsung ke kantor pusat Medan. Telp 061-4515100 ext. 1623.",
+      "vendor_registration_url": null,
+      "volume": "500 unit"
+    }
+  ],
+  "mode": "light",
+  "needs_browser": [],
+  "run_date": "2026-10-23",
+  "sent": false,
+  "skipped": null
+}
+
+=== report.md ===
+Laporan Tender Bot - 2026-10-23 (mode light)
+
+Ringkasan: 1 bank dicek, 0 sumber gagal, 137 kandidat, 1 lolos saringan, 1 tender baru dilaporkan (berjalan 1, akan dibuka 0).
+Pesan Google Chat: DRY-RUN (tidak dikirim, hanya dicetak).
+
+Detail tender (1):
+- Bank Sumut: Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)
+  Status: Berjalan
+  Nilai/HPS: Rp6.993.000.000
+  Tanggal posting: 13 Oktober 2026
+  Pendaftaran buka: 13 Oktober 2026
+  Pendaftaran tutup: 23 Oktober 2026
+  Volume: 500 unit
+  Durasi: 36 bulan
+  Metode: Pelelangan Umum Pascakualifikasi
+  Tempat daftar: Ruang Departemen Layanan Pengadaan Lt. 6 Gedung Kantor Pusat PT. Bank Sumut Jl. Imam Bonjol No. 18 Medan
+  Kontak: Telp. 061-4515100, 061-4155100 (Ext. 1623)
+  Jenis sumber: portal
+  Kutipan: Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...
+  URL pengumuman: https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/
+  URL lampiran: https://drive.google.com/uc?export=download&id=1hHkQtNjh_Kn1UFfvq_b2wII3kETda-px
+  Cara daftar vendor: Daftar per tender, datang langsung ke kantor pusat Medan. Telp 061-4515100 ext. 1623.

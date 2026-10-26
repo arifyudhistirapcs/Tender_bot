@@ -136,18 +136,18 @@ def test_cakupan_jujur_feed_403_plus_gdelt_429(tmp_path):
     assert any(n == "GDELT" for n, _ in report.failed)
     assert any(n.startswith("feed ") for n, _ in report.failed)
 
-    # Pesan "tidak ada baru": TIDAK boleh mengaku semua bisa diakses, dan
-    # harus mencantumkan kegagalan feed + GDELT.
+    # Pesan Google Chat versi bisnis: satu kalimat, TANPA detail teknis.
+    # (Kegagalan feed/GDELT ada di laporan Telegram, bukan di pesan ini.)
     payload = build_message(report.new_items, report.checked, report.failed)
     text = payload["text"]
-    assert "Semua sumber bisa diakses" not in text
-    assert "GDELT" in text
-    assert "feed detik Finance" in text
+    assert text == f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+    for larang in ("GDELT", "feed", "429", "Semua sumber"):
+        assert larang not in text
 
 
-def test_semua_sumber_ok_pesan_semua_bisa_diakses(tmp_path):
-    """Kebalikan: bila benar tidak ada kegagalan, barulah 'Semua sumber bisa
-    diakses' boleh muncul."""
+def test_semua_sumber_ok_pesan_bisnis_singkat(tmp_path):
+    """Bila tidak ada kegagalan, pesan bisnis tetap satu kalimat ringkas
+    (status sumber TIDAK diumumkan di pesan Google Chat)."""
     from tenderbot.gchat import build_message
     banks = [_bank_sumut()]
     ff = _fetcher_for(banks)
@@ -156,4 +156,6 @@ def test_semua_sumber_ok_pesan_semua_bisa_diakses(tmp_path):
                        gdelt_sleep=_no_sleep)
     assert report.failed == []
     payload = build_message([], report.checked, report.failed)
-    assert "Semua sumber bisa diakses" in payload["text"]
+    assert payload["text"] == (
+        f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+    )

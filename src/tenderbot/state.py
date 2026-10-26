@@ -82,6 +82,32 @@ class State:
             r.get("date") == run_date and r.get("mode") == "full" for r in self.runs
         )
 
+    @staticmethod
+    def _slot_of_hour(hour_wib: Optional[int]) -> Optional[str]:
+        """Slot dari jam WIB: pagi (<12.00) / sore (>=12.00). None bila jam None."""
+        if hour_wib is None:
+            return None
+        return "pagi" if int(hour_wib) < 12 else "sore"
+
+    def has_run_on_slot(self, run_date: str, slot: str) -> bool:
+        """True bila sudah ada run NON-dry-run (light/full) di tanggal + slot ini.
+
+        Kompatibilitas entri lama: record lama tidak punya 'hour_wib'/'slot'.
+        Bila entri lama ada di tanggal yang sama, slot-nya tidak diketahui, jadi
+        kita anggap entri itu MENGISI slot apa pun di tanggal itu (konservatif:
+        lebih baik melewati dari pada mengirim ganda di hari yang sudah jalan).
+        """
+        for r in self.runs:
+            if r.get("date") != run_date:
+                continue
+            rec_slot = r.get("slot")
+            if rec_slot is None:
+                rec_slot = self._slot_of_hour(r.get("hour_wib"))
+            # Entri lama tanpa jam/slot: anggap mengisi slot mana pun hari itu.
+            if rec_slot is None or rec_slot == slot:
+                return True
+        return False
+
     def record_run(
         self,
         run_date: str,
@@ -90,17 +116,25 @@ class State:
         failed: int,
         new_items: int,
         status: str = "ok",
+        hour_wib: Optional[int] = None,
+        slot: Optional[str] = None,
     ) -> None:
-        self.runs.append(
-            {
-                "date": run_date,
-                "mode": mode,
-                "checked": checked,
-                "failed": failed,
-                "new_items": new_items,
-                "status": status,
-            }
-        )
+        rec = {
+            "date": run_date,
+            "mode": mode,
+            "checked": checked,
+            "failed": failed,
+            "new_items": new_items,
+            "status": status,
+        }
+        # Jam WIB + slot untuk penjaga --once-per-slot. Entri lama tanpa field
+        # ini tetap terbaca (has_run_on_slot menanganinya).
+        if hour_wib is not None:
+            rec["hour_wib"] = int(hour_wib)
+        slot = slot or self._slot_of_hour(hour_wib)
+        if slot is not None:
+            rec["slot"] = slot
+        self.runs.append(rec)
 
     # ---- source health ----
     def record_source_ok(self, url: str, run_date: str) -> None:

@@ -1,4 +1,9 @@
-"""Pengirim Google Chat: bangun pesan, kirim lewat incoming webhook.
+"""Pengirim Google Chat: bangun pesan VERSI BISNIS, kirim lewat incoming webhook.
+
+Keputusan Arif (2026-10-26): Space Google Chat dibaca tim bisnis non-teknis,
+jadi pesannya SINGKAT dan UMUM. Semua detail teknis (sumber gagal, HTTP, GDELT,
+robots, volume, metode, kontak, dll) pindah ke laporan detail Telegram
+(lihat report.py), TIDAK masuk pesan Google Chat.
 
 URL webhook dibaca dari env GCHAT_WEBHOOK_URL. Mode dry-run mencetak JSON
 pesan ke stdout, tidak mengirim. Repo publik: URL webhook tidak pernah
@@ -16,6 +21,7 @@ import requests
 
 from .dates_id import format_rupiah
 from .models import Item
+from .status import STATUS_ONGOING, STATUS_UPCOMING
 
 WEBHOOK_ENV = "GCHAT_WEBHOOK_URL"
 SEND_TIMEOUT = 20
@@ -23,13 +29,6 @@ SEND_TIMEOUT = 20
 # Judul yang melebihi ambang ini ditaruh di widget teks sendiri (tidak dipotong),
 # bukan di subtitle header kartu Google Chat yang akan terpangkas.
 TITLE_SUBTITLE_MAX = 80
-
-_STATUS_LABEL = {
-    "akan_dibuka": "Akan dibuka",
-    "berjalan": "Berjalan",
-    "tutup": "Tutup",
-    "tidak_diketahui": "Tanggal belum pasti",
-}
 
 
 def _fmt_date(iso: Optional[str]) -> Optional[str]:
@@ -46,24 +45,43 @@ def _fmt_date(iso: Optional[str]) -> Optional[str]:
     return f"{d.day} {bulan[d.month - 1]} {d.year}"
 
 
-def _registration_line(item: Item) -> Optional[str]:
-    """Baris pendaftaran "buka - tutup" dari reg_open/reg_close; None bila kosong."""
-    o = _fmt_date(item.reg_open)
-    c = _fmt_date(item.reg_close)
-    if o and c:
-        return f"{o} - {c}"
-    if o:
-        return f"mulai {o}"
-    if c:
-        return f"sampai {c}"
-    return None
+def _last_close_iso(item: Item) -> Optional[str]:
+    """Tanggal tutup terakhir (reg_close / submit_close / deadline) sebagai ISO,
+    untuk ditampilkan apa adanya di label status. None bila tak ada."""
+    candidates = [item.submit_close, item.reg_close, item.deadline]
+    isos = [c[:10] for c in candidates if c]
+    return max(isos) if isos else None
+
+
+def _status_label(item: Item) -> Optional[str]:
+    """Label status versi bisnis, menyertakan tanggal bila ada.
+
+    Contoh:
+      - "Berjalan, tutup 23 Okt 2026"
+      - "Akan dibuka 1 Nov 2026"
+      - "Berjalan"
+    None bila status tidak dikenal (tidak ditampilkan di kartu).
+    """
+    status = item.status
+    if status == STATUS_ONGOING:
+        close = _fmt_date(_last_close_iso(item))
+        return f"Berjalan, tutup {close}" if close else "Berjalan"
+    if status == STATUS_UPCOMING:
+        opens = _fmt_date(item.reg_open)
+        return f"Akan dibuka {opens}" if opens else "Akan dibuka"
+    # tidak_diketahui / lainnya: tampilkan netral tanpa detail teknis.
+    return "Berjalan"
 
 
 def _item_card(item: Item) -> dict:
-    """Satu kartu Google Chat per tender.
+    """Satu kartu Google Chat per tender, VERSI BISNIS.
 
-    Field None TIDAK ditampilkan sama sekali (tidak ada "tidak tertera").
-    Judul utuh: bila panjang, taruh di widget teks sendiri agar tidak terpotong.
+    Hanya memuat: Bank, Judul utuh, Status (dengan tanggal bila ada),
+    Nilai/HPS bila ada, dan tombol (Lihat pengumuman / Lampiran / Daftar vendor)
+    masing-masing HANYA bila URL-nya ada.
+
+    TIDAK memuat: Volume, Durasi, Metode, Tempat, Kontak, Media, catatan teknis.
+    Field None tidak ditampilkan sama sekali (tidak ada "tidak tertera").
     """
     widgets: list[dict] = []
 
@@ -72,41 +90,22 @@ def _item_card(item: Item) -> dict:
     if long_title:
         widgets.append({"textParagraph": {"text": f"<b>{item.title}</b>"}})
 
-    status_label = _STATUS_LABEL.get(item.status or "", None)
-
-    # Pasangan (label, nilai) hanya untuk nilai yang tidak None/kosong.
     rows: list[tuple[str, Optional[str]]] = [
         ("Bank", item.bank),
-        ("Status", status_label),
-        ("Tanggal posting", _fmt_date(item.posted)),
-        ("Pendaftaran", _registration_line(item)),
-        ("Batas penawaran", _fmt_date(item.submit_close)),
+        ("Status", _status_label(item)),
         ("Nilai/HPS", format_rupiah(item.value_idr)),
-        ("Volume", item.volume),
-        ("Durasi", item.duration),
-        ("Metode", item.method),
-        ("Tempat daftar", item.reg_place),
-        ("Kontak", item.contact),
     ]
-    # Untuk item berita, tampilkan nama media dan tandai bila tidak kredibel.
-    if item.source_type == "berita" or item.media_name:
-        media = item.media_name or "sumber tidak dikenal"
-        if item.unverified_source:
-            media += "  [unverified_source]"
-        rows.append(("Media", media))
-
-    # Catatan cara daftar vendor (bila ada).
-    if item.vendor_registration_note:
-        rows.append(("Daftar vendor", item.vendor_registration_note))
-
     for label, val in rows:
         if val is None or val == "":
             continue
         widgets.append({"decoratedText": {"topLabel": label, "text": val}})
 
-    buttons = [
-        {"text": "Buka sumber", "onClick": {"openLink": {"url": item.url}}}
-    ]
+    # Tombol: hanya bila URL-nya ada.
+    buttons: list[dict] = []
+    if item.url:
+        buttons.append(
+            {"text": "Lihat pengumuman", "onClick": {"openLink": {"url": item.url}}}
+        )
     if item.attachment_url:
         buttons.append(
             {"text": "Lampiran", "onClick": {"openLink": {"url": item.attachment_url}}}
@@ -116,9 +115,10 @@ def _item_card(item: Item) -> dict:
             {"text": "Daftar vendor",
              "onClick": {"openLink": {"url": item.vendor_registration_url}}}
         )
-    widgets.append({"buttonList": {"buttons": buttons}})
+    if buttons:
+        widgets.append({"buttonList": {"buttons": buttons}})
 
-    # Subtitle header: judul pendek utuh, atau ringkas bila sudah di widget teks.
+    # Subtitle header: judul pendek utuh, atau nama bank bila judul sudah di widget.
     subtitle = item.title if not long_title else (item.bank or "Tender EDC")
     return {
         "cardId": item.fingerprint[:16] or "tender",
@@ -130,52 +130,39 @@ def _item_card(item: Item) -> dict:
 
 
 def _opening_text(new_items: list[Item]) -> str:
-    """Kalimat pembuka menyebut jumlah berjalan dan jumlah akan dibuka."""
-    ongoing = sum(1 for i in new_items if i.status == "berjalan")
-    upcoming = sum(1 for i in new_items if i.status == "akan_dibuka")
+    """Pembuka versi bisnis: "Info tender EDC: N berjalan, M akan dibuka."."""
+    ongoing = sum(1 for i in new_items if i.status == STATUS_ONGOING)
+    upcoming = sum(1 for i in new_items if i.status == STATUS_UPCOMING)
+    # Item berstatus lain (mis. tidak_diketahui yang lolos) dihitung sebagai
+    # berjalan di label bisnis, supaya pembuka konsisten dengan kartu.
     other = len(new_items) - ongoing - upcoming
-    parts = [f"{ongoing} tender berjalan", f"{upcoming} akan dibuka"]
-    if other:
-        parts.append(f"{other} lainnya")
-    return "Info tender EDC: " + ", ".join(parts) + "."
+    ongoing += other
+    return f"Info tender EDC: {ongoing} berjalan, {upcoming} akan dibuka."
 
 
 def build_message(
     new_items: list[Item],
     checked_count: int,
-    failed: list[tuple[str, str]],
+    failed: Optional[list[tuple[str, str]]] = None,
     note: Optional[str] = None,
 ) -> dict:
-    """Bangun payload Google Chat.
+    """Bangun payload Google Chat VERSI BISNIS.
 
-    failed: daftar (nama_bank_atau_sumber, alasan).
-    note: catatan tambahan (mis. cadangan "riset penuh tidak berjalan hari ini")
-          yang disisipkan di baris pertama pesan.
+    - Ada tender: pembuka ringkas + satu kartu per tender (bank, judul, status,
+      nilai, tombol). Tidak ada daftar sumber gagal / HTTP / GDELT / catatan.
+    - Tidak ada tender: satu kalimat memakai jumlah bank unik yang dipantau.
+
+    Parameter `failed` dan `note` diterima untuk kompatibilitas pemanggil lama
+    tetapi SENGAJA tidak ditampilkan di pesan bisnis (detail teknis ke Telegram).
     """
     if new_items:
-        text = _opening_text(new_items)
-        if note:
-            text = f"{note}\n{text}"
         return {
-            "text": text,
+            "text": _opening_text(new_items),
             "cardsV2": [_item_card(it) for it in new_items],
         }
 
-    # Tidak ada yang baru: wajib memuat jumlah bank dicek + daftar gagal.
-    lines = []
-    if note:
-        lines.append(note)
-    lines.extend([
-        "Tidak ada informasi tender baru.",
-        f"Dicek {checked_count} bank.",
-    ])
-    if failed:
-        lines.append(f"{len(failed)} tidak bisa diakses:")
-        for name, reason in failed:
-            lines.append(f"- {name}: {reason}")
-    else:
-        lines.append("Semua sumber bisa diakses.")
-    return {"text": "\n".join(lines)}
+    # Tidak ada tender: satu kalimat umum dengan jumlah bank dipantau.
+    return {"text": f"Tidak ada info tender EDC baru. ({checked_count} bank dipantau)"}
 
 
 @dataclass
