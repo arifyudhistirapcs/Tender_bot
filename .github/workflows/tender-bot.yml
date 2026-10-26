@@ -1,14 +1,15 @@
 name: tender-bot
 
-# Jadwal Actions memakai UTC; semua jam di DESIGN.md adalah WIB (UTC+7).
-# Cron disetel sedikit lebih awal karena Actions bisa terlambat 5-30 menit.
-#   light pagi : 40 0 * * 1-5  -> 07.40 WIB (Senin, Rabu & Jumat sebagai cadangan)
-#   light sore : 40 9 * * 1-5  -> 16.40 WIB
-#   full       : lewat workflow_dispatch dari KiroCrew, bukan cron.
+# Workflow ini TIDAK memakai cron GitHub. Pada 26 Okt 2026, jadwal 07.40 WIB baru
+# jalan pukul 12.16 dan jadwal 16.40 tidak jalan sama sekali. Run terlambat
+# seperti itu bisa mengirim pesan ganda ke Space.
+# Pemicu sekarang (semua jam WIB):
+#   light : watchdog KiroCrew (laptop) 07.55 & 16.55 Sen-Jum, via workflow_dispatch
+#           dengan slot_guard=true (pagi Sen/Rab/Jum juga fallback=true)
+#   full  : cron KiroCrew 06.30 Sen/Rab/Jum, via workflow_dispatch mode=full
+# Jalur "schedule" di langkah Resolve run parameters dibiarkan, untuk berjaga bila
+# cron GitHub diaktifkan lagi.
 on:
-  schedule:
-    - cron: "40 0 * * 1-5"
-    - cron: "40 9 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
