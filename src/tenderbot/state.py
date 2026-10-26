@@ -93,9 +93,10 @@ class State:
         """True bila sudah ada run NON-dry-run (light/full) di tanggal + slot ini.
 
         Kompatibilitas entri lama: record lama tidak punya 'hour_wib'/'slot'.
-        Bila entri lama ada di tanggal yang sama, slot-nya tidak diketahui, jadi
-        kita anggap entri itu MENGISI slot apa pun di tanggal itu (konservatif:
-        lebih baik melewati dari pada mengirim ganda di hari yang sudah jalan).
+        Riset penuh (mode full) selalu berjalan pagi, jadi entri full lama
+        dianggap mengisi slot pagi. Entri light lama tanpa jam tidak bisa
+        dipetakan ke slot, jadi tidak memblokir (lebih baik satu pesan ganda
+        daripada slot sore hilang).
         """
         for r in self.runs:
             if r.get("date") != run_date:
@@ -103,8 +104,9 @@ class State:
             rec_slot = r.get("slot")
             if rec_slot is None:
                 rec_slot = self._slot_of_hour(r.get("hour_wib"))
-            # Entri lama tanpa jam/slot: anggap mengisi slot mana pun hari itu.
-            if rec_slot is None or rec_slot == slot:
+            if rec_slot is None and r.get("mode") == "full":
+                rec_slot = "pagi"
+            if rec_slot == slot:
                 return True
         return False
 

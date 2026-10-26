@@ -88,11 +88,11 @@ def test_dry_run_tidak_mengisi_slot(monkeypatch, tmp_path):
     assert st.runs == []  # dry-run tidak menyimpan run
 
 
-def test_slot_kompat_entri_lama_tanpa_jam(monkeypatch, tmp_path, capsys):
+def _run_slot_with_legacy(monkeypatch, tmp_path, legacy_mode, hour):
     state_dir = tmp_path / "state"
-    # Entri lama TANPA hour_wib/slot: dianggap mengisi slot apa pun hari itu.
+    # Entri lama TANPA hour_wib/slot.
     st = State.load(state_dir)
-    st.runs.append({"date": "2026-10-26", "mode": "light", "checked": 43,
+    st.runs.append({"date": "2026-10-26", "mode": legacy_mode, "checked": 43,
                     "failed": 0, "new_items": 0, "status": "ok"})
     st.save()
 
@@ -103,7 +103,7 @@ def test_slot_kompat_entri_lama_tanpa_jam(monkeypatch, tmp_path, capsys):
         return SendOutcome(sent=True, dry_run=dry_run, message="terkirim")
 
     monkeypatch.setattr(cli.gchat, "send", _send)
-    monkeypatch.setattr(cli, "_now_hour_wib", lambda: 8)
+    monkeypatch.setattr(cli, "_now_hour_wib", lambda: hour)
     monkeypatch.setattr(
         cli, "run_light",
         lambda *a, **k: cli.RunReport(run_date="2026-10-26", mode="light"),
@@ -114,4 +114,16 @@ def test_slot_kompat_entri_lama_tanpa_jam(monkeypatch, tmp_path, capsys):
                               "--state-dir", str(state_dir)])
     rc = args.func(args)
     assert rc == 0
-    assert sent["called"] is False  # entri lama memblokir slot pagi
+    return sent["called"]
+
+
+def test_slot_kompat_entri_full_lama_mengisi_pagi(monkeypatch, tmp_path, capsys):
+    assert _run_slot_with_legacy(monkeypatch, tmp_path, "full", 8) is False
+
+
+def test_slot_kompat_entri_full_lama_tidak_mengisi_sore(monkeypatch, tmp_path, capsys):
+    assert _run_slot_with_legacy(monkeypatch, tmp_path, "full", 17) is True
+
+
+def test_slot_kompat_entri_light_lama_tidak_memblokir(monkeypatch, tmp_path, capsys):
+    assert _run_slot_with_legacy(monkeypatch, tmp_path, "light", 8) is True
