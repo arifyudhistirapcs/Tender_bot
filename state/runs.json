@@ -6,5 +6,13 @@
     "mode": "light",
     "new_items": 2,
     "status": "ok"
+  },
+  {
+    "checked": 43,
+    "date": "2026-10-26",
+    "failed": 16,
+    "mode": "full",
+    "new_items": 0,
+    "status": "ok"
   }
 ]
