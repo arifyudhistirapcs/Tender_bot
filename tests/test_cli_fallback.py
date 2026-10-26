@@ -30,10 +30,12 @@ def test_parse_today_override_dipakai_apa_adanya():
 
 # ---- Catatan cadangan di pesan ----
 
-def test_build_message_menyisipkan_catatan_cadangan_tanpa_item():
+def test_build_message_tidak_menyisipkan_catatan_cadangan_di_pesan_bisnis():
+    # note (fallback) TIDAK lagi dirender di pesan Google Chat versi bisnis;
+    # catatan itu pindah ke laporan Telegram (fallback_note di report.json).
     payload = build_message([], 42, [], note=FALLBACK_NOTE)
-    assert payload["text"].splitlines()[0] == FALLBACK_NOTE
-    assert "Tidak ada informasi tender baru" in payload["text"]
+    assert payload["text"] == "Tidak ada info tender EDC baru. (42 bank dipantau)"
+    assert FALLBACK_NOTE not in payload["text"]
 
 
 # ---- Cadangan: run full sudah tercatat -> keluar tanpa kirim ----
@@ -77,10 +79,19 @@ def test_fallback_light_dengan_catatan_bila_full_belum(monkeypatch, tmp_path, ca
         lambda *a, **k: cli.RunReport(run_date="2026-10-26", mode="light"),
     )
 
+    report_dir = tmp_path / "report"
     rc = _run(["run", "--mode", "light", "--fallback-full-check",
-               "--today", "2026-10-26"], monkeypatch, tmp_path)
+               "--today", "2026-10-26", "--report-out", str(report_dir)],
+              monkeypatch, tmp_path)
     assert rc == 0
-    assert captured["payload"]["text"].splitlines()[0] == FALLBACK_NOTE
+    # Pesan Google Chat versi bisnis TIDAK memuat catatan cadangan.
+    assert FALLBACK_NOTE not in captured["payload"]["text"]
+    # Catatan cadangan muncul di laporan Telegram (fallback_note true).
+    import json as _json
+    j = _json.loads((report_dir / "report.json").read_text(encoding="utf-8"))
+    assert j["fallback_note"] is True
+    md = (report_dir / "report.md").read_text(encoding="utf-8")
+    assert "riset penuh tidak berjalan hari ini" in md
 
 
 # ---- Exit code bukan nol saat pengiriman gagal ----

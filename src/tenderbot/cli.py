@@ -18,6 +18,7 @@ from .calendar_util import should_skip
 from .http_client import Fetcher
 from .inbox import InboxError, load_inbox
 from .pipeline import RunReport, run_full, run_light
+from .report import ReportContext, write_report
 from .state import State
 
 # state/ di akar repo.
@@ -34,6 +35,16 @@ FALLBACK_NOTE = "Catatan: riset penuh tidak berjalan hari ini."
 def _today_wib() -> date:
     """Tanggal hari ini di zona Asia/Jakarta (WIB)."""
     return datetime.now(WIB).date()
+
+
+def _now_hour_wib() -> int:
+    """Jam (0-23) saat ini di WIB, untuk menentukan slot pagi/sore."""
+    return datetime.now(WIB).hour
+
+
+def _slot_of_hour(hour_wib: int) -> str:
+    """Slot: pagi (<12.00 WIB) / sore (>=12.00 WIB)."""
+    return "pagi" if hour_wib < 12 else "sore"
 
 
 def _parse_today(value: Optional[str]) -> date:
@@ -81,8 +92,28 @@ def _print_report(report: RunReport) -> None:
             print(f"    - {url}: {fails}x; {last}", file=sys.stderr)
 
 
+def _emit_report(args: argparse.Namespace, report: RunReport, ctx: ReportContext) -> None:
+    """Tulis report.json + report.md bila --report-out diberikan.
+
+    Dipanggil di SETIAP jalur keluar (dilewati, slot terisi, dry-run, normal)
+    supaya koordinator selalu punya jejak. Diam saja bila --report-out kosong.
+    """
+    if not getattr(args, "report_out", None):
+        return
+    try:
+        json_path, md_path = write_report(report, ctx, Path(args.report_out))
+        print(f"[tenderbot] laporan ditulis: {json_path} ; {md_path}", file=sys.stderr)
+    except OSError as exc:
+        # Kegagalan menulis laporan tidak boleh menggagalkan run utama.
+        print(f"[tenderbot] gagal menulis laporan: {exc}", file=sys.stderr)
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     today = _parse_today(args.today)
+    run_date = today.isoformat()
+    hour_wib = _now_hour_wib()
+    slot = _slot_of_hour(hour_wib)
+    event = args.event or "run"
 
     banks = config.load_banks()
     keywords = config.load_keywords()
@@ -104,33 +135,56 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     skip, reason = should_skip(today, holidays)
     if skip:
-        print(f"[tenderbot] {today.isoformat()} dilewati: {reason}. Tidak mengirim.",
+        print(f"[tenderbot] {run_date} dilewati: {reason}. Tidak mengirim.",
               file=sys.stderr)
+        _emit_report(
+            args,
+            RunReport(run_date=run_date, mode=args.mode),
+            ReportContext(event=event, dry_run=args.dry_run, sent=False,
+                          skipped=reason),
+        )
         return 0
 
     state_dir = Path(args.state_dir) if args.state_dir else DEFAULT_STATE_DIR
     state = State.load(state_dir)
 
+    # Penjaga slot: bila sudah ada run NON-dry-run di tanggal + slot yang sama,
+    # keluar tanpa kirim. Dry-run tidak pernah menandai slot, jadi aman diulang.
+    if args.once_per_slot and not args.dry_run and state.has_run_on_slot(run_date, slot):
+        msg = "slot sudah terisi"
+        print(f"[tenderbot] {run_date} slot {slot} sudah terisi; tidak mengirim.",
+              file=sys.stderr)
+        _emit_report(
+            args,
+            RunReport(run_date=run_date, mode=args.mode),
+            ReportContext(event=event, dry_run=args.dry_run, sent=False, skipped=msg),
+        )
+        return 0
+
     note: Optional[str] = None
 
-    # Cadangan riset penuh (Senin/Rabu pagi, DESIGN.md).
+    # Cadangan riset penuh (Senin/Rabu/Jumat pagi, DESIGN.md).
     # --fallback-full-check: bila state sudah mencatat run full hari ini (WIB),
     # berhenti tanpa kirim; bila belum, lanjut light dengan catatan cadangan.
     # Berlaku hanya untuk mode light.
     if args.fallback_full_check and args.mode == "light":
-        if state.has_full_run_on(today.isoformat()):
-            print(f"[tenderbot] run full sudah tercatat {today.isoformat()}; "
+        if state.has_full_run_on(run_date):
+            print(f"[tenderbot] run full sudah tercatat {run_date}; "
                   f"cadangan light tidak mengirim.", file=sys.stderr)
+            _emit_report(
+                args,
+                RunReport(run_date=run_date, mode="light"),
+                ReportContext(event=event, dry_run=args.dry_run, sent=False,
+                              skipped="run full sudah tercatat hari ini"),
+            )
             return 0
         note = FALLBACK_NOTE
-        print(f"[tenderbot] cadangan: run full belum tercatat {today.isoformat()}; "
+        print(f"[tenderbot] cadangan: run full belum tercatat {run_date}; "
               f"jalan light dengan catatan.", file=sys.stderr)
 
-    # Cadangan mode full: bila run full sudah tercatat hari ini, light berhenti.
-    if args.mode == "light" and state.has_full_run_on(today.isoformat()):
-        print(f"[tenderbot] run full sudah berjalan {today.isoformat()}; "
-              f"light tidak mengirim.", file=sys.stderr)
-        return 0
+    # (Dulu di sini ada blok "bila full sudah tercatat hari ini, light berhenti".
+    # Blok itu ikut mematikan slot sore Senin/Rabu/Jumat. Duplikat kini dicegah
+    # oleh --once-per-slot dan --fallback-full-check di atas.)
 
     fetcher = Fetcher()
 
@@ -146,6 +200,12 @@ def cmd_run(args: argparse.Namespace) -> int:
             # Kode 3 dibedakan dari 2 (salah pakai argumen) supaya CI bisa
             # membedakan "inbox rusak" dari "perintah salah".
             print(f"[tenderbot] inbox tidak sah: {exc}", file=sys.stderr)
+            _emit_report(
+                args,
+                RunReport(run_date=run_date, mode="full"),
+                ReportContext(event=event, dry_run=args.dry_run, sent=False,
+                              skipped=f"inbox tidak sah: {exc}"),
+            )
             return 3
         report = run_full(fetcher, banks, keywords, state, today, inbox, feeds=feeds)
     else:
@@ -160,12 +220,21 @@ def cmd_run(args: argparse.Namespace) -> int:
     outcome = gchat.send(payload, dry_run=args.dry_run)
     print(f"[tenderbot] {outcome.message}", file=sys.stderr)
 
+    # Laporan detail: tulis SEBELUM/terlepas dari penyimpanan state.
+    _emit_report(
+        args,
+        report,
+        ReportContext(event=event, dry_run=args.dry_run, sent=outcome.sent,
+                      skipped=None, fallback_note=bool(note)),
+    )
+
     # State hanya disimpan bila run sukses dan (terkirim ATAU dry-run).
     # Pada dry-run kita TIDAK menandai seen supaya uji coba bisa diulang.
     if not args.dry_run and outcome.sent:
         state.record_run(
-            today.isoformat(), report.mode, report.checked,
+            run_date, report.mode, report.checked,
             len(report.failed), len(report.new_items), status="ok",
+            hour_wib=hour_wib, slot=slot,
         )
         state.save()
     elif args.dry_run:
@@ -204,6 +273,21 @@ def build_parser() -> argparse.ArgumentParser:
     run_p.add_argument(
         "--skip-news", action="store_true",
         help="matikan kolektor berita (feed media + GDELT) untuk run deterministik",
+    )
+    run_p.add_argument(
+        "--report-out", metavar="DIR",
+        help="tulis laporan detail report.json + report.md ke DIR (untuk Telegram); "
+             "ditulis juga saat run dilewati dan saat dry-run",
+    )
+    run_p.add_argument(
+        "--once-per-slot", action="store_true",
+        help="penjaga slot: bila sudah ada run non-dry-run di tanggal + slot "
+             "(pagi <12.00 WIB / sore) yang sama, keluar tanpa kirim",
+    )
+    run_p.add_argument(
+        "--event", metavar="NAME", default="",
+        help="nama event pemicu untuk field 'event' di report.json "
+             "(mis. schedule / workflow_dispatch); opsional",
     )
     run_p.set_defaults(func=cmd_run)
     return parser

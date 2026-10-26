@@ -119,28 +119,33 @@ def test_inbox_items_kosong_pesan_dan_bank_gagal(monkeypatch, tmp_path):
 
     monkeypatch.setattr(cli.gchat, "send", _fake_send)
 
+    report_dir = tmp_path / "report"
     rc = _run(["run", "--mode", "full", "--inbox", str(inbox), "--dry-run",
-               "--today", "2026-10-23"], monkeypatch, tmp_path)
+               "--today", "2026-10-23", "--report-out", str(report_dir)],
+              monkeypatch, tmp_path)
     assert rc == 0
+    # Pesan Google Chat: VERSI BISNIS, satu kalimat, TANPA detail teknis.
     text = captured["payload"]["text"]
-    assert "Tidak ada informasi tender baru" in text
-    # Bank gagal dari inbox tercantum beserta alasan.
-    assert "BRI" in text
-    assert "BNI" in text
-    assert "HTTP 503" in text
-    # Alasan panjang dipotong (~120 char) sehingga tidak utuh.
-    assert long_reason not in text
-    # Potongan ber-elipsis muncul.
-    assert "..." in text
+    assert text.startswith("Tidak ada info tender EDC baru.")
+    for larang in ("BRI", "BNI", "HTTP 503", "WAF", "Incapsula"):
+        assert larang not in text, f"detail teknis '{larang}' bocor ke pesan bisnis"
+    # Detail bank gagal pindah ke laporan Telegram (report.md).
+    md = (report_dir / "report.md").read_text(encoding="utf-8")
+    assert "BRI" in md
+    assert "BNI" in md
+    assert "HTTP 503" in md
+    # Alasan panjang dipotong (~120 char) di report.json failures.
+    j = json.loads((report_dir / "report.json").read_text(encoding="utf-8"))
+    bri_fail = next(f for f in j["failures"] if f["source"] == "BRI")
+    assert long_reason not in bri_fail["reason"]
+    assert bri_fail["reason"].endswith("...")
 
 
-def test_build_message_kosong_dengan_failed_inbox():
-    """Sanity: build_message tanpa item memuat 'Tidak ada informasi tender
-    baru' dan daftar bank gagal."""
+def test_build_message_kosong_adalah_pesan_bisnis_singkat():
+    """build_message tanpa item: satu kalimat bisnis, TANPA daftar bank gagal."""
     payload = build_message(
         [], 41, [("BRI", "portal diblokir"), ("BNI", "HTTP 503")]
     )
     text = payload["text"]
-    assert "Tidak ada informasi tender baru" in text
-    assert "Dicek 41 bank" in text
-    assert "BRI" in text and "BNI" in text
+    assert text == "Tidak ada info tender EDC baru. (41 bank dipantau)"
+    assert "BRI" not in text and "BNI" not in text

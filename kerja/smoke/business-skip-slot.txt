@@ -1,0 +1,26 @@
+[tenderbot] 2026-10-24 dilewati: akhir pekan (Saturday). Tidak mengirim.
+[tenderbot] laporan ditulis: O:\Work\Kiro Crew\data\scratch\runtime-ab9a3740\smoke-report-skip\report.json ; O:\Work\Kiro Crew\data\scratch\runtime-ab9a3740\smoke-report-skip\report.md
+
+=== report.json (skip) ===
+{
+  "counts": {
+    "candidates": 0,
+    "checked": 0,
+    "failed": 0,
+    "new": 0,
+    "ongoing": 0,
+    "passed": 0,
+    "upcoming": 0
+  },
+  "dropped": [],
+  "dry_run": true,
+  "event": "run",
+  "failures": [],
+  "fallback_note": false,
+  "items": [],
+  "mode": "light",
+  "needs_browser": [],
+  "run_date": "2026-10-24",
+  "sent": false,
+  "skipped": "akhir pekan (Saturday)"
+}
