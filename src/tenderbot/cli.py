@@ -182,17 +182,9 @@ def cmd_run(args: argparse.Namespace) -> int:
         print(f"[tenderbot] cadangan: run full belum tercatat {run_date}; "
               f"jalan light dengan catatan.", file=sys.stderr)
 
-    # Cadangan mode full: bila run full sudah tercatat hari ini, light berhenti.
-    if args.mode == "light" and state.has_full_run_on(run_date):
-        print(f"[tenderbot] run full sudah berjalan {run_date}; "
-              f"light tidak mengirim.", file=sys.stderr)
-        _emit_report(
-            args,
-            RunReport(run_date=run_date, mode="light"),
-            ReportContext(event=event, dry_run=args.dry_run, sent=False,
-                          skipped="run full sudah tercatat hari ini"),
-        )
-        return 0
+    # (Dulu di sini ada blok "bila full sudah tercatat hari ini, light berhenti".
+    # Blok itu ikut mematikan slot sore Senin/Rabu/Jumat. Duplikat kini dicegah
+    # oleh --once-per-slot dan --fallback-full-check di atas.)
 
     fetcher = Fetcher()
 
