@@ -25,14 +25,18 @@ Bot berjalan dalam dua mode:
 | Mode | Kapan (WIB) | Dijalankan oleh | Isi |
 |---|---|---|---|
 | **Riset penuh** (`full`) | Senin, Rabu, Jumat 06.30 | Agen AI KiroCrew di laptop yang menyala 24/7 | Tiga agen riset paralel (BUMN / swasta / BPD) membaca portal, membuka situs yang butuh browser, dan mencari berita, lalu digabung dengan riset ringan |
-| **Riset ringan** (`light`) | Senin–Jumat 07.40 dan 16.40 | GitHub Actions | Kolektor otomatis dengan saringan kata kunci, tanpa AI |
+| **Riset ringan** (`light`) | Senin–Jumat 07.55 dan 16.55 | Dipicu watchdog KiroCrew di laptop, dijalankan GitHub Actions | Kolektor otomatis dengan saringan kata kunci, tanpa AI |
 
 Akhir pekan dan libur nasional ([`data/holidays.yaml`](data/holidays.yaml)) dilewati.
 
-Run ringan pukul 07.40 pada Senin, Rabu, dan Jumat berfungsi sebagai **cadangan**:
+Cron bawaan GitHub Actions tidak dipakai. Pada uji 26 Oktober 2026, jadwal pagi baru jalan 4,5 jam terlambat dan jadwal sore tidak jalan sama sekali. Karena itu semua run dipicu dari laptop lewat `workflow_dispatch`.
 
-- Bila riset penuh hari itu sudah tercatat, run ini berhenti tanpa mengirim apa pun.
-- Bila riset penuh belum tercatat, misalnya laptop mati, run ini berjalan dan pesannya diberi catatan "riset penuh tidak berjalan hari ini".
+Setiap selesai run, watchdog mengirim **laporan detail** ke Telegram. Isinya data lengkap tender, item yang dibuang, dan sumber yang gagal. Space Google Chat hanya menerima ringkasan singkat untuk tim bisnis.
+
+Watchdog pagi pada Senin, Rabu, dan Jumat juga berfungsi sebagai **cadangan**:
+
+- Bila riset penuh hari itu sudah tercatat, watchdog hanya meneruskan laporannya ke Telegram.
+- Bila riset penuh belum tercatat, misalnya karena gagal, watchdog menjalankan riset ringan. Pesannya diberi catatan "riset penuh tidak berjalan hari ini".
 
 ### Diagram alur
 
@@ -40,7 +44,7 @@ Run ringan pukul 07.40 pada Senin, Rabu, dan Jumat berfungsi sebagai **cadangan*
 flowchart TD
     subgraph Jadwal
         K["KiroCrew cron<br/>Sen/Rab/Jum 06.30 WIB"]
-        A["GitHub Actions cron<br/>Sen–Jum 07.40 & 16.40 WIB"]
+        A["Watchdog KiroCrew<br/>Sen–Jum 07.55 & 16.55 WIB<br/>(workflow_dispatch)"]
     end
 
     K --> R["3 agen riset paralel<br/>BUMN · Swasta · BPD"]

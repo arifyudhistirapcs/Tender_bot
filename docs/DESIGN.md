@@ -55,7 +55,7 @@ Model AI-nya adalah KiroCrew sendiri, jadi tidak perlu kunci API.
    - menghapus branch inbox.
 
    Laptop tidak memegang URL webhook.
-5. Cadangan: run `light` pagi tetap dijadwalkan Senin, Rabu, dan Jumat pukul 07.40. Bila `state/runs.json` sudah mencatat run `full` untuk hari itu, run ini berhenti tanpa mengirim apa pun. Bila belum ada, run ini berjalan sebagai `light`, dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
+5. Cadangan: watchdog pagi pukul 07.55 pada Senin, Rabu, dan Jumat. Bila riset penuh hari itu sudah tercatat, watchdog cukup melaporkannya ke Telegram tanpa men-dispatch. Bila belum tercatat, watchdog men-dispatch `light` dengan `fallback=true`, dan laporannya diberi catatan "riset penuh tidak berjalan hari ini".
 
 Skema `inbox/full-*.json`:
 
@@ -77,15 +77,18 @@ Skema `inbox/full-*.json`:
 
 Setiap item wajib punya `url` sumber yang benar-benar dibuka. Field yang tidak diketahui diisi `null`, bukan ditebak.
 
-### Jadwal GitHub Actions
+### Jadwal dan pemicu
 
-Cron GitHub Actions memakai UTC, sedangkan semua jam di dokumen ini WIB (UTC+7). Jadwal Actions juga bisa terlambat 5–30 menit, jadi cron disetel sedikit lebih awal:
+Cron GitHub Actions TIDAK dipakai. Pada 26 Okt 2026, jadwal 07.40 WIB baru jalan pukul 12.16, sedangkan jadwal 16.40 tidak jalan sama sekali. Run yang terlambat seperti itu bisa mengirim pesan ganda ke Space. Semua run sekarang dipicu dari laptop lewat `workflow_dispatch`. Jam di bawah dalam WIB.
 
-- light pagi: `40 0 * * 1-5` (07.40 WIB; Senin, Rabu & Jumat hanya sebagai cadangan)
-- light sore: `40 9 * * 1-5` (16.40 WIB)
-- full: lewat `workflow_dispatch` dari KiroCrew, tidak lewat cron Actions
+- full: cron KiroCrew `30 6 * * 1,3,5` (instruksi di `kiro/full-research-prompt.md`).
+- light: watchdog KiroCrew `55 7,16 * * 1-5` (skrip `tenderbot_watchdog.py` di folder crons KiroCrew). Cara kerjanya:
+  1. Watchdog mencari run nyata di slot itu (pagi sejak 06.00, sore sejak 16.00).
+  2. Bila run belum ada, watchdog men-dispatch `mode=light slot_guard=true`, ditambah `fallback=true` untuk pagi Sen/Rab/Jum.
+  3. Watchdog menunggu run selesai.
+  4. Watchdog mengirim laporan detail (artifact `tender-report`) ke Telegram Arif.
 
-Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/` bersamaan.
+Pesan di Space untuk tim bisnis tetap singkat. Workflow memakai `concurrency: tender-bot` supaya dua run tidak menulis `state/` bersamaan.
 
 ## Alur satu run
 
