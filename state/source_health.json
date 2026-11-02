@@ -5,7 +5,7 @@
     "last_ok": "2026-11-02"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 9,
+    "consecutive_failures": 10,
     "last_error": "2026-11-02: gagal",
     "last_ok": "2026-10-23"
   },
@@ -35,19 +35,19 @@
     "last_ok": "2026-11-02"
   },
   "feed:https://www.cnbcindonesia.com/market/rss": {
-    "consecutive_failures": 9,
-    "last_error": "2026-11-02: gagal",
-    "last_ok": "2026-10-23"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-02"
   },
   "feed:https://www.cnbcindonesia.com/news/rss": {
-    "consecutive_failures": 9,
-    "last_error": "2026-11-02: gagal",
-    "last_ok": "2026-10-23"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-02"
   },
   "feed:https://www.cnnindonesia.com/ekonomi/rss": {
-    "consecutive_failures": 9,
-    "last_error": "2026-11-02: gagal",
-    "last_ok": "2026-10-23"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-02"
   },
   "feed:https://www.idxchannel.com/rss": {
     "consecutive_failures": 0,
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-02"
   },
   "gdelt": {
-    "consecutive_failures": 9,
+    "consecutive_failures": 10,
     "last_error": "2026-11-02: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
