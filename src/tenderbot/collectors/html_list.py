@@ -45,6 +45,18 @@ _RE_TRAILING_DATE = re.compile(
 )
 
 
+def _strip_date(pattern: re.Pattern, title: str) -> str:
+    """Buang tanggal di awal/akhir judul HANYA bila potongan itu tanggal sah.
+
+    Regex di atas menerima kata apa pun di posisi bulan, jadi judul seperti
+    "10 Paket 2026 ..." akan ikut terpotong tanpa cek parse_single_date ini.
+    """
+    m = pattern.search(title)
+    if m and parse_single_date(m.group(0)):
+        return title[:m.start()] + title[m.end():]
+    return title
+
+
 def _looks_like_announcement(href: str, text: str) -> bool:
     low_href = href.lower()
     low_text = text.strip().lower()
@@ -66,7 +78,7 @@ def collect_html_list(fetcher: Fetcher, bank: Bank, url: str) -> CollectResult:
     seen_urls: set[str] = set()
     for href, raw_title, context in extract_listed_links(res.text):
         published = parse_single_date(context)
-        title = _RE_TRAILING_DATE.sub("", _RE_LEADING_DATE.sub("", raw_title)).strip()
+        title = _strip_date(_RE_TRAILING_DATE, _strip_date(_RE_LEADING_DATE, raw_title)).strip()
         if not _looks_like_announcement(href, title):
             continue
         abs_url = urljoin(url, href)

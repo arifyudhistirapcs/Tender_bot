@@ -325,3 +325,17 @@ def test_bank_lampung_dan_papua_ditunda_di_mode_light(tmp_path):
         "Bank Lampung (https://www.banklampung.co.id/artikel/pengumuman): butuh browser, dicek di mode full",
         "Bank Papua (https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33): butuh browser, dicek di mode full",
     ]
+
+
+def test_html_list_tidak_memotong_angka_awal_yang_bukan_tanggal():
+    """Awalan "10 Paket 2026" bukan tanggal, jadi judul harus utuh."""
+    html = (
+        '<ul><li><a href="/p/1">10 Paket 2026 Pengadaan Mesin EDC Android</a></li>'
+        '<li><a href="/p/2">29 Okt 26 Pengumuman Tender Pengadaan Smart EDC</a></li></ul>'
+    )
+    fetcher = FakeFetcher({"https://contoh.bank/daftar": (200, html)})
+    bank = Bank(name="Bank Contoh", aliases=["Bank Contoh"], group="bpd", access="public")
+    res = collect_html_list(fetcher, bank, "https://contoh.bank/daftar")
+    titles = {item.url: item.title for item in res.items}
+    assert titles["https://contoh.bank/p/1"] == "10 Paket 2026 Pengadaan Mesin EDC Android"
+    assert titles["https://contoh.bank/p/2"] == "Pengumuman Tender Pengadaan Smart EDC"
