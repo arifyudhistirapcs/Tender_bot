@@ -55,6 +55,63 @@ def extract_links(html: str) -> list[tuple[str, str]]:
     return parser.links
 
 
+class _ListedLinkExtractor(HTMLParser):
+    """Ambil tautan beserta teks elemen ``li`` tempat tautan berada."""
+
+    def __init__(self):
+        super().__init__()
+        self._stack: list[dict] = []
+        self._links: list[dict] = []
+
+    def handle_starttag(self, tag, attrs):
+        node = {"tag": tag.lower(), "attrs": dict(attrs), "text": [],
+                "ancestors": tuple(self._stack)}
+        self._stack.append(node)
+        if node["tag"] == "a" and node["attrs"].get("href"):
+            self._links.append(node)
+
+    def handle_data(self, data):
+        for node in self._stack:
+            node["text"].append(data)
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index]["tag"] == tag:
+                del self._stack[index:]
+                break
+
+    @staticmethod
+    def _text(node: dict) -> str:
+        return " ".join(" ".join(node["text"]).split())
+
+    def links(self) -> list[tuple[str, str, str]]:
+        out: list[tuple[str, str, str]] = []
+        for node in self._links:
+            href = node["attrs"]["href"]
+            title = self._text(node)
+            container = next(
+                (parent for parent in reversed(node["ancestors"])
+                 if parent["tag"] == "li"),
+                None,
+            )
+            context = self._text(container) if container else title
+            out.append((href, title, context))
+        return out
+
+
+def extract_listed_links(html: str) -> list[tuple[str, str, str]]:
+    """Daftar ``(href, judul, teks_li)`` dari HTML daftar pengumuman.
+
+    Tanggal sering berada di elemen saudara tautan judul, misalnya ``<time>``
+    atau ``<li>`` lain dalam kartu daftar. Teks kontainer terdekat membuatnya
+    tersedia bagi kolektor tanpa mengikat parser ke markup satu bank.
+    """
+    parser = _ListedLinkExtractor()
+    parser.feed(html)
+    return parser.links()
+
+
 class _TextStripper(HTMLParser):
     def __init__(self):
         super().__init__()

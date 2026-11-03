@@ -1,10 +1,15 @@
 """Uji deteksi blokir dan kolektor memakai fixture lokal (tanpa internet)."""
 
+from datetime import date
+
 import pytest
 
 from conftest import FakeFetcher, read_fixture
-from tenderbot.config import Bank, Source, NewsFeed
+from tenderbot.config import Bank, Source, NewsFeed, load_banks, load_keywords
 from tenderbot.collectors.html_list import collect_html_list
+from tenderbot.gchat import build_message
+from tenderbot.pipeline import run_light
+from tenderbot.state import State
 from tenderbot.collectors.rss import (
     collect_rss,
     collect_media_feeds,
@@ -240,3 +245,83 @@ def test_gdelt_429_menyerah_setelah_dua_retry():
     assert err and "429" in err
     assert slept == [10.0, 20.0]     # dua backoff, maksimal 2 retry
     assert ff._n == 3
+
+
+@pytest.mark.parametrize(
+    ("bank_name", "url", "fixture", "expected_title", "expected_date"),
+    [
+        (
+            "BPD Bali",
+            "https://www.bpdbali.co.id/pengumuman",
+            "bpdbali_pengumuman.html",
+            "Pengumuman Pemenang Tender Pengadaan Mesin EDC Bank BPD Bali",
+            "2026-10-28",
+        ),
+        (
+            "Bankaltimtara",
+            "https://www.bankaltimtara.co.id/id/info/lelang",
+            "bankaltimtara_lelang.html",
+            "Pengumuman Pemenang Tender Pengadaan Mesin EDC Bankaltimtara",
+            "2026-10-29",
+        ),
+    ],
+)
+def test_html_list_bpd_baru_baca_judul_dan_tanggal(
+    bank_name, url, fixture, expected_title, expected_date
+):
+    ff = FakeFetcher({url: (200, read_fixture(fixture))})
+    result = collect_html_list(ff, Bank(name=bank_name, access="public"), url)
+
+    assert result.ok
+    assert len(result.items) == 1
+    item = result.items[0]
+    assert item.title == expected_title
+    assert item.published == expected_date
+    assert not item.title.startswith("29 Okt 26")
+
+
+def test_html_list_bankaltimtara_buang_lelang_jaminan():
+    url = "https://www.bankaltimtara.co.id/id/info/lelang"
+    ff = FakeFetcher({url: (200, read_fixture("bankaltimtara_lelang.html"))})
+    result = collect_html_list(ff, Bank(name="Bankaltimtara", access="public"), url)
+
+    assert result.ok
+    assert all("Jaminan" not in item.title for item in result.items)
+    assert all("lelangagunan.bankaltimtara.co.id" not in item.url for item in result.items)
+
+
+def test_item_edc_bpd_baru_lolos_dan_kartu_memuat_tanggal(tmp_path):
+    url = "https://www.bpdbali.co.id/pengumuman"
+    bank = Bank(
+        name="BPD Bali", access="public",
+        sources=[Source(url=url, type="html")],
+    )
+    report = run_light(
+        FakeFetcher({url: (200, read_fixture("bpdbali_pengumuman.html"))}),
+        [bank], load_keywords(), State.load(tmp_path), date(2026, 11, 3),
+        skip_news=True,
+    )
+
+    assert len(report.new_items) == 1
+    assert report.new_items[0].status == "tidak_diketahui"
+    assert report.source_candidates == [("BPD Bali (html)", 1)]
+    payload = build_message(report.new_items, report.checked, report.failed)
+    widgets = payload["cardsV2"][0]["card"]["sections"][0]["widgets"]
+    assert {w["decoratedText"]["topLabel"]: w["decoratedText"]["text"]
+            for w in widgets if "decoratedText" in w}["Tanggal pengumuman"] == "28 Okt 2026"
+
+
+def test_bank_lampung_dan_papua_ditunda_di_mode_light(tmp_path):
+    configured = {bank.name: bank for bank in load_banks()}
+    banks = [configured["Bank Lampung"], configured["Bank Papua"]]
+    report = run_light(
+        FakeFetcher({}), banks, load_keywords(), State.load(tmp_path),
+        date(2026, 11, 3), skip_news=True,
+    )
+
+    assert report.candidates == 0
+    assert report.failed == []
+    assert report.deferred_js == [
+        "Bank Lampung (https://www.banklampung.co.id/artikel/pengumuman): butuh browser, dicek di mode full",
+        "Bank Papua (https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33): butuh browser, dicek di mode full",
+    ]

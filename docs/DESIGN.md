@@ -93,9 +93,9 @@ Pesan di Space untuk tim bisnis tetap singkat. Workflow memakai `concurrency: te
 ## Alur satu run
 
 1. **Kumpulkan** kandidat dari:
-   - sumber `public` di `banks.yaml`, contohnya RSS dan arsip `jasa_barang` Bank Sumut, serta daftar Lelang Pengadaan Bank Jatim;
+   - sumber `public` di `banks.yaml`, contohnya RSS dan arsip `jasa_barang` Bank Sumut, daftar Lelang Pengadaan Bank Jatim, halaman Pengumuman BPD Bali, serta Info Lelang Bankaltimtara;
    - berita dari RSS resmi media di `credible_news_domains`, disaring dengan nama bank + kata EDC, ditambah GDELT DOC 2.0 API per bank. Google News RSS TIDAK dipakai karena robots.txt news.google.com melarang `/rss/search`;
-   - sumber `needs_js` dilewati di mode `light` dan dicatat "dicek di mode full".
+   - sumber `needs_js` dilewati di mode `light` dan dicatat "dicek di mode full"; ini mencakup halaman pengumuman Bank Lampung dan Bank Papua yang menolak klien otomatis dengan HTTP 403.
 
    Setiap request diberi timeout 20 detik dan retry satu kali. Robots.txt dipatuhi. Halaman blokir ("Request Rejected", Incapsula, HTTP 403) dicatat sebagai gagal akses.
 2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Item yang tersisa harus memenuhi dua syarat: memuat salah satu kata pengadaan (pengadaan, tender, lelang pengadaan, sewa, sewa beli, pemeliharaan, managed service, jasa layanan), dan memuat salah satu kata EDC (mesin EDC, Smart EDC, EDC Android, terminal EDC, Electronic Data Capture). Dari item itu diambil bank, judul, nilai, tanggal terbit, batas waktu, dan URL, sejauh tertulis di sumber. Pada mode `full`, penilaian ini sudah dilakukan oleh agen KiroCrew.

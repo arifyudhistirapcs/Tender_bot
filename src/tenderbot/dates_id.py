@@ -5,6 +5,7 @@ JANGAN menebak: lebih baik None daripada angka salah (lihat brief enrich).
 
 Format tanggal yang didukung:
   - "13 Oktober 2026"
+  - "29 Okt 26" (tahun dua digit dibaca sebagai 2026)
   - "Selasa, 13 Oktober 2026"            (hari di depan diabaikan)
   - "13 Oktober 2026 s.d 23 Oktober 2026" (rentang -> (mulai, selesai))
   - "13/10/2026" dan "13-10-2026"
@@ -38,11 +39,11 @@ _MONTHS = {
     "desember": 12, "des": 12,
 }
 
-# "13 Oktober 2026" (kata bulan). Hari-nama di depan ditangani oleh pemanggil
-# karena regex ini hanya menangkap angka-bulan-tahun.
+# "13 Oktober 2026" atau "29 Okt 26" (kata bulan). Hari-nama di depan
+# ditangani oleh pemanggil karena regex ini hanya menangkap angka-bulan-tahun.
 _MONTH_ALT = "|".join(re.escape(m) for m in _MONTHS)
 _RE_NAMED = re.compile(
-    rf"\b(\d{{1,2}})\s+({_MONTH_ALT})\.?\s+(\d{{4}})\b",
+    rf"\b(\d{{1,2}})\s+({_MONTH_ALT})\.?\s+(\d{{2}}|\d{{4}})\b",
     re.IGNORECASE,
 )
 # "13/10/2026" atau "13-10-2026".
@@ -53,6 +54,16 @@ _RANGE_SPLIT = re.compile(
     r"\s*(?:s\.?/?d\.?|sampai\s+dengan|sampai|hingga|s\.d|–|—|\bs\b|/s)\s*",
     re.IGNORECASE,
 )
+
+
+def _expand_year(value: str) -> int:
+    """Ubah tahun dua digit pada daftar tender menjadi 2000–2099.
+
+    Daftar pengumuman bank memakai bentuk seperti "29 Okt 26"; konteksnya
+    adalah pengumuman kontemporer, jadi 00–99 dibaca 2000–2099.
+    """
+    year = int(value)
+    return 2000 + year if len(value) == 2 else year
 
 
 def _mk_date(day: int, month: int, year: int) -> Optional[date]:
@@ -74,7 +85,7 @@ def parse_single_date(text: str) -> Optional[date]:
     if m:
         day = int(m.group(1))
         month = _MONTHS.get(m.group(2).lower().rstrip("."))
-        year = int(m.group(3))
+        year = _expand_year(m.group(3))
         if month:
             return _mk_date(day, month, year)
     m = _RE_NUMERIC.search(text)
@@ -112,7 +123,7 @@ def _all_dates(text: str) -> list[date]:
     for m in _RE_NAMED.finditer(text):
         month = _MONTHS.get(m.group(2).lower().rstrip("."))
         if month:
-            d = _mk_date(int(m.group(1)), month, int(m.group(3)))
+            d = _mk_date(int(m.group(1)), month, _expand_year(m.group(3)))
             if d:
                 found.append((m.start(), d))
     for m in _RE_NUMERIC.finditer(text):
