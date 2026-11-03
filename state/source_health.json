@@ -5,7 +5,7 @@
     "last_ok": "2026-11-03"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 11,
+    "consecutive_failures": 12,
     "last_error": "2026-11-03: gagal",
     "last_ok": "2026-10-23"
   },
@@ -55,9 +55,14 @@
     "last_ok": "2026-11-03"
   },
   "gdelt": {
-    "consecutive_failures": 11,
+    "consecutive_failures": 12,
     "last_error": "2026-11-03: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
+  },
+  "https://www.bankaltimtara.co.id/id/info/lelang": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-03"
   },
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
     "consecutive_failures": 0,
@@ -73,5 +78,10 @@
     "consecutive_failures": 0,
     "last_error": null,
     "last_ok": "2026-11-03"
+  },
+  "https://www.bpdbali.co.id/pengumuman": {
+    "consecutive_failures": 1,
+    "last_error": "2026-11-03: HTTP 500",
+    "last_ok": null
   }
 }
