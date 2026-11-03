@@ -86,6 +86,10 @@ def _print_report(report: RunReport) -> None:
               file=sys.stderr)
         for d in report.deferred_js:
             print(f"    - {d}", file=sys.stderr)
+    if report.source_candidates:
+        print("  kandidat per sumber portal:", file=sys.stderr)
+        for source, count in report.source_candidates:
+            print(f"    - {source}: {count}", file=sys.stderr)
     if report.unhealthy_sources:
         print("  sumber bermasalah (>=3 gagal berturut-turut):", file=sys.stderr)
         for url, fails, last in report.unhealthy_sources:

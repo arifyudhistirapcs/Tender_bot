@@ -78,3 +78,10 @@ def test_rupiah_tidak_ada():
 def test_format_rupiah():
     assert format_rupiah(6_993_000_000) == "Rp6.993.000.000"
     assert format_rupiah(None) is None
+
+
+def test_tanggal_bulan_singkat_tahun_dua_digit():
+    assert parse_single_date("29 Okt 26") == date(2026, 10, 29)
+    start, end = parse_date_range("29 Okt 26 s.d 30 Okt 26")
+    assert start == date(2026, 10, 29)
+    assert end == date(2026, 10, 30)

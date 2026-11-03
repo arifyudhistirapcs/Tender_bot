@@ -93,6 +93,7 @@ def _item_card(item: Item) -> dict:
     rows: list[tuple[str, Optional[str]]] = [
         ("Bank", item.bank),
         ("Status", _status_label(item)),
+        ("Tanggal pengumuman", _fmt_date(item.posted or item.published)),
         ("Nilai/HPS", format_rupiah(item.value_idr)),
     ]
     for label, val in rows:

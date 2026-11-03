@@ -72,7 +72,7 @@ flowchart TD
 ### Langkah per run
 
 1. **Kumpulkan** kandidat dari dua jenis sumber:
-   - Portal bank yang daftar tendernya terbuka tanpa login, misalnya arsip pengadaan Bank Sumut dan halaman Lelang Pengadaan Bank Jatim.
+   - Portal bank yang daftar tendernya terbuka tanpa login, misalnya arsip pengadaan Bank Sumut, halaman Lelang Pengadaan Bank Jatim, Pengumuman BPD Bali, dan Info Lelang Bankaltimtara.
    - Berita dari 11 feed RSS media kredibel (Detik, CNBC Indonesia, Kontan, Katadata, Antara, Tempo, IDX Channel, CNN Indonesia) dan dari [GDELT DOC 2.0 API](https://api.gdeltproject.org/api/v2/doc/doc).
 
    Aturan akses: setiap request punya timeout 20 detik dan retry satu kali, dan `robots.txt` selalu dipatuhi. Halaman yang memblokir bot (HTTP 403, "Request Rejected", Incapsula) dicatat sebagai gagal akses dan tidak diakali.
@@ -124,6 +124,7 @@ Setiap fakta di file riset diberi label asal buktinya:
 
 - Tender EDC bank besar (BRI, Mandiri, BNI, BCA, dan lainnya) umumnya tidak diumumkan publik. Tender seperti ini lewat portal vendor yang wajib login atau lewat undangan. Bot hanya bisa melihatnya lewat berita, atau nanti lewat email undangan setelah perusahaan terdaftar sebagai vendor (rencana tahap 8: pembaca Gmail).
 - Dari server GitHub, beberapa feed (CNBC, Kontan Investasi, CNN) kadang menolak akses (HTTP 403), dan GDELT bisa membatasi laju (HTTP 429). Kegagalan ini dicatat di laporan.
+- Bank Lampung dan Bank Papua memiliki halaman pengumuman yang teridentifikasi, tetapi keduanya menolak klien otomatis dan `robots.txt` dengan HTTP 403. Mode ringan mencatat keduanya sebagai butuh browser dan tidak mengakali blokir; mode penuh membukanya dengan browser terisolasi.
 - Riset ringan memakai kata kunci, sehingga tender dengan judul yang tidak memuat kata kunci bisa terlewat sampai riset penuh berikutnya.
 
 ---

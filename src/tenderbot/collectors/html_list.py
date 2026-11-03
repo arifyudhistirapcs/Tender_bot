@@ -9,12 +9,14 @@ jadi kolektor tidak perlu menebak struktur tiap situs.
 
 from __future__ import annotations
 
+import re
 from urllib.parse import urljoin
 
 from ..config import Bank
+from ..dates_id import parse_single_date
 from ..http_client import AccessError, Fetcher
 from ..models import Item
-from .base import CollectResult, extract_links
+from .base import CollectResult, extract_listed_links
 
 # Teks tautan yang jelas bukan judul pengumuman.
 _SKIP_TEXTS = {
@@ -27,7 +29,32 @@ _SKIP_HREF_FRAGMENTS = (
     "mailto:", "tel:", "javascript:", "#", "/wp-login", "/feed",
     "facebook.com", "twitter.com", "instagram.com", "youtube.com",
     "linkedin.com", "/lelang/",  # menu lelang agunan Bank Sumut
+    "lelangagunan.bankaltimtara.co.id",  # lelang jaminan, bukan pengadaan
 )
+
+# Tanggal awal yang kadang disatukan ke teks tautan daftar. Judul dibersihkan
+# sesudah tanggal ini dibaca, agar fingerprint dan kartu tidak membawa prefix.
+_RE_LEADING_DATE = re.compile(
+    r"^\s*(?:[A-Za-z]+,\s*)?\d{1,2}\s+[A-Za-z]+\.?\s+\d{2,4}"
+    r"\s*(?:[-|:\u2013\u2014]\s*)?",
+    re.IGNORECASE,
+)
+_RE_TRAILING_DATE = re.compile(
+    r"\s*(?:[-|:\u2013\u2014]\s*)?\d{1,2}\s+[A-Za-z]+\.?\s+\d{2,4}\s*$",
+    re.IGNORECASE,
+)
+
+
+def _strip_date(pattern: re.Pattern, title: str) -> str:
+    """Buang tanggal di awal/akhir judul HANYA bila potongan itu tanggal sah.
+
+    Regex di atas menerima kata apa pun di posisi bulan, jadi judul seperti
+    "10 Paket 2026 ..." akan ikut terpotong tanpa cek parse_single_date ini.
+    """
+    m = pattern.search(title)
+    if m and parse_single_date(m.group(0)):
+        return title[:m.start()] + title[m.end():]
+    return title
 
 
 def _looks_like_announcement(href: str, text: str) -> bool:
@@ -49,8 +76,10 @@ def collect_html_list(fetcher: Fetcher, bank: Bank, url: str) -> CollectResult:
 
     items: list[Item] = []
     seen_urls: set[str] = set()
-    for href, text in extract_links(res.text):
-        if not _looks_like_announcement(href, text):
+    for href, raw_title, context in extract_listed_links(res.text):
+        published = parse_single_date(context)
+        title = _strip_date(_RE_TRAILING_DATE, _strip_date(_RE_LEADING_DATE, raw_title)).strip()
+        if not _looks_like_announcement(href, title):
             continue
         abs_url = urljoin(url, href)
         if abs_url in seen_urls:
@@ -59,10 +88,11 @@ def collect_html_list(fetcher: Fetcher, bank: Bank, url: str) -> CollectResult:
         items.append(
             Item(
                 bank=bank.name,
-                title=text,
+                title=title,
                 url=abs_url,
+                published=published.isoformat() if published else None,
                 source_type="portal",
-                evidence=text,
+                evidence=context,
             )
         )
     return CollectResult(items=items, ok=True)

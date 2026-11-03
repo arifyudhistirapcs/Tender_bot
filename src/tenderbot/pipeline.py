@@ -38,6 +38,7 @@ class RunReport:
     inbox_rejected: list[str] = field(default_factory=list)
     unhealthy_sources: list[tuple[str, int, Optional[str]]] = field(default_factory=list)
     deferred_js: list[str] = field(default_factory=list)  # sumber/bank butuh browser
+    source_candidates: list[tuple[str, int]] = field(default_factory=list)  # kandidat per sumber portal
     news_checked_banks: list[str] = field(default_factory=list)  # bank tercakup berita
     news_failed_banks: list[tuple[str, str]] = field(default_factory=list)  # (bank, alasan)
     news_feed_failures: list[tuple[str, str]] = field(default_factory=list)  # (nama feed, alasan)
@@ -72,6 +73,7 @@ def _collect_public(
         res: CollectResult = collector(fetcher, bank, src.url)
         if res.ok:
             state.record_source_ok(src.url, run_date)
+            report.source_candidates.append((f"{bank.name} ({src.type})", len(res.items)))
             out.extend(res.items)
         else:
             state.record_source_failure(src.url, res.error or "gagal", run_date)
