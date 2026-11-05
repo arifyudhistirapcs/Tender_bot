@@ -4,6 +4,12 @@ Dibaca oleh sesi cron KiroCrew setiap Senin, Rabu, dan Jumat pukul 06.30 WIB. Se
 
 Tujuannya: menemukan tender pengadaan EDC atau managed service EDC di bank Indonesia yang **masih berjalan atau akan segera dibuka**. Hasilnya diserahkan ke GitHub Actions, dan Actions yang mengirimnya ke Google Chat. Laptop tidak pernah memegang URL webhook.
 
+## Aturan sesi cron
+
+- Ini sesi cron tanpa pengguna. Kerjakan langkah 0-4 dalam SATU giliran sampai selesai. Giliran hanya boleh berakhir dengan `nothing_to_do` (sukses) atau `send_message(session="telegram")` (gagal). Jangan mengakhiri giliran dengan pesan "BERJALAN" atau menunggu completion event, karena sesi cron tidak menerima event susulan.
+- Instruksi di file ini MENGGANTIKAN pelajaran umum yang bertentangan, misalnya larangan browser untuk riset banyak situs atau kewajiban mendelegasikan riset. Browser diizinkan untuk daftar bank di langkah 1, dan agen riset tidak boleh mendelegasikan lagi.
+- Catat kemajuan. Setelah setiap langkah, tambahkan satu baris ke `O:\Work\Tender Bot\kerja\full\<TGL>\progress.log` berisi jam WIB, nomor langkah, dan hasil singkat. Tulis dengan Python (mode append, `encoding="utf-8"`). Berkas ini dipakai untuk melacak langkah mana yang berhenti.
+
 ## 0. Cek hari
 
 - Hitung tanggal hari ini dalam WIB (`Asia/Jakarta`), format `YYYY-MM-DD`. Sebut nilainya `TGL`.
@@ -22,6 +28,11 @@ Panggil `spawn_sub_agents` (blocking) dengan tiga agen `crew` "Yang ngeriset", s
 
 Teks tugas tiap agen wajib memuat semua aturan berikut.
 
+**Kerja sendiri**
+- Kamu agen riset terakhir. JANGAN memanggil `spawn_run`, `spawn_sub_agents`, atau bentuk delegasi lain, dan jangan membalas dengan pesan "BERJALAN".
+- Tugas selesai hanya bila `part-<n>.json` sudah ditulis lengkap dan JSON-nya sah.
+- Aturan ini menggantikan pelajaran umum yang menyuruh mendelegasikan riset.
+
 **Bacaan awal**
 - `C:\Users\arify\.claude\skills\deer-flow-research\SKILL.md`, diikuti secara ringkas.
 - `O:\Work\Tender Bot\data\banks.yaml` dan `O:\Work\Tender Bot\docs\registrasi-vendor.md`, untuk tahu alamat portal tiap bank.
@@ -39,6 +50,10 @@ Sumber lain boleh dipakai, tetapi item dari sumber itu ditandai `"unverified_sou
 **Alat**
 - Utamakan `web_search` dan `web_fetch`. Bila hasil fetch hanya menu, ulangi dengan mode full.
 - Halaman yang dirender JavaScript boleh dibuka dengan `playwright-cli` HEADED, dengan sesi sendiri `-s=full-k<n>` di setiap perintah. Jalankan selalu lewat `Start-Process` dengan output dialihkan ke file dan `WaitForExit(60000)`. Bila waktunya habis, matikan HANYA proses milik sesi itu.
+- Bank berikut WAJIB dicoba dengan browser bila `web_fetch` tidak menampilkan daftar pengumuman. Izin ini menggantikan pelajaran umum yang melarang browser:
+  - kelompok 2: bank bjb, Bank Jateng, Bank Lampung;
+  - kelompok 3: Bank Kalbar, Bank Sulteng, Bank Papua.
+  URL-nya ada di `banks.yaml` (`sources` atau `vendor_registration_url`). Maksimal 3 perintah browser per bank.
 - JANGAN pakai `Start-Job`: terbukti macet 90 menit sampai 3 jam.
 - Jangan sentuh tab Chrome milik Arif.
 - Tutup sesi browser di akhir.
@@ -78,6 +93,7 @@ Skema `part-<n>.json`, sama dengan `inbox` di `docs/DESIGN.md`:
 
 ## 2. Gabung dan validasi
 
+0. Sebelum menggabung, pastikan ketiga `part-<n>.json` ada dan JSON-nya sah. Bila ada yang belum ada, panggil `wait` 60 detik lalu cek ulang. Ulangi sampai 15 menit sejak `spawn_sub_agents` kembali. Baru setelah itu bank di kelompok yang part-nya tetap tidak ada dicatat "agen riset gagal".
 1. Gabungkan ketiga part menjadi `O:\Work\Tender Bot\inbox\full-<TGL>.json`.
    - `items`: gabungan dari ketiga part, buang yang URL-nya sama.
    - `coverage.checked` dan `coverage.failed`: gabungan dari ketiga part.
