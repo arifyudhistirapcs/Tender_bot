@@ -2,86 +2,86 @@
   "feed:https://finance.detik.com/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 13,
-    "last_error": "2026-11-04: gagal",
+    "consecutive_failures": 14,
+    "last_error": "2026-11-05: gagal",
     "last_ok": "2026-10-23"
   },
   "feed:https://katadata.co.id/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://keuangan.kontan.co.id/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://news.detik.com/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://rss.tempo.co/": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://www.antaranews.com/rss/ekonomi.xml": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://www.cnbcindonesia.com/market/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://www.cnbcindonesia.com/news/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://www.cnnindonesia.com/ekonomi/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "feed:https://www.idxchannel.com/rss": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "gdelt": {
-    "consecutive_failures": 13,
-    "last_error": "2026-11-04: HTTP 429 (rate limited)",
+    "consecutive_failures": 14,
+    "last_error": "2026-11-05: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
   "https://www.bankaltimtara.co.id/id/info/lelang": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "https://www.banksumut.co.id/archive-jasa-barang/": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "https://www.banksumut.co.id/feed/": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_ok": "2026-11-04"
+    "last_ok": "2026-11-05"
   },
   "https://www.bpdbali.co.id/pengumuman": {
-    "consecutive_failures": 2,
-    "last_error": "2026-11-04: HTTP 500",
+    "consecutive_failures": 3,
+    "last_error": "2026-11-05: HTTP 500",
     "last_ok": null
   }
 }
