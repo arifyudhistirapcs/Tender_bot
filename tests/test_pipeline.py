@@ -4,7 +4,7 @@ from datetime import date
 from urllib.parse import quote_plus
 
 from conftest import FakeFetcher, read_fixture
-from tenderbot.config import Bank, Keywords, NewsFeed, load_keywords
+from tenderbot.config import Bank, Keywords, NewsFeed, Source, load_keywords
 from tenderbot.collectors.rss import (
     build_gdelt_query, GDELT_DOC_URL, GDELT_TIMESPAN, GDELT_MAX_RECORDS,
 )
@@ -159,3 +159,58 @@ def test_semua_sumber_ok_pesan_bisnis_singkat(tmp_path):
     assert payload["text"] == (
         f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
     )
+
+
+def _portal_bank(url: str) -> Bank:
+    return Bank(
+        name="Bank Contoh",
+        aliases=["Bank Contoh"],
+        group="bpd",
+        access="public",
+        sources=[Source(url=url, type="html")],
+    )
+
+
+def test_portal_kosong_dengan_riwayat_besar_dicatat_gagal(tmp_path):
+    url = "https://contoh.bank/pengadaan"
+    state = State.load(tmp_path)
+    state.record_source_ok(url, "2026-11-03", item_count=374)
+
+    report = run_light(
+        FakeFetcher({url: (200, "<html><body>Belum ada pengumuman</body></html>")}),
+        [_portal_bank(url)], KW, state, TODAY, skip_news=True,
+    )
+
+    reason = "halaman terbuka tetapi 0 tautan (sebelumnya 374)"
+    assert report.failed == [("Bank Contoh (html)", reason)]
+    assert report.source_candidates == [("Bank Contoh (html)", 0)]
+    assert state.source_health[url]["consecutive_failures"] == 1
+    assert state.source_health[url]["last_error"] == f"{TODAY}: {reason}"
+    assert state.last_source_item_count(url) == 374
+
+
+def test_portal_kosong_tanpa_riwayat_tidak_dicatat_gagal(tmp_path):
+    url = "https://contoh.bank/pengadaan"
+    state = State.load(tmp_path)
+
+    report = run_light(
+        FakeFetcher({url: (200, "<html><body>Belum ada pengumuman</body></html>")}),
+        [_portal_bank(url)], KW, state, TODAY, skip_news=True,
+    )
+
+    assert report.failed == []
+    assert report.source_candidates == [("Bank Contoh (html)", 0)]
+    assert state.source_health[url]["consecutive_failures"] == 0
+
+
+def test_state_lama_tanpa_jumlah_item_terakhir_tetap_terbaca(tmp_path):
+    (tmp_path / "source_health.json").write_text(
+        '{"https://contoh.bank/pengadaan": {"consecutive_failures": 2, '
+        '"last_ok": "2026-11-03", "last_error": null}}',
+        encoding="utf-8",
+    )
+
+    state = State.load(tmp_path)
+
+    assert state.last_source_item_count("https://contoh.bank/pengadaan") is None
+    assert state.source_health["https://contoh.bank/pengadaan"]["consecutive_failures"] == 2
