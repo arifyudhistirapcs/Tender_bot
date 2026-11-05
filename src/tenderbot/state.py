@@ -39,7 +39,9 @@ class State:
     root: Path
     seen: dict = field(default_factory=dict)  # fingerprint -> {bank,title,published,first_seen}
     runs: list = field(default_factory=list)  # daftar record run
-    source_health: dict = field(default_factory=dict)  # url -> {consecutive_failures,last_ok,last_error}
+    # url -> {consecutive_failures,last_ok,last_error,last_item_count?}
+    # last_item_count bersifat opsional agar state versi lama tetap valid.
+    source_health: dict = field(default_factory=dict)
 
     @classmethod
     def load(cls, root: Path) -> "State":
@@ -139,12 +141,33 @@ class State:
         self.runs.append(rec)
 
     # ---- source health ----
-    def record_source_ok(self, url: str, run_date: str) -> None:
-        self.source_health[url] = {
+    def last_source_item_count(self, url: str) -> Optional[int]:
+        """Jumlah item portal terakhir yang berhasil dibaca, bila ada.
+
+        State lama tidak memiliki ``last_item_count``. Nilai itu diperlakukan
+        sebagai riwayat tidak diketahui agar halaman kosong tidak salah diberi
+        status gagal.
+        """
+        value = self.source_health.get(url, {}).get("last_item_count")
+        if value is None:
+            return None
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return None
+
+    def record_source_ok(
+        self, url: str, run_date: str, item_count: Optional[int] = None
+    ) -> None:
+        rec = self.source_health.get(url, {})
+        rec.update({
             "consecutive_failures": 0,
             "last_ok": run_date,
             "last_error": None,
-        }
+        })
+        if item_count is not None:
+            rec["last_item_count"] = int(item_count)
+        self.source_health[url] = rec
 
     def record_source_failure(self, url: str, reason: str, run_date: str) -> int:
         rec = self.source_health.get(url, {"consecutive_failures": 0, "last_ok": None})

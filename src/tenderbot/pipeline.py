@@ -72,9 +72,18 @@ def _collect_public(
             continue
         res: CollectResult = collector(fetcher, bank, src.url)
         if res.ok:
-            state.record_source_ok(src.url, run_date)
-            report.source_candidates.append((f"{bank.name} ({src.type})", len(res.items)))
-            out.extend(res.items)
+            item_count = len(res.items)
+            report.source_candidates.append((f"{bank.name} ({src.type})", item_count))
+            previous_count = state.last_source_item_count(src.url)
+            if item_count == 0 and previous_count is not None and previous_count >= 10:
+                reason = (
+                    f"halaman terbuka tetapi 0 tautan (sebelumnya {previous_count})"
+                )
+                state.record_source_failure(src.url, reason, run_date)
+                report.failed.append((f"{bank.name} ({src.type})", reason))
+            else:
+                state.record_source_ok(src.url, run_date, item_count=item_count)
+                out.extend(res.items)
         else:
             state.record_source_failure(src.url, res.error or "gagal", run_date)
             report.failed.append((f"{bank.name} ({src.type})", res.error or "gagal"))
