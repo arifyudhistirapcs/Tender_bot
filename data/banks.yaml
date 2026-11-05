@@ -211,11 +211,11 @@ banks:
     sources:
       - url: "https://www.bpdbali.co.id/pengumuman"
         type: html
+        needs_js: true
     notes: >-
-      Halaman Pengumuman HTML server-side memuat daftar tender publik dan
-      tanggal posting per item. Contoh: Pengumuman Pemenang Tender Pengadaan
-      Renewal Support dan Preventive Maintenance Perangkat LTM DC & DRC,
-      diposting 28 Oktober 2026.
+      Halaman Pengumuman menjawab HTTP 500 dari server GitHub pada 3–5
+      November 2026, tetapi lancar dari laptop. Mode light melewatinya; riset
+      penuh memeriksanya dengan browser.
 
   - name: Bankaltimtara
     aliases: ["Bankaltimtara", "Bank Pembangunan Daerah Kalimantan Timur dan Kalimantan Utara"]

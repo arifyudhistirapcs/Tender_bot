@@ -62,21 +62,25 @@
   "https://www.bankaltimtara.co.id/id/info/lelang": {
     "consecutive_failures": 0,
     "last_error": null,
+    "last_item_count": 164,
     "last_ok": "2026-11-05"
   },
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
     "consecutive_failures": 0,
     "last_error": null,
+    "last_item_count": 374,
     "last_ok": "2026-11-05"
   },
   "https://www.banksumut.co.id/archive-jasa-barang/": {
     "consecutive_failures": 0,
     "last_error": null,
+    "last_item_count": 132,
     "last_ok": "2026-11-05"
   },
   "https://www.banksumut.co.id/feed/": {
     "consecutive_failures": 0,
     "last_error": null,
+    "last_item_count": 5,
     "last_ok": "2026-11-05"
   },
   "https://www.bpdbali.co.id/pengumuman": {

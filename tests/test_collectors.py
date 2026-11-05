@@ -311,9 +311,9 @@ def test_item_edc_bpd_baru_lolos_dan_kartu_memuat_tanggal(tmp_path):
             for w in widgets if "decoratedText" in w}["Tanggal pengumuman"] == "28 Okt 2026"
 
 
-def test_bank_lampung_dan_papua_ditunda_di_mode_light(tmp_path):
+def test_bank_lampung_bpd_bali_dan_papua_ditunda_di_mode_light(tmp_path):
     configured = {bank.name: bank for bank in load_banks()}
-    banks = [configured["Bank Lampung"], configured["Bank Papua"]]
+    banks = [configured["Bank Lampung"], configured["BPD Bali"], configured["Bank Papua"]]
     report = run_light(
         FakeFetcher({}), banks, load_keywords(), State.load(tmp_path),
         date(2026, 11, 3), skip_news=True,
@@ -323,6 +323,7 @@ def test_bank_lampung_dan_papua_ditunda_di_mode_light(tmp_path):
     assert report.failed == []
     assert report.deferred_js == [
         "Bank Lampung (https://www.banklampung.co.id/artikel/pengumuman): butuh browser, dicek di mode full",
+        "BPD Bali (https://www.bpdbali.co.id/pengumuman): butuh browser, dicek di mode full",
         "Bank Papua (https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33): butuh browser, dicek di mode full",
     ]
 
