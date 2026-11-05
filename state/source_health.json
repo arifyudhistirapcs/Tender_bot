@@ -5,7 +5,7 @@
     "last_ok": "2026-11-05"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 14,
+    "consecutive_failures": 15,
     "last_error": "2026-11-05: gagal",
     "last_ok": "2026-10-23"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-05"
   },
   "gdelt": {
-    "consecutive_failures": 14,
+    "consecutive_failures": 15,
     "last_error": "2026-11-05: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -80,7 +80,7 @@
     "last_ok": "2026-11-05"
   },
   "https://www.bpdbali.co.id/pengumuman": {
-    "consecutive_failures": 3,
+    "consecutive_failures": 4,
     "last_error": "2026-11-05: HTTP 500",
     "last_ok": null
   }
