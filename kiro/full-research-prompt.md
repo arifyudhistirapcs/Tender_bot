@@ -22,9 +22,11 @@ Tujuannya: menemukan tender pengadaan EDC atau managed service EDC di bank Indon
 
 Panggil `spawn_sub_agents` (blocking) dengan tiga agen `crew` "Yang ngeriset", satu per kelompok:
 
-1. BUMN + swasta: BRI, Bank Mandiri, BNI, BTN, BSI, BCA, CIMB Niaga, Danamon, PermataBank, Maybank Indonesia, OCBC Indonesia, Panin, Bank Mega, SMBC Indonesia, UOB Indonesia.
-2. BPD Sumatra & Jawa: Aceh Syariah, Sumut, Nagari, Riau Kepri Syariah, Jambi, Sumsel Babel, Bengkulu, Lampung, bjb, Bank Jakarta, Jateng, DIY, Jatim, Banten.
-3. BPD Bali–Papua: BPD Bali, NTB Syariah, NTT, Kalbar, Kalteng, Kalsel, Bankaltimtara, SulutGo, Sulselbar, Sultra, Sulteng, Maluku Malut, Papua.
+1. BUMN + swasta: BRI, Bank Mandiri, BNI, BTN, BSI, BCA, CIMB Niaga, Danamon, PermataBank, Maybank Indonesia, OCBC Indonesia, Panin Bank, Bank Mega, SMBC Indonesia, UOB Indonesia, Bank Sinarmas.
+2. BPD Sumatra & Jawa: Bank Aceh, Bank Sumut, Bank Nagari, Bank Riau Kepri, Bank Jambi, Bank Sumsel Babel, Bank Bengkulu, Bank Lampung, bank bjb, Bank Jakarta, Bank Jateng, BPD DIY, Bank Jatim, Bank Banten.
+3. BPD Bali–Papua: BPD Bali, Bank NTB Syariah, Bank NTT, Bank Kalbar, Bank Kalteng, Bank Kalsel, Bankaltimtara, Bank SulutGo, Bank Sulselbar, Bank Sultra, Bank Sulteng, Bank Maluku Malut, Bank Papua.
+
+Di `coverage.checked`, `coverage.failed[].bank`, dan `items[].bank`, tulis nama bank PERSIS seperti daftar di atas (sama dengan field `name` di `banks.yaml`). Nama lain, misalnya "Panin" atau "Bank Aceh Syariah", membuat hitungan bank di laporan salah.
 
 Teks tugas tiap agen wajib memuat semua aturan berikut.
 
@@ -124,4 +126,5 @@ Untuk uji, pakai `dry_run=true` dan jangan hapus branch inbox.
 
 - Bila sukses: `nothing_to_do`. Laporan sudah dikirim Actions ke Google Chat.
 - Bila gagal di langkah mana pun: kirim `send_message(session="telegram")` ke Arif berisi langkah yang gagal dan pesan error singkat. Jangan sertakan URL webhook atau token.
+- Pesan langkah 4 adalah notifikasi teks biasa, BUKAN laporan. Jangan membuat PDF dan jangan mendelegasikan ke crew "yang-nulis". Aturan ini menggantikan aturan umum yang mewajibkan laporan PDF.
 - Bila sudah pukul 07.30 WIB dan langkah 3 belum selesai, hentikan dan laporkan. Run cadangan Actions pukul 07.40 akan mengambil alih.

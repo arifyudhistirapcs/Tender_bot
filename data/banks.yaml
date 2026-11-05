@@ -361,6 +361,16 @@ banks:
     sources: []
     notes: "Tidak diriset; pantau lewat berita."
 
+  - name: Bank Banten
+    aliases: ["Bank Banten", "Bank Pembangunan Daerah Banten"]
+    group: bpd
+    access: not_found
+    sources: []
+    notes: >-
+      Ditambahkan 5 Nov 2026 karena agen riset penuh sudah memeriksanya.
+      Kategori pengumuman di bankbanten.co.id (dicek 3 Nov 2026) berisi
+      berita umum, bukan daftar pengadaan. Pantau lewat berita.
+
   - name: Bank DKI
     aliases: ["Bank DKI"]
     group: bpd
