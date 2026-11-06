@@ -2,11 +2,11 @@
 
 Dibaca oleh sesi cron KiroCrew setiap Senin, Rabu, dan Jumat pukul 06.30 WIB. Semua langkah dijalankan di laptop. Repo lokalnya `O:\Work\Tender Bot`.
 
-Tujuannya: menemukan tender pengadaan EDC atau managed service EDC di bank Indonesia yang **masih berjalan atau akan segera dibuka**. Hasilnya diserahkan ke GitHub Actions, dan Actions yang mengirimnya ke Google Chat. Laptop tidak pernah memegang URL webhook.
+Tujuannya: menemukan tender pengadaan EDC atau managed service EDC di bank Indonesia yang **masih berjalan atau akan segera dibuka**. Sesi ini HANYA meriset dan menulis tiga file hasil. Skrip cron tanpa AI `O:\Work\Kiro Crew\data\crons\tenderbot_full_submit.py` (job `a6182280`, 07.15 WIB) yang menggabung, memvalidasi, push branch inbox, dan memicu GitHub Actions. Actions yang mengirim ke Google Chat. Laptop tidak pernah memegang URL webhook.
 
 ## Aturan sesi cron
 
-- Ini sesi cron tanpa pengguna. Kerjakan langkah 0-4 dalam SATU giliran sampai selesai. Giliran hanya boleh berakhir dengan `nothing_to_do` (sukses) atau `send_message(session="telegram")` (gagal). Jangan mengakhiri giliran dengan pesan "BERJALAN" atau menunggu completion event, karena sesi cron tidak menerima event susulan.
+- Ini sesi cron tanpa pengguna. Kerjakan langkah 0, 1, dan 2 dalam SATU giliran sampai selesai. Giliran hanya boleh berakhir dengan `nothing_to_do` (sukses) atau `send_message(session="telegram")` (gagal). Jangan mengakhiri giliran dengan pesan "BERJALAN" atau menunggu completion event, karena sesi cron tidak menerima event susulan.
 - Instruksi di file ini MENGGANTIKAN pelajaran umum yang bertentangan, misalnya larangan browser untuk riset banyak situs atau kewajiban mendelegasikan riset. Browser diizinkan untuk daftar bank di langkah 1, dan agen riset tidak boleh mendelegasikan lagi.
 - Catat kemajuan. Setelah setiap langkah, tambahkan satu baris ke `O:\Work\Tender Bot\kerja\full\<TGL>\progress.log` berisi jam WIB, nomor langkah, dan hasil singkat. Tulis dengan Python (mode append, `encoding="utf-8"`). Berkas ini dipakai untuk melacak langkah mana yang berhenti.
 
@@ -93,38 +93,11 @@ Skema `part-<n>.json`, sama dengan `inbox` di `docs/DESIGN.md`:
 }
 ```
 
-## 2. Gabung dan validasi
+## 2. Selesai
 
-0. Sebelum menggabung, pastikan ketiga `part-<n>.json` ada dan JSON-nya sah. Bila ada yang belum ada, panggil `wait` 60 detik lalu cek ulang. Ulangi sampai 15 menit sejak `spawn_sub_agents` kembali. Baru setelah itu bank di kelompok yang part-nya tetap tidak ada dicatat "agen riset gagal".
-1. Gabungkan ketiga part menjadi `O:\Work\Tender Bot\inbox\full-<TGL>.json`.
-   - `items`: gabungan dari ketiga part, buang yang URL-nya sama.
-   - `coverage.checked` dan `coverage.failed`: gabungan dari ketiga part.
-   - Bila sebuah part tidak ada atau JSON-nya rusak, catat semua bank di kelompok itu ke `coverage.failed` dengan alasan "agen riset gagal".
-   - Gabungkan dan tulis file dengan **Python** (`json.dump(..., ensure_ascii=False, indent=2)`, `encoding="utf-8"`). JANGAN pakai PowerShell `ConvertTo-Json`/`Out-File`/`Set-Content`, karena keduanya menambah BOM dan bot pernah menolak file seperti itu.
-2. Validasi dengan bot sendiri tanpa mengirim:
-   `python -m tenderbot run --mode full --inbox "O:\Work\Tender Bot\inbox\full-<TGL>.json" --dry-run --today <TGL> --state-dir <salinan folder state/ di folder sementara>`
-   (`PYTHONPATH=O:\Work\Tender Bot\src`).
-   - Validasi LULUS bila exit code 0 DAN stderr tidak memuat "inbox tidak sah". Cetak juga stdout untuk memastikan pesannya berisi tender atau "Tidak ada informasi tender baru".
-   - Bila gagal: perbaiki JSON-nya, lalu jalankan ulang (maksimal 2 kali). Bila tetap gagal, laporkan ke Arif dan jangan lanjut ke langkah 3.
-
-## 3. Serahkan ke GitHub Actions
-
-Jalankan setiap perintah git terpisah. Jangan gabungkan dengan `if` atau `{}`.
-
-1. `git -C "O:\Work\Tender Bot" checkout -b inbox/full-<TGL> origin/main`
-2. `git -C "O:\Work\Tender Bot" add inbox/full-<TGL>.json`
-3. `git -C "O:\Work\Tender Bot" -c user.name=arifyudhistirapcs -c user.email=101551075+arifyudhistirapcs@users.noreply.github.com commit -m "inbox: riset penuh <TGL>"`
-4. `git -C "O:\Work\Tender Bot" push origin inbox/full-<TGL>`
-5. `git -C "O:\Work\Tender Bot" checkout main`
-6. `& "C:\Program Files\GitHub CLI\gh.exe" workflow run tender-bot.yml --repo arifyudhistirapcs/Tender_bot --ref main -f mode=full -f inbox_ref=inbox/full-<TGL> -f dry_run=false`
-
-Untuk uji, pakai `dry_run=true` dan jangan hapus branch inbox.
-
-7. Pantau run sampai selesai: `gh run list --workflow tender-bot.yml --limit 1`, lalu `gh run watch <id> --exit-status`.
-
-## 4. Lapor
-
-- Bila sukses: `nothing_to_do`. Laporan sudah dikirim Actions ke Google Chat.
-- Bila gagal di langkah mana pun: kirim `send_message(session="telegram")` ke Arif berisi langkah yang gagal dan pesan error singkat. Jangan sertakan URL webhook atau token.
-- Pesan langkah 4 adalah notifikasi teks biasa, BUKAN laporan. Jangan membuat PDF dan jangan mendelegasikan ke crew "yang-nulis". Aturan ini menggantikan aturan umum yang mewajibkan laporan PDF.
-- Bila sudah pukul 07.30 WIB dan langkah 3 belum selesai, hentikan dan laporkan. Run cadangan Actions pukul 07.40 akan mengambil alih.
+- Pastikan ketiga `O:\Work\Tender Bot\kerja\full\<TGL>\part-<n>.json` ada dan JSON-nya sah. Bila ada part yang belum ada setelah `spawn_sub_agents` kembali, jangan membuatnya sendiri dan jangan menunggu lama: skrip pukul 07.15 akan mencatat kelompok itu "agen riset gagal".
+- JANGAN menggabung part, menulis `inbox/`, menjalankan git, push, atau `gh workflow run`. Semua itu tugas skrip `tenderbot_full_submit.py`. Bila sesi ini ikut push, GitHub bisa menerima dua kiriman untuk hari yang sama.
+- Bila ketiga part ada: akhiri dengan `nothing_to_do`.
+- Bila agen riset gagal atau part tidak ada: kirim satu `send_message(session="telegram")` ke Arif berisi kelompok yang gagal dan alasannya, lalu berhenti. Jangan sertakan URL webhook atau token.
+- Pesan ini notifikasi teks biasa, BUKAN laporan. Jangan membuat PDF dan jangan mendelegasikan ke crew "yang-nulis". Aturan ini menggantikan aturan umum yang mewajibkan laporan PDF.
+- Batas: gateway mematikan sesi ini sekitar 20 menit setelah agen riset pertama selesai. Jangan mengerjakan apa pun setelah ketiga part ada.
