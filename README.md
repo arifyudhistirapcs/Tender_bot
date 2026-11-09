@@ -1,6 +1,6 @@
 # Tender Bot
 
-Tender Bot memantau tender pengadaan EDC dan managed service EDC di bank-bank Indonesia, lalu melaporkannya ke Space Google Chat perusahaan dua kali setiap hari kerja.
+Tender Bot memantau tender pengadaan EDC, alih daya tenaga kerja, dan alih data di bank-bank Indonesia, lalu melaporkannya ke Space Google Chat perusahaan dua kali setiap hari kerja.
 
 Cakupan: BUMN, bank swasta KBMI 3–4, dan seluruh BPD. Saat ini ada 44 bank di [`data/banks.yaml`](data/banks.yaml).
 
@@ -8,6 +8,8 @@ Yang dilaporkan dan yang tidak:
 
 - Hanya tender yang **masih berjalan** atau **akan segera dibuka**. Tender yang sudah tutup tidak ditampilkan.
 - Tender yang sudah pernah dilaporkan tidak dikirim lagi.
+- Tiga kategori tender: **EDC**, **alih daya** (outsourcing tenaga kerja), dan **alih data** (migrasi, entri, atau digitalisasi data/arsip). Alih daya dan alih data hanya diambil dari portal bank, bukan berita RSS/GDELT.
+- Pengumuman hasil seperti pemenang, hasil koreksi/evaluasi, pembatalan, atau lelang gagal selalu berstatus **tutup** dan tidak ditampilkan.
 - Bila tidak ada yang baru, bot tetap mengirim "Tidak ada informasi tender baru", beserta jumlah bank yang dicek dan daftar sumber yang gagal diakses.
 
 Dokumen lain:
@@ -76,7 +78,7 @@ flowchart TD
    - Berita dari 11 feed RSS media kredibel (Detik, CNBC Indonesia, Kontan, Katadata, Antara, Tempo, IDX Channel, CNN Indonesia) dan dari [GDELT DOC 2.0 API](https://api.gdeltproject.org/api/v2/doc/doc).
 
    Aturan akses: setiap request punya timeout 20 detik dan retry satu kali, dan `robots.txt` selalu dipatuhi. Halaman yang memblokir bot (HTTP 403, "Request Rejected", Incapsula) dicatat sebagai gagal akses dan tidak diakali.
-2. **Saring.** Item harus memuat kata pengadaan (tender, pengadaan, sewa, sewa beli, pemeliharaan, managed service) sekaligus kata EDC (mesin EDC, Smart EDC, EDC Android, Electronic Data Capture). Item tentang lelang agunan/jaminan dan "EDC" dalam arti lain (misalnya Export Development Canada) dibuang.
+2. **Saring.** Item harus memuat kata pengadaan dan salah satu kategori: EDC, alih daya, atau alih data. EDC dapat dicocokkan pada judul dan bukti, sedangkan alih daya/data hanya pada judul portal agar berita umum tidak ikut lolos. Item tentang lelang agunan/jaminan, atau EDC dalam arti lain (misalnya Export Development Canada), dibuang.
 3. **Perkaya.** Bot membuka halaman detail dan lampiran PDF untuk mengambil tanggal posting, tanggal buka–tutup pendaftaran, batas penawaran, nilai/HPS, volume, durasi kontrak, metode pengadaan, tempat daftar, dan kontak. Data yang tidak tertulis di sumber dibiarkan kosong dan tidak ditampilkan. Bot tidak menebak.
 4. **Tentukan status.** Status dihitung dari tanggal hari ini (WIB):
    - *akan dibuka*: tanggal buka pendaftaran setelah hari ini.

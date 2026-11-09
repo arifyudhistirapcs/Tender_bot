@@ -35,6 +35,19 @@ _STATUS_LABEL = {
 _ITEM_DATE_FIELDS = ("posted", "reg_open", "reg_close", "submit_close",
                      "published", "deadline")
 
+_CATEGORY_ORDER = ("edc", "alih_daya", "alih_data")
+_CATEGORY_LABELS = {"edc": "EDC", "alih_daya": "Alih daya", "alih_data": "Alih data"}
+
+
+def _category(item: Item) -> str:
+    """Kategori sah; data lama tanpa kategori diperlakukan sebagai EDC."""
+    return item.category if item.category in _CATEGORY_ORDER else "edc"
+
+
+def _category_counts(items: list[Item]) -> dict[str, int]:
+    return {category: sum(_category(item) == category for item in items)
+            for category in _CATEGORY_ORDER}
+
 
 @dataclass
 class ReportContext:
@@ -84,8 +97,10 @@ def build_report_json(report: RunReport, ctx: ReportContext) -> dict:
             "candidates": report.candidates,
             "passed": report.passed_filter,
             "new": len(report.new_items),
+            "categories": _category_counts(report.new_items),
             "ongoing": report.ongoing_count,
             "upcoming": report.upcoming_count,
+            "unknown": report.unknown_count,
         },
         "items": [_item_to_dict(it) for it in report.new_items],
         "dropped": [
@@ -180,7 +195,11 @@ def build_report_md(report: RunReport, ctx: ReportContext) -> str:
             f"Ringkasan: {c.checked} bank dicek, {len(c.failed)} sumber gagal, "
             f"{c.candidates} kandidat, {c.passed_filter} lolos saringan, "
             f"{len(c.new_items)} tender baru dilaporkan "
-            f"(berjalan {c.ongoing_count}, akan dibuka {c.upcoming_count})."
+            f"(EDC {_category_counts(c.new_items)["edc"]}, "
+            f"alih daya {_category_counts(c.new_items)["alih_daya"]}, "
+            f"alih data {_category_counts(c.new_items)["alih_data"]}; "
+            f"berjalan {c.ongoing_count}, akan dibuka {c.upcoming_count}, "
+            f"tanggal tutup belum diketahui {c.unknown_count})."
         )
     lines.append(_gchat_status_line(ctx))
     if ctx.fallback_note:
@@ -190,9 +209,14 @@ def build_report_md(report: RunReport, ctx: ReportContext) -> str:
     # Detail tender.
     if report.new_items:
         lines.append(f"Detail tender ({len(report.new_items)}):")
-        for it in report.new_items:
-            lines.extend(_item_md_block(it))
-            lines.append("")
+        for category in _CATEGORY_ORDER:
+            items = [item for item in report.new_items if _category(item) == category]
+            if not items:
+                continue
+            lines.append(f"{_CATEGORY_LABELS[category]}:")
+            for it in items:
+                lines.extend(_item_md_block(it))
+                lines.append("")
     else:
         lines.append("Tidak ada tender baru yang dilaporkan.")
         lines.append("")

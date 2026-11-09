@@ -290,7 +290,7 @@ def test_html_list_bankaltimtara_buang_lelang_jaminan():
     assert all("lelangagunan.bankaltimtara.co.id" not in item.url for item in result.items)
 
 
-def test_item_edc_bpd_baru_lolos_dan_kartu_memuat_tanggal(tmp_path):
+def test_pengumuman_pemenang_edc_baru_ditutup_dan_dicatat(tmp_path):
     url = "https://www.bpdbali.co.id/pengumuman"
     bank = Bank(
         name="BPD Bali", access="public",
@@ -302,14 +302,11 @@ def test_item_edc_bpd_baru_lolos_dan_kartu_memuat_tanggal(tmp_path):
         skip_news=True,
     )
 
-    assert len(report.new_items) == 1
-    assert report.new_items[0].status == "tidak_diketahui"
+    assert report.new_items == []
+    assert report.dropped == [
+        ("BPD Bali", "Pengumuman Pemenang Tender Pengadaan Mesin EDC Bank BPD Bali", "pengumuman hasil")
+    ]
     assert report.source_candidates == [("BPD Bali (html)", 1)]
-    payload = build_message(report.new_items, report.checked, report.failed)
-    widgets = payload["cardsV2"][0]["card"]["sections"][0]["widgets"]
-    assert {w["decoratedText"]["topLabel"]: w["decoratedText"]["text"]
-            for w in widgets if "decoratedText" in w}["Tanggal pengumuman"] == "28 Okt 2026"
-
 
 def test_bank_lampung_bpd_bali_dan_papua_ditunda_di_mode_light(tmp_path):
     configured = {bank.name: bank for bank in load_banks()}

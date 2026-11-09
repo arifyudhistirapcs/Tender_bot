@@ -285,3 +285,24 @@ def test_enrich_perpanjang_judul_terpotong_dari_h1():
     assert item.title == FULL_TITLE           # judul diperpanjang
     assert not item.title.endswith("...")     # tidak lagi terpotong
     assert item.fingerprint == fp_before      # fingerprint tidak berubah
+
+
+# ---- Nilai pada teks browser yang memuat header situs ----
+
+def test_detail_papua_ticker_tanpa_label_tidak_dianggap_nilai_tender():
+    text = (
+        "AUD -12.532,16 CAD -12.959,21 Pengadaan Jasa Pengamanan "
+        "Download file dokumen lelang melalui tautan berikut.rar"
+    )
+
+    fields = extract_fields(text, value_fallback=False)
+
+    assert fields.get("value_idr") is None
+
+
+def test_fallback_nilai_menolak_angka_di_bawah_satu_juta():
+    assert extract_fields("AUD -12.532,16 CAD -14.250,44").get("value_idr") is None
+
+
+def test_nilai_berlabel_tetap_dibaca_tanpa_batas_minimum_fallback():
+    assert extract_fields("HPS: Rp 1.250.000.000")["value_idr"] == 1_250_000_000

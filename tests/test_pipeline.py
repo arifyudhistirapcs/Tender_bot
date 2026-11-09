@@ -140,7 +140,7 @@ def test_cakupan_jujur_feed_403_plus_gdelt_429(tmp_path):
     # (Kegagalan feed/GDELT ada di laporan Telegram, bukan di pesan ini.)
     payload = build_message(report.new_items, report.checked, report.failed)
     text = payload["text"]
-    assert text == f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+    assert text == f"Tidak ada info tender EDC, alih daya, atau alih data baru. ({report.checked} bank dipantau)"
     for larang in ("GDELT", "feed", "429", "Semua sumber"):
         assert larang not in text
 
@@ -157,7 +157,7 @@ def test_semua_sumber_ok_pesan_bisnis_singkat(tmp_path):
     assert report.failed == []
     payload = build_message([], report.checked, report.failed)
     assert payload["text"] == (
-        f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+        f"Tidak ada info tender EDC, alih daya, atau alih data baru. ({report.checked} bank dipantau)"
     )
 
 
@@ -214,3 +214,36 @@ def test_state_lama_tanpa_jumlah_item_terakhir_tetap_terbaca(tmp_path):
 
     assert state.last_source_item_count("https://contoh.bank/pengadaan") is None
     assert state.source_health["https://contoh.bank/pengadaan"]["consecutive_failures"] == 2
+
+
+
+def test_pipeline_browser_detail_skips_ticker_but_keeps_bsi_schedule(tmp_path):
+    from tenderbot.models import Item
+    from tenderbot.pipeline import RunReport, process_candidates
+
+    item = Item(
+        bank="BSI",
+        title="Pengadaan Penyedia Jasa Tenaga Alih Daya Tahun 2027",
+        url="https://www.bankbsi.co.id/pengadaan/tad-2027",
+        source_type="portal",
+        published="2026-10-30",
+        detail_text=(
+            "AUD -12.532,16 CAD -12.959,21 "
+            "Pengambilan Dokumen Prakualifikasi: Hari/Tanggal: Jumat s.d Rabu, "
+            "30 Oktober 2026 s.d 4 November 2026. "
+            "Pemasukan Hardcopy dan Softcopy Dokumen Prakualifikasi: Hari/Tanggal: "
+            "Rabu s.d Senin, 4 November 2026 s.d 6 November 2026."
+        ),
+    )
+    state = State.load(tmp_path)
+    report = RunReport(run_date="2026-11-03", mode="light")
+
+    process_candidates(
+        [item], KW, state, date(2026, 11, 3), "2026-11-03", report,
+        enrich=False,
+    )
+
+    assert item.value_idr is None
+    assert item.reg_open == "2026-10-30"
+    assert item.reg_close == "2026-11-04"
+    assert item.submit_close == "2026-11-06"

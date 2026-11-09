@@ -34,7 +34,7 @@ def test_build_message_tidak_menyisipkan_catatan_cadangan_di_pesan_bisnis():
     # note (fallback) TIDAK lagi dirender di pesan Google Chat versi bisnis;
     # catatan itu pindah ke laporan Telegram (fallback_note di report.json).
     payload = build_message([], 42, [], note=FALLBACK_NOTE)
-    assert payload["text"] == "Tidak ada info tender EDC baru. (42 bank dipantau)"
+    assert payload["text"] == "Tidak ada info tender EDC, alih daya, atau alih data baru. (42 bank dipantau)"
     assert FALLBACK_NOTE not in payload["text"]
 
 

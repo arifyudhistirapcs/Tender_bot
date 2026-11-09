@@ -13,16 +13,21 @@ from .collectors import html_list, pdf_list, rss
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate
-from .enrich import enrich_item
+from .enrich import _apply_fields, enrich_item, extract_fields
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
 from .models import Item
 from .state import State
 from .status import (
+    STATUS_CLOSED,
     STATUS_ONGOING,
+    STATUS_UNKNOWN,
     STATUS_UPCOMING,
     compute_status,
+    has_matching_result_announcement,
+    is_result_announcement,
     report_decision,
+    title_core_tokens,
 )
 
 
@@ -46,6 +51,7 @@ class RunReport:
     dropped: list[tuple[str, str, str]] = field(default_factory=list)  # (bank, judul, alasan)
     ongoing_count: int = 0   # jumlah tender berjalan di laporan
     upcoming_count: int = 0  # jumlah tender akan dibuka di laporan
+    unknown_count: int = 0   # jumlah tender dengan tanggal tutup belum diketahui
 
 
 _COLLECTOR_BY_TYPE = {
@@ -240,6 +246,16 @@ def process_candidates(
     # Judul yang sudah dilihat (untuk near-dup), ditambah yang lolos di run ini.
     seen_titles = state.seen_titles()
 
+    # Judul inti pengumuman hasil per bank. Ini dihitung untuk SELURUH inbox
+    # run, agar tender yang muncul sebelum pengumumannya tetap ditutup.
+    from .models import normalize_text
+    result_cores_by_bank: dict[str, set[frozenset[str]]] = {}
+    for candidate in candidates:
+        if is_result_announcement(candidate.title):
+            core = title_core_tokens(candidate.title)
+            if core:
+                result_cores_by_bank.setdefault(normalize_text(candidate.bank), set()).add(core)
+
     for item in candidates:
         verdict = filters.evaluate(item, keywords, today)
         if not verdict.passed:
@@ -254,17 +270,28 @@ def process_candidates(
 
         # Item baru dan unik: tandai seen lebih dulu (apa pun keputusannya).
         state.mark_seen(item, run_date)
-        from .models import normalize_text  # lokal untuk hindari siklus
         seen_titles.append((item.bank, normalize_text(item.title), item.published or run_date))
 
-        # Pengayaan detail (opsional; butuh jaringan).
+        # Teks detail dari kolektor browser hanya untuk pengayaan. Saringan
+        # sudah selesai sehingga kata di PDF/detail tidak bisa meloloskan item.
+        if item.detail_text:
+            _apply_fields(item, extract_fields(item.detail_text, value_fallback=False))
+
+        # Pengayaan detail jaringan (opsional; butuh jaringan).
         if enrich and fetcher is not None:
             try:
                 enrich_item(item, fetcher)
             except Exception:
                 pass  # kegagalan pengayaan tidak boleh menggagalkan run
 
-        # Status + keputusan laporan.
+        # Status + keputusan laporan. Pengumuman hasil bank yang sama dengan
+        # inti judul identik menutup tender asal, bukan hanya item hasilnya.
+        result_cores = result_cores_by_bank.get(normalize_text(item.bank), set())
+        if not is_result_announcement(item.title) and has_matching_result_announcement(item, result_cores):
+            item.status = STATUS_CLOSED
+            report.dropped.append((item.bank, item.title, "sudah ada pengumuman hasil"))
+            continue
+
         item.status = compute_status(item, today)
         send_ok, reason = report_decision(item, today)
         if not send_ok:
@@ -275,6 +302,8 @@ def process_candidates(
             report.ongoing_count += 1
         elif item.status == STATUS_UPCOMING:
             report.upcoming_count += 1
+        elif item.status == STATUS_UNKNOWN:
+            report.unknown_count += 1
 
         # Info daftar vendor bank (untuk tombol "Daftar vendor" di kartu).
         vinfo = vendor_by_bank.get(item.bank)

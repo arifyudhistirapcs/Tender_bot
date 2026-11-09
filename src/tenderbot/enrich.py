@@ -172,8 +172,12 @@ def _flat(text: str) -> str:
     return re.sub(r"\s+", " ", text or "").strip()
 
 
-def extract_fields(text: str) -> dict:
+def extract_fields(text: str, *, value_fallback: bool = True) -> dict:
     """Ekstrak field opsional dari teks pengumuman (PDF atau halaman detail).
+
+    ``value_fallback=False`` hanya menerima nilai yang berada dekat label
+    tender. Ini dipakai untuk teks hasil browser, yang dapat memuat ticker dan
+    elemen navigasi situs selain isi pengumuman.
 
     Mengembalikan dict field yang DITEMUKAN saja (tanpa None), supaya pemanggil
     bisa menerapkan "isi hanya bila belum ada" tanpa menimpa dengan None.
@@ -184,8 +188,8 @@ def extract_fields(text: str) -> dict:
     flat = _flat(text)
 
     # Nilai HPS/pagu/nilai: cari di sekitar kata HPS / Harga Perkiraan Sendiri /
-    # pagu / nilai; bila tak ketemu, ambil rupiah pertama yang bergaya ribuan.
-    value = _extract_value(flat)
+    # pagu / nilai. Jalur fallback hanya dipakai pada teks yang tepercaya.
+    value = _extract_value(flat, value_fallback=value_fallback)
     if value is not None:
         out["value_idr"] = value
 
@@ -235,7 +239,7 @@ def extract_fields(text: str) -> dict:
     return out
 
 
-def _extract_value(flat: str) -> Optional[int]:
+def _extract_value(flat: str, *, value_fallback: bool = True) -> Optional[int]:
     # Prioritaskan konteks HPS/pagu/nilai.
     for label in (
         r"harga perkiraan sendiri[^0-9]*\(?hps\)?",
@@ -251,8 +255,13 @@ def _extract_value(flat: str) -> Optional[int]:
             val = parse_rupiah(window)
             if val is not None:
                 return val
-    # Fallback: rupiah bergaya ribuan di seluruh teks.
-    return parse_rupiah(flat)
+    if not value_fallback:
+        return None
+
+    # Fallback seluruh teks hanya layak untuk nilai tender minimal Rp1 juta.
+    # Angka kecil seperti ticker kurs bukan nilai tender.
+    value = parse_rupiah(flat)
+    return value if value is not None and value >= 1_000_000 else None
 
 
 _RE_VOLUME = re.compile(
@@ -303,31 +312,32 @@ def _extract_method(flat: str) -> Optional[str]:
 
 
 def _extract_reg_dates(flat: str) -> tuple[Optional[str], Optional[str]]:
-    """Cari rentang tanggal di konteks pendaftaran/pengambilan dokumen."""
-    m = re.search(
-        r"(pendaftaran|pengambilan\s+dokumen)",
-        flat,
-        re.IGNORECASE,
-    )
-    if not m:
-        return (None, None)
-    window = flat[m.start(): m.start() + 220]
-    start, end = parse_date_range(window)
-    s = start.isoformat() if start else None
-    e = end.isoformat() if end else None
-    return (s, e)
+    """Cari tanggal pada setiap label jadwal yang relevan.
+
+    Dokumen sering menyebut pendaftaran dalam paragraf pengantar tanpa jadwal.
+    Karena itu pengambilan dokumen diprioritaskan dan setiap kemunculan label
+    dicoba sampai satu jendela benar-benar menghasilkan tanggal.
+    """
+    for label in (r"pengambilan\s+dokumen", r"pendaftaran"):
+        for match in re.finditer(label, flat, re.IGNORECASE):
+            start, end = parse_date_range(flat[match.start(): match.start() + 300])
+            if start or end:
+                return (
+                    start.isoformat() if start else None,
+                    end.isoformat() if end else None,
+                )
+    return (None, None)
 
 
 def _extract_submit_close(flat: str) -> Optional[str]:
     for label in (
+        r"pemasukan\s+(?:\S+\s+){0,4}?dokumen",
+        r"penyampaian\s+(?:\S+\s+){0,4}?dokumen",
         r"pemasukan\s+(?:dokumen\s+)?penawaran",
         r"batas\s+(?:akhir\s+)?penawaran",
-        r"pemasukan\s+dokumen",
     ):
-        m = re.search(label, flat, re.IGNORECASE)
-        if m:
-            window = flat[m.end(): m.end() + 160]
-            start, end = parse_date_range(window)
+        for match in re.finditer(label, flat, re.IGNORECASE):
+            start, end = parse_date_range(flat[match.end(): match.end() + 300])
             picked = end or start
             if picked:
                 return picked.isoformat()
@@ -335,7 +345,9 @@ def _extract_submit_close(flat: str) -> Optional[str]:
 
 
 def _extract_place(flat: str) -> Optional[str]:
-    m = re.search(r"\btempat\b\s*:?\s*", flat, re.IGNORECASE)
+    # Hindari "Tempat dan Waktu ...": ambil hanya label "Tempat:" yang
+    # memiliki isi, misalnya "Tempat : Procurement & Fixed Aset Group ...".
+    m = re.search(r"\btempat\s*:\s*", flat, re.IGNORECASE)
     if not m:
         return None
     tail = flat[m.end(): m.end() + 200]
