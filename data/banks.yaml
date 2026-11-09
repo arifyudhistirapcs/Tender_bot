@@ -261,6 +261,7 @@ banks:
     aliases: ["bank bjb", "Bank BJB", "Bank Pembangunan Daerah Jawa Barat dan Banten", "BJBR"]
     group: bpd
     access: public
+    needs_js: true
     vendor_registration_url: "https://eproc.bankbjb.co.id/"
     vendor_registration_note: "Portal e-Procurement Promise; ada menu pendaftaran. Situs dirender JavaScript."
     sources:
