@@ -4,7 +4,7 @@ Status: disetujui Arif 2026-10-23.
 
 ## Tujuan
 
-Pada hari kerja, bot mencari info tender terbuka untuk pengadaan EDC dan managed service EDC di bank-bank besar Indonesia, lalu melaporkannya ke Space Google Chat perusahaan.
+Pada hari kerja, bot mencari info tender terbuka untuk pengadaan EDC, alih daya tenaga kerja, dan alih data di bank-bank besar Indonesia, lalu melaporkannya ke Space Google Chat perusahaan.
 
 - Tender yang sudah pernah dilaporkan tidak dikirim lagi.
 - Bila tidak ada yang baru, bot tetap mengirim pesan "tidak ada yang baru".
@@ -98,7 +98,7 @@ Pesan di Space untuk tim bisnis tetap singkat. Workflow memakai `concurrency: te
    - sumber `needs_js` dilewati di mode `light` dan dicatat "dicek di mode full"; ini mencakup halaman pengumuman BPD Bali (dari runner GitHub menjawab HTTP 500 pada 3–5 Nov 2026, tetapi lancar dari laptop), Bank Lampung, dan Bank Papua yang menolak klien otomatis dengan HTTP 403.
 
    Setiap request diberi timeout 20 detik dan retry satu kali. Robots.txt dipatuhi. Halaman blokir ("Request Rejected", Incapsula, HTTP 403) dicatat sebagai gagal akses.
-2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Item yang tersisa harus memenuhi dua syarat: memuat salah satu kata pengadaan (pengadaan, tender, lelang pengadaan, sewa, sewa beli, pemeliharaan, managed service, jasa layanan), dan memuat salah satu kata EDC (mesin EDC, Smart EDC, EDC Android, terminal EDC, Electronic Data Capture). Dari item itu diambil bank, judul, nilai, tanggal terbit, batas waktu, dan URL, sejauh tertulis di sumber. Pada mode `full`, penilaian ini sudah dilakukan oleh agen KiroCrew.
+2. **Saring.** Buang item yang memuat kata agunan/jaminan, EDC dalam arti lain (Export Development Canada dan sejenisnya), serta item yang lebih tua dari 90 hari. Item yang tersisa harus memuat kata pengadaan dan salah satu dari tiga kategori: EDC, alih daya (outsourcing tenaga kerja), atau alih data (migrasi, entri, dan digitalisasi data/arsip). Prioritas kategori adalah EDC, alih data, lalu alih daya. EDC diperiksa pada judul dan bukti; alih daya/data hanya pada judul portal, sehingga berita RSS/GDELT tetap hanya EDC. Judul pengumuman hasil, termasuk pemenang, hasil koreksi/evaluasi, pembatalan, atau lelang gagal, selalu berstatus tutup dan tidak dikirim. Dari item itu diambil bank, judul, nilai, tanggal terbit, batas waktu, dan URL, sejauh tertulis di sumber. Pada mode `full`, kategori sah dari inbox dipakai bila diberikan; jika tidak, kategori dihitung dengan aturan ini.
 3. **Dedup.** `fingerprint = sha256(bank + judul dinormalisasi + url kanonik)`. Judul yang hampir sama dari bank yang sama dalam 60 hari dianggap item yang sama. Status tersimpan di `state/seen.json` dan di-commit oleh workflow.
 4. **Laporkan** ke Google Chat lewat incoming webhook (secret `GCHAT_WEBHOOK_URL`):
    - Ada item baru: satu kartu per tender (bank, judul, nilai, terbit, batas waktu, link sumber).
