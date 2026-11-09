@@ -18,7 +18,7 @@ on:
         options: [light, full]
         default: light
       inbox_ref:
-        description: "Ref branch inbox (mode full), mis. inbox/full-2026-10-26"
+        description: "Ref branch inbox (mode full/light), mis. inbox/full-2026-10-26 atau inbox/light-2026-10-26-pagi"
         type: string
         required: false
         default: ""
@@ -93,7 +93,22 @@ jobs:
             fi
           else
             case "$IN_MODE" in light|full) ;; *) echo "::error::mode tidak dikenal" >&2; exit 2;; esac
-            case "$IN_INBOX_REF" in ""|inbox/full-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;; *) echo "::error::inbox_ref harus inbox/full-YYYY-MM-DD" >&2; exit 2;; esac
+            case "$IN_INBOX_REF" in
+              "") ;;
+              inbox/full-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9])
+                if [ "$IN_MODE" != "full" ]; then
+                  echo "::error::inbox/full hanya sah untuk mode full" >&2
+                  exit 2
+                fi
+                ;;
+              inbox/light-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-pagi|inbox/light-[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-sore)
+                if [ "$IN_MODE" != "light" ]; then
+                  echo "::error::inbox/light hanya sah untuk mode light" >&2
+                  exit 2
+                fi
+                ;;
+              *) echo "::error::inbox_ref harus inbox/full-YYYY-MM-DD atau inbox/light-YYYY-MM-DD-(pagi|sore)" >&2; exit 2;;
+            esac
             echo "mode=$IN_MODE" >> "$GITHUB_OUTPUT"
             echo "dry_run=$IN_DRY_RUN" >> "$GITHUB_OUTPUT"
             echo "inbox_ref=$IN_INBOX_REF" >> "$GITHUB_OUTPUT"
@@ -101,21 +116,20 @@ jobs:
             echo "slot_guard=$IN_SLOT_GUARD" >> "$GITHUB_OUTPUT"
           fi
 
-      # Mode full: ambil file inbox dari ref inbox_ref ke path sementara.
-      - name: Fetch inbox (mode full)
+      # Inbox full atau light: ambil file dari ref inbox_ref ke path sementara.
+      - name: Fetch inbox
         id: inbox
-        if: steps.params.outputs.mode == 'full'
+        if: steps.params.outputs.inbox_ref != ''
         run: |
           ref="${{ steps.params.outputs.inbox_ref }}"
-          if [ -z "$ref" ]; then
-            echo "::error::mode full wajib inbox_ref" >&2
-            exit 2
-          fi
           git fetch origin "$ref"
           dest="$RUNNER_TEMP/inbox.json"
-          # Nama file inbox: inbox/full-YYYY-MM-DD.json di ref tsebut.
-          date_part="${ref##*full-}"
-          git show "origin/${ref}:inbox/full-${date_part}.json" > "$dest"
+          case "$ref" in
+            inbox/full-*) path="inbox/full-${ref##*full-}.json" ;;
+            inbox/light-*) path="inbox/light-${ref##*light-}.json" ;;
+            *) echo "::error::pola inbox_ref tidak dikenal" >&2; exit 2 ;;
+          esac
+          git show "origin/${ref}:${path}" > "$dest"
           echo "path=$dest" >> "$GITHUB_OUTPUT"
 
       # Jalankan bot. GCHAT_WEBHOOK_URL diteruskan lewat env, TIDAK pernah
@@ -139,7 +153,7 @@ jobs:
           if [ "${{ steps.params.outputs.slot_guard }}" = "true" ]; then
             args="$args --once-per-slot"
           fi
-          if [ "${{ steps.params.outputs.mode }}" = "full" ]; then
+          if [ -n "${{ steps.params.outputs.inbox_ref }}" ]; then
             args="$args --inbox ${{ steps.inbox.outputs.path }}"
           fi
           python -m tenderbot $args
@@ -185,10 +199,10 @@ jobs:
           git pull --rebase origin main
           git push origin HEAD:main
 
-      # Mode full: hapus branch inbox setelah run sukses dan bukan dry-run.
-      - name: Delete inbox branch (mode full)
+      # Hapus branch inbox setelah run sukses dan bukan dry-run.
+      - name: Delete inbox branch
         if: >-
-          steps.params.outputs.mode == 'full' &&
+          steps.params.outputs.inbox_ref != '' &&
           steps.params.outputs.dry_run == 'false'
         run: |
           ref="${{ steps.params.outputs.inbox_ref }}"
