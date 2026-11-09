@@ -83,6 +83,11 @@ def load_inbox(path: Path) -> InboxLoadResult:
                 deadline=raw.get("deadline"),
                 value_idr=value,
                 source_type=str(raw.get("source_type", "berita")),
+                category=(
+                    raw.get("category")
+                    if raw.get("category") in {"edc", "alih_daya", "alih_data"}
+                    else None
+                ),
                 evidence=str(raw.get("evidence", "")),
             )
         )

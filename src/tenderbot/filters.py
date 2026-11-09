@@ -35,6 +35,9 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     """
     text = normalize_text(f"{item.title} {item.evidence}")
     title = normalize_text(item.title)
+    supplied_category = (
+        item.category if item.category in {"edc", "alih_daya", "alih_data"} else None
+    )
     item.category = None
 
     hit_reject = _contains_any(text, keywords.reject)
@@ -56,7 +59,9 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     # Prioritas kategori: EDC, lalu alih data, lalu alih daya. EDC tetap
     # melihat evidence seperti perilaku lama; dua kategori baru hanya portal
     # dan hanya judul agar berita umum outsourcing tidak ikut dilaporkan.
-    if _contains_any(text, keywords.edc):
+    if supplied_category:
+        item.category = supplied_category
+    elif _contains_any(text, keywords.edc):
         item.category = "edc"
     elif item.source_type == "portal" and _contains_any(title, keywords.alih_data):
         item.category = "alih_data"
