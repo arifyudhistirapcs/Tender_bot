@@ -74,6 +74,18 @@ def load_inbox(path: Path) -> InboxLoadResult:
                 value = int(value)
             except (TypeError, ValueError):
                 value = None
+        detail_text = raw.get("detail_text")
+        if detail_text is not None:
+            if not isinstance(detail_text, str):
+                result.rejected.append(f"item #{idx} ({url}): detail_text harus string")
+                continue
+            if len(detail_text) > 8_000:
+                result.rejected.append(f"item #{idx} ({url}): detail_text lebih dari 8000 karakter")
+                continue
+        attachment_url = raw.get("attachment_url")
+        if attachment_url is not None and not isinstance(attachment_url, str):
+            result.rejected.append(f"item #{idx} ({url}): attachment_url harus string")
+            continue
         result.items.append(
             Item(
                 bank=str(bank),
@@ -89,6 +101,8 @@ def load_inbox(path: Path) -> InboxLoadResult:
                     else None
                 ),
                 evidence=str(raw.get("evidence", "")),
+                detail_text=detail_text,
+                attachment_url=attachment_url,
             )
         )
 

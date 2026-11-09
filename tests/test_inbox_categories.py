@@ -14,7 +14,7 @@ def _write(tmp_path, item):
     return path
 
 
-def test_inbox_full_memakai_category_sah_tanpa_kata_kategori(tmp_path):
+def test_inbox_full_non_portal_alih_category_dinilai_ulang(tmp_path):
     result = load_inbox(_write(tmp_path, {
         "bank": "Bank Contoh",
         "title": "Pengadaan Jasa Khusus",
@@ -25,8 +25,8 @@ def test_inbox_full_memakai_category_sah_tanpa_kata_kategori(tmp_path):
 
     item = result.items[0]
     assert item.category == "alih_data"
-    assert evaluate(item, load_keywords(), date(2026, 11, 9)).passed
-    assert item.category == "alih_data"
+    assert not evaluate(item, load_keywords(), date(2026, 11, 9)).passed
+    assert item.category is None
 
 
 def test_inbox_full_category_tidak_sah_dihitung_ulang_dan_boleh_ditolak(tmp_path):

@@ -59,7 +59,11 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     # Prioritas kategori: EDC, lalu alih data, lalu alih daya. EDC tetap
     # melihat evidence seperti perilaku lama; dua kategori baru hanya portal
     # dan hanya judul agar berita umum outsourcing tidak ikut dilaporkan.
-    if supplied_category:
+    # Kategori alih daya/data dari riset penuh hanya dipercaya bila item portal.
+    # Di luar portal, nilai ulang dari judul/evidence dengan aturan biasa.
+    if supplied_category == "edc" or (
+        supplied_category in {"alih_daya", "alih_data"} and item.source_type == "portal"
+    ):
         item.category = supplied_category
     elif _contains_any(text, keywords.edc):
         item.category = "edc"

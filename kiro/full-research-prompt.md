@@ -42,6 +42,7 @@ Teks tugas tiap agen wajib memuat semua aturan berikut.
 **Yang dicari**
 - Tender, pelelangan, pengumuman pengadaan, market sounding, atau RFI/RFP untuk EDC: mesin EDC, Smart EDC, EDC Android, soundbox, sewa/sewa beli EDC, pemeliharaan, managed service, dan field service EDC. Hanya yang **berjalan atau akan dibuka** pada `TGL`.
 - Lewati yang sudah tutup. Lewati juga yang tidak punya tanggal dan sudah diposting lebih dari 45 hari.
+- Dari portal bank, cari juga tender alih daya (outsourcing tenaga kerja, jasa keamanan, driver, cleaning service, call center) dan alih data (migrasi data, data entry, digitalisasi dokumen/arsip). Untuk setiap item portal itu, isi field `"category"` sebagai `"alih_daya"` atau `"alih_data"`.
 
 **Sumber**
 1. Portal dan halaman daftar pengadaan resmi bank. INI SUMBER UTAMA. Buka setiap URL di `sources` bank itu di `banks.yaml` lebih dulu, lalu `vendor_registration_url`. Contoh halaman yang benar: https://www.btn.co.id/en/Procurement/Procurement-List, sebuah daftar pengadaan publik bertanggal tanpa login.

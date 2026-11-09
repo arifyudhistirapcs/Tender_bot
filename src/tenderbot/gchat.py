@@ -21,7 +21,7 @@ import requests
 
 from .dates_id import format_rupiah
 from .models import Item
-from .status import STATUS_ONGOING, STATUS_UPCOMING
+from .status import STATUS_ONGOING, STATUS_UNKNOWN, STATUS_UPCOMING
 
 WEBHOOK_ENV = "GCHAT_WEBHOOK_URL"
 SEND_TIMEOUT = 20
@@ -86,8 +86,9 @@ def _status_label(item: Item) -> Optional[str]:
     if status == STATUS_UPCOMING:
         opens = _fmt_date(item.reg_open)
         return f"Akan dibuka {opens}" if opens else "Akan dibuka"
-    # tidak_diketahui / lainnya: tampilkan netral tanpa detail teknis.
-    return "Berjalan"
+    if status == STATUS_UNKNOWN:
+        return "Tanggal tutup belum diketahui"
+    return None
 
 
 def _item_card(item: Item) -> dict:
@@ -157,10 +158,10 @@ def _opening_text(new_items: list[Item]) -> str:
             continue
         ongoing = sum(1 for item in items if item.status == STATUS_ONGOING)
         upcoming = sum(1 for item in items if item.status == STATUS_UPCOMING)
-        # Status lain yang lolos dilabeli berjalan, sama seperti kartu bisnis.
-        ongoing += len(items) - ongoing - upcoming
+        unknown = sum(1 for item in items if item.status == STATUS_UNKNOWN)
         label = _CATEGORY_OPENING_LABELS[category]
-        parts.append(f"{label} {ongoing} berjalan, {upcoming} akan dibuka")
+        suffix = f", {unknown} tanggal belum diketahui" if unknown else ""
+        parts.append(f"{label} {ongoing} berjalan, {upcoming} akan dibuka{suffix}")
 
     # Menjaga pembuka kartu EDC lama tepat sama.
     if len(parts) == 1 and _category(new_items[0]) == "edc":

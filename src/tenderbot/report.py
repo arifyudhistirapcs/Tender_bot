@@ -100,6 +100,7 @@ def build_report_json(report: RunReport, ctx: ReportContext) -> dict:
             "categories": _category_counts(report.new_items),
             "ongoing": report.ongoing_count,
             "upcoming": report.upcoming_count,
+            "unknown": report.unknown_count,
         },
         "items": [_item_to_dict(it) for it in report.new_items],
         "dropped": [
@@ -197,7 +198,8 @@ def build_report_md(report: RunReport, ctx: ReportContext) -> str:
             f"(EDC {_category_counts(c.new_items)["edc"]}, "
             f"alih daya {_category_counts(c.new_items)["alih_daya"]}, "
             f"alih data {_category_counts(c.new_items)["alih_data"]}; "
-            f"berjalan {c.ongoing_count}, akan dibuka {c.upcoming_count})."
+            f"berjalan {c.ongoing_count}, akan dibuka {c.upcoming_count}, "
+            f"tanggal tutup belum diketahui {c.unknown_count})."
         )
     lines.append(_gchat_status_line(ctx))
     if ctx.fallback_note:

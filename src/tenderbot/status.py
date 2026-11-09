@@ -22,7 +22,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from .dates_id import _MONTHS
-from .models import Item, parse_iso_date
+from .models import Item, normalize_text, parse_iso_date
 
 STALE_UNKNOWN_DAYS = 45
 
@@ -46,12 +46,31 @@ _RESULT_ANNOUNCEMENT_PHRASES = (
 )
 
 
+_TITLE_CORE_IGNORED = frozenset({
+    "pengumuman", "lelang", "pekerjaan", "pengadaan", "tender", "hasil",
+    "koreksi", "aritmatik", "pemenang", "penetapan", "evaluasi",
+    "kualifikasi", "prakualifikasi",
+})
+
+
 def is_result_announcement(title: str) -> bool:
     """True bila judul adalah pengumuman hasil, bukan tender terbuka."""
-    from .models import normalize_text
-
     normalized = normalize_text(title)
     return any(normalize_text(phrase) in normalized for phrase in _RESULT_ANNOUNCEMENT_PHRASES)
+
+
+def title_core_tokens(title: str) -> frozenset[str]:
+    """Token inti judul untuk memasangkan tender dengan pengumuman hasil."""
+    return frozenset(
+        token for token in normalize_text(title).split()
+        if token not in _TITLE_CORE_IGNORED
+    )
+
+
+def has_matching_result_announcement(item: Item, result_cores: set[frozenset[str]]) -> bool:
+    """True bila satu pengumuman hasil bank ini memiliki inti judul yang sama."""
+    core = title_core_tokens(item.title)
+    return bool(core) and core in result_cores
 
 
 def _last_close(item: Item) -> Optional[date]:
