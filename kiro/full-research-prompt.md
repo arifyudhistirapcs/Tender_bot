@@ -44,18 +44,20 @@ Teks tugas tiap agen wajib memuat semua aturan berikut.
 - Lewati yang sudah tutup. Lewati juga yang tidak punya tanggal dan sudah diposting lebih dari 45 hari.
 
 **Sumber**
-1. Portal dan halaman pengumuman resmi bank.
-2. Media kredibel: kompas.com, detik.com, cnbcindonesia.com, bisnis.com, kontan.co.id, katadata.co.id, tempo.co, antaranews.com, infobanknews.com, idxchannel.com, investor.id, cnnindonesia.com.
+1. Portal dan halaman daftar pengadaan resmi bank. INI SUMBER UTAMA. Buka setiap URL di `sources` bank itu di `banks.yaml` lebih dulu, lalu `vendor_registration_url`. Contoh halaman yang benar: https://www.btn.co.id/en/Procurement/Procurement-List, sebuah daftar pengadaan publik bertanggal tanpa login.
+2. Media kredibel, HANYA pelengkap setelah portal dibuka: kompas.com, detik.com, cnbcindonesia.com, bisnis.com, kontan.co.id, katadata.co.id, tempo.co, antaranews.com, infobanknews.com, idxchannel.com, investor.id, cnnindonesia.com.
 
 Sumber lain boleh dipakai, tetapi item dari sumber itu ditandai `"unverified_source": true`.
 
 **Alat**
 - Utamakan `web_search` dan `web_fetch`. Bila hasil fetch hanya menu, ulangi dengan mode full.
 - Halaman yang dirender JavaScript boleh dibuka dengan `playwright-cli` HEADED, dengan sesi sendiri `-s=full-k<n>` di setiap perintah. Jalankan selalu lewat `Start-Process` dengan output dialihkan ke file dan `WaitForExit(60000)`. Bila waktunya habis, matikan HANYA proses milik sesi itu.
-- Bank berikut WAJIB dicoba dengan browser bila `web_fetch` tidak menampilkan daftar pengumuman. Izin ini menggantikan pelajaran umum yang melarang browser:
-  - kelompok 2: bank bjb, Bank Jateng, Bank Lampung;
-  - kelompok 3: Bank Kalbar, Bank Sulteng, Bank Papua.
-  URL-nya ada di `banks.yaml` (`sources` atau `vendor_registration_url`). Maksimal 3 perintah browser per bank.
+- Setiap source di `banks.yaml` yang bertanda `needs_js: true` WAJIB dibuka dengan browser bila `web_fetch` tidak menampilkan daftar pengumuman. Izin ini menggantikan pelajaran umum yang melarang browser. Per 9 Nov 2026 daftarnya:
+  - kelompok 1: BTN (Procurement List), BSI (Informasi Pengadaan & Lelang);
+  - kelompok 2: bank bjb, Bank Jakarta, Bank Jateng, Bank Lampung;
+  - kelompok 3: BPD Bali, Bank Sulselbar, Bank Maluku Malut, Bank Kalbar, Bank Sulteng, Bank Papua.
+  Bila `banks.yaml` memuat source `needs_js` baru, source itu juga wajib dibuka. Maksimal 3 perintah browser per bank.
+- Di browser, baca daftar pengumuman yang tampil: judul, tanggal, dan tautan detail. Buka detail atau PDF lampiran hanya untuk item yang menyebut EDC, soundbox, managed service, atau field service.
 - JANGAN pakai `Start-Job`: terbukti macet 90 menit sampai 3 jam.
 - Jangan sentuh tab Chrome milik Arif.
 - Tutup sesi browser di akhir.
@@ -67,8 +69,9 @@ Sumber lain boleh dipakai, tetapi item dari sumber itu ditandai `"unverified_sou
 **Batas kerja**
 - Maksimal ~8 panggilan alat per bank.
 - Minimal per bank, sebelum bank boleh masuk `coverage.checked`:
-  - (a) buka halaman pengadaan/pengumuman resmi bila ada di `banks.yaml` atau `docs/registrasi-vendor.md`;
-  - (b) satu pencarian web `"<nama lengkap bank>" tender OR pengadaan EDC` dibatasi 60 hari terakhir.
+  - (a) buka SEMUA halaman pengadaan resmi bank itu di `banks.yaml` (`sources`, lalu `vendor_registration_url`) atau `docs/registrasi-vendor.md`. Ini langkah utama;
+  - (b) satu pencarian web `"<nama lengkap bank>" tender OR pengadaan EDC` dibatasi 60 hari terakhir, sebagai pelengkap.
+- Bank yang punya URL portal di `banks.yaml` tetapi portalnya tidak berhasil dibuka WAJIB tercatat di `failed` dengan alasannya, meskipun pencarian berita berhasil.
 - Bank yang langkah (a)-nya gagal tetap boleh masuk `checked` bila (b) jalan. Alasan kegagalan (a) dicatat di `failed`.
 - Total ~45 menit.
 
