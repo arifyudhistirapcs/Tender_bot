@@ -275,7 +275,7 @@ def process_candidates(
         # Teks detail dari kolektor browser hanya untuk pengayaan. Saringan
         # sudah selesai sehingga kata di PDF/detail tidak bisa meloloskan item.
         if item.detail_text:
-            _apply_fields(item, extract_fields(item.detail_text))
+            _apply_fields(item, extract_fields(item.detail_text, value_fallback=False))
 
         # Pengayaan detail jaringan (opsional; butuh jaringan).
         if enrich and fetcher is not None:
