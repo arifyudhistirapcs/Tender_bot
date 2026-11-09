@@ -126,7 +126,7 @@ def test_inbox_items_kosong_pesan_dan_bank_gagal(monkeypatch, tmp_path):
     assert rc == 0
     # Pesan Google Chat: VERSI BISNIS, satu kalimat, TANPA detail teknis.
     text = captured["payload"]["text"]
-    assert text.startswith("Tidak ada info tender EDC baru.")
+    assert text.startswith("Tidak ada info tender EDC, alih daya, atau alih data baru.")
     for larang in ("BRI", "BNI", "HTTP 503", "WAF", "Incapsula"):
         assert larang not in text, f"detail teknis '{larang}' bocor ke pesan bisnis"
     # Detail bank gagal pindah ke laporan Telegram (report.md).
@@ -147,7 +147,7 @@ def test_build_message_kosong_adalah_pesan_bisnis_singkat():
         [], 41, [("BRI", "portal diblokir"), ("BNI", "HTTP 503")]
     )
     text = payload["text"]
-    assert text == "Tidak ada info tender EDC baru. (41 bank dipantau)"
+    assert text == "Tidak ada info tender EDC, alih daya, atau alih data baru. (41 bank dipantau)"
     assert "BRI" not in text and "BNI" not in text
 
 

@@ -54,7 +54,8 @@ def test_report_json_skema_dan_counts():
     assert j["skipped"] is None
     assert j["counts"] == {
         "checked": 43, "failed": 2, "candidates": 5, "passed": 2,
-        "new": 1, "ongoing": 1, "upcoming": 0,
+        "new": 1, "categories": {"edc": 1, "alih_daya": 0, "alih_data": 0},
+        "ongoing": 1, "upcoming": 0,
     }
     # Item lengkap dengan semua field + status.
     assert j["items"][0]["bank"] == "Bank Sumut"

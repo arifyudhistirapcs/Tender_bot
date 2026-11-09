@@ -140,7 +140,7 @@ def test_cakupan_jujur_feed_403_plus_gdelt_429(tmp_path):
     # (Kegagalan feed/GDELT ada di laporan Telegram, bukan di pesan ini.)
     payload = build_message(report.new_items, report.checked, report.failed)
     text = payload["text"]
-    assert text == f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+    assert text == f"Tidak ada info tender EDC, alih daya, atau alih data baru. ({report.checked} bank dipantau)"
     for larang in ("GDELT", "feed", "429", "Semua sumber"):
         assert larang not in text
 
@@ -157,7 +157,7 @@ def test_semua_sumber_ok_pesan_bisnis_singkat(tmp_path):
     assert report.failed == []
     payload = build_message([], report.checked, report.failed)
     assert payload["text"] == (
-        f"Tidak ada info tender EDC baru. ({report.checked} bank dipantau)"
+        f"Tidak ada info tender EDC, alih daya, atau alih data baru. ({report.checked} bank dipantau)"
     )
 
 

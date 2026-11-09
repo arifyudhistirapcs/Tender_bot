@@ -30,6 +30,23 @@ SEND_TIMEOUT = 20
 # bukan di subtitle header kartu Google Chat yang akan terpangkas.
 TITLE_SUBTITLE_MAX = 80
 
+_CATEGORY_ORDER = ("edc", "alih_daya", "alih_data")
+_CATEGORY_CARD_TITLES = {
+    "edc": "Tender EDC",
+    "alih_daya": "Tender Alih Daya",
+    "alih_data": "Tender Alih Data",
+}
+_CATEGORY_OPENING_LABELS = {
+    "edc": "EDC",
+    "alih_daya": "alih daya",
+    "alih_data": "alih data",
+}
+
+
+def _category(item: Item) -> str:
+    """Kategori sah; Item lama tanpa field diperlakukan sebagai EDC."""
+    return item.category if item.category in _CATEGORY_ORDER else "edc"
+
 
 def _fmt_date(iso: Optional[str]) -> Optional[str]:
     """ISO "YYYY-MM-DD" -> "DD Mon YYYY" ringkas; None -> None."""
@@ -120,26 +137,35 @@ def _item_card(item: Item) -> dict:
         widgets.append({"buttonList": {"buttons": buttons}})
 
     # Subtitle header: judul pendek utuh, atau nama bank bila judul sudah di widget.
-    subtitle = item.title if not long_title else (item.bank or "Tender EDC")
+    category_title = _CATEGORY_CARD_TITLES[_category(item)]
+    subtitle = item.title if not long_title else (item.bank or category_title)
     return {
         "cardId": item.fingerprint[:16] or "tender",
         "card": {
-            "header": {"title": "Tender EDC", "subtitle": subtitle},
+            "header": {"title": category_title, "subtitle": subtitle},
             "sections": [{"widgets": widgets}],
         },
     }
 
 
 def _opening_text(new_items: list[Item]) -> str:
-    """Pembuka versi bisnis: "Info tender EDC: N berjalan, M akan dibuka."."""
-    ongoing = sum(1 for i in new_items if i.status == STATUS_ONGOING)
-    upcoming = sum(1 for i in new_items if i.status == STATUS_UPCOMING)
-    # Item berstatus lain (mis. tidak_diketahui yang lolos) dihitung sebagai
-    # berjalan di label bisnis, supaya pembuka konsisten dengan kartu.
-    other = len(new_items) - ongoing - upcoming
-    ongoing += other
-    return f"Info tender EDC: {ongoing} berjalan, {upcoming} akan dibuka."
+    """Pembuka bisnis dengan angka per kategori yang benar-benar ada."""
+    parts: list[str] = []
+    for category in _CATEGORY_ORDER:
+        items = [item for item in new_items if _category(item) == category]
+        if not items:
+            continue
+        ongoing = sum(1 for item in items if item.status == STATUS_ONGOING)
+        upcoming = sum(1 for item in items if item.status == STATUS_UPCOMING)
+        # Status lain yang lolos dilabeli berjalan, sama seperti kartu bisnis.
+        ongoing += len(items) - ongoing - upcoming
+        label = _CATEGORY_OPENING_LABELS[category]
+        parts.append(f"{label} {ongoing} berjalan, {upcoming} akan dibuka")
 
+    # Menjaga pembuka kartu EDC lama tepat sama.
+    if len(parts) == 1 and _category(new_items[0]) == "edc":
+        return f"Info tender EDC: {parts[0][4:]}."
+    return "Info tender: " + "; ".join(parts) + "."
 
 def build_message(
     new_items: list[Item],
@@ -159,11 +185,21 @@ def build_message(
     if new_items:
         return {
             "text": _opening_text(new_items),
-            "cardsV2": [_item_card(it) for it in new_items],
+            "cardsV2": [
+                _item_card(it)
+                for category in _CATEGORY_ORDER
+                for it in new_items
+                if _category(it) == category
+            ],
         }
 
     # Tidak ada tender: satu kalimat umum dengan jumlah bank dipantau.
-    return {"text": f"Tidak ada info tender EDC baru. ({checked_count} bank dipantau)"}
+    return {
+        "text": (
+            "Tidak ada info tender EDC, alih daya, atau alih data baru. "
+            f"({checked_count} bank dipantau)"
+        )
+    }
 
 
 @dataclass

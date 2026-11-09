@@ -20,7 +20,7 @@ def _berjalan(**kw):
 def test_pesan_tidak_ada_baru_satu_kalimat_dengan_jumlah():
     payload = build_message(new_items=[], checked_count=43, failed=[])
     text = payload["text"]
-    assert text == "Tidak ada info tender EDC baru. (43 bank dipantau)"
+    assert text == "Tidak ada info tender EDC, alih daya, atau alih data baru. (43 bank dipantau)"
     assert "cardsV2" not in payload
 
 
@@ -34,7 +34,7 @@ def test_pesan_tidak_ada_baru_tanpa_detail_teknis():
     text = payload["text"]
     for larang in ("HTTP", "GDELT", "403", "429", "gagal", "diakses", "robots"):
         assert larang not in text, f"kata teknis '{larang}' bocor ke pesan bisnis"
-    assert text == "Tidak ada info tender EDC baru. (43 bank dipantau)"
+    assert text == "Tidak ada info tender EDC, alih daya, atau alih data baru. (43 bank dipantau)"
 
 
 def test_pembuka_menyebut_berjalan_dan_akan_dibuka():
@@ -112,4 +112,4 @@ def test_dry_run_tidak_mengirim(capsys):
     outcome = send(payload, dry_run=True)
     assert outcome.dry_run and not outcome.sent
     out = capsys.readouterr().out
-    assert "Tidak ada info tender EDC baru" in out
+    assert "Tidak ada info tender EDC, alih daya, atau alih data baru" in out
