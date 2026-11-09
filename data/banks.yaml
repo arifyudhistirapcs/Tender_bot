@@ -47,13 +47,19 @@ banks:
   - name: BNI
     aliases: ["Bank Negara Indonesia", "BBNI"]
     group: bumn
-    access: not_found
+    access: public
     vendor_registration_url: "https://e-proc.bni.co.id/"
     vendor_registration_note: "Portal e-proc.bni.co.id; saat dicek menjawab HTTP 503, konfirmasi ke bank."
-    sources: []
+    sources:
+      - url: "https://tenderannouncement.bni.co.id/"
+        type: html
+        needs_js: true
     notes: >-
-      Portal tidak ditemukan. Akronim "BNI" bertabrakan dengan Business
-      Network International; pakai nama lengkap. Pantau lewat berita.
+      Dicek 9 Nov 2026 dengan browser: menu "Berita Pengadaan" di beranda
+      bni.co.id membuka "Tender Announcement" (Oracle APEX), tabel Jenis /
+      Nama Pengadaan / Tanggal Pengumuman / Batas Akhir / status OPEN-CLOSED.
+      Tabel dimuat JavaScript, jadi dibaca kolektor browser. Akronim "BNI"
+      bertabrakan dengan Business Network International; pakai nama lengkap.
 
   - name: BTN
     aliases: ["Bank Tabungan Negara", "BBTN"]
@@ -240,16 +246,21 @@ banks:
   - name: Bank Nagari
     aliases: ["Bank Nagari", "Bank Pembangunan Daerah Sumatera Barat"]
     group: bpd
-    access: not_found
-    sources: []
+    access: public
+    sources:
+      - url: "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
+        type: html
+        needs_js: true
     notes: >-
-      Menu "Informasi Lelang" dengan parameter URL terenkripsi; tidak bisa
-      ditebak. Portal Lelang terpisah untuk agunan.
+      Dicek 9 Nov 2026 dengan browser: tautan menu beranda "Informasi Lelang"
+      membuka "Lelang dan Pengadaan" berisi pengadaan bertanggal, mis.
+      "Pengadaan Sarana Kerja Hardware Komputer Inventaris PT Bank Nagari
+      02 November 2026". Isi dimuat JavaScript. Portal lelang agunan terpisah.
 
   - name: bank bjb
     aliases: ["bank bjb", "Bank BJB", "Bank Pembangunan Daerah Jawa Barat dan Banten", "BJBR"]
     group: bpd
-    access: blocked
+    access: public
     needs_js: true
     vendor_registration_url: "https://eproc.bankbjb.co.id/"
     vendor_registration_note: "Portal e-Procurement Promise; ada menu pendaftaran. Situs dirender JavaScript."
@@ -265,7 +276,7 @@ banks:
   - name: Bank Jakarta
     aliases: ["Bank Jakarta", "Bank DKI"]
     group: bpd
-    access: blocked
+    access: public
     sources:
       - url: "https://eproc.bankdki.co.id/pm/#/page/portal"
         type: html
@@ -312,13 +323,18 @@ banks:
   - name: Bank Sulteng
     aliases: ["Bank Sulteng", "Bank Pembangunan Daerah Sulawesi Tengah"]
     group: bpd
-    access: not_found
+    access: public
     vendor_registration_url: "https://eproc.banksulteng.co.id/#/daftar"
     vendor_registration_note: "Satu kali daftar berlaku untuk semua tender; halaman berlabel UAT, konfirmasi ke bank."
-    sources: []
+    sources:
+      - url: "https://www.banksulteng.co.id/informasi/pengadaan-lelang"
+        type: html
+        needs_js: true
     notes: >-
-      Portal eproc.banksulteng.co.id hanya terlihat di cuplikan pencarian,
-      belum dibuka/dicek. Pantau lewat berita sampai portal dipetakan manual.
+      Dicek 9 Nov 2026: menu beranda "Pengadaan & Lelang" membuka halaman
+      "Pengadaan dan Lelang | Bank Sulteng". Bot dapat HTTP 403, jadi dibaca
+      kolektor browser. Portal eproc.banksulteng.co.id sertifikat HTTPS
+      kedaluwarsa (ERR_CERT_DATE_INVALID) per 9 Nov 2026.
 
   - name: Bank Aceh
     aliases: ["Bank Aceh", "Bank Aceh Syariah", "Bank Pembangunan Daerah Aceh"]
@@ -400,21 +416,33 @@ banks:
   - name: Bank Kalsel
     aliases: ["Bank Kalsel", "Bank Pembangunan Daerah Kalimantan Selatan"]
     group: bpd
-    access: not_found
-    sources: []
-    notes: "Tidak diriset; pantau lewat berita."
+    access: public
+    sources:
+      - url: "https://www.bankkalsel.co.id/informasi/detail/12?cat=12"
+        type: html
+        needs_js: true
+    notes: >-
+      Dicek 9 Nov 2026 dengan browser: kategori "Pengumuman Pengadaan",
+      mis. "Pengumuman Pemenang Pelaksana Pengadaan Lisensi Firewall
+      Checkpoint Front End 2026". Isi dimuat JavaScript.
 
   - name: Bank Kalteng
     aliases: ["Bank Kalteng", "Bank Pembangunan Daerah Kalimantan Tengah"]
     group: bpd
-    access: not_found
-    sources: []
-    notes: "Tidak diriset; pantau lewat berita."
+    access: public
+    sources:
+      - url: "https://www.bankkalteng.co.id/tentang-bank-kalteng/pengumuman"
+        type: html
+        needs_js: true
+    notes: >-
+      Dicek 9 Nov 2026 dengan browser: halaman Pengumuman memuat tender,
+      mis. "Pengumuman Perubahan Jadwal Pelaksanaan Tender Pengadaan dan
+      Penggantian 56 ATM dan 3 CRM PT Bank Kalteng". Isi dimuat JavaScript.
 
   - name: Bank Sulselbar
     aliases: ["Bank Sulselbar", "Bank Pembangunan Daerah Sulawesi Selatan dan Sulawesi Barat"]
     group: bpd
-    access: not_found
+    access: public
     vendor_registration_url: "https://eproc.banksulselbar.co.id/register"
     vendor_registration_note: "Wajib terdaftar sebelum ikut tender. Dokumen: akta, NIB, NPWP+PKP, laporan keuangan 2 tahun."
     sources:
@@ -436,9 +464,17 @@ banks:
   - name: Bank NTB Syariah
     aliases: ["Bank NTB Syariah", "Bank Pembangunan Daerah Nusa Tenggara Barat Syariah"]
     group: bpd
-    access: not_found
-    sources: []
-    notes: "Tidak diriset; pantau lewat berita."
+    access: public
+    sources:
+      - url: "https://www.bankntbsyariah.co.id/posts?slug=lelang-pengadaan&page=Lelang%20Pengadaan"
+        type: html
+        needs_js: true
+    notes: >-
+      Dicek 9 Nov 2026 dengan browser: menu "Lelang Pengadaan" berisi
+      pengumuman pengadaan bernomor, mis. "Pengumuman Pemenang Pengadaan
+      Perangkat Video Wall PT Bank NTB Syariah" (PMN/0172/NLD/X/2026).
+      Situs SPA, jadi dibaca kolektor browser. Kategori "Lelang" terpisah
+      berisi agunan.
 
   - name: Bank NTT
     aliases: ["Bank NTT", "Bank Pembangunan Daerah Nusa Tenggara Timur"]
@@ -450,7 +486,7 @@ banks:
   - name: Bank Maluku Malut
     aliases: ["Bank Maluku Malut", "Bank Pembangunan Daerah Maluku dan Maluku Utara"]
     group: bpd
-    access: not_found
+    access: public
     sources:
       - url: "https://www.bankmalukumalut.co.id/informasitender"
         type: html
