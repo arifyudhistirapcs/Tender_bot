@@ -149,3 +149,17 @@ def test_build_message_kosong_adalah_pesan_bisnis_singkat():
     text = payload["text"]
     assert text == "Tidak ada info tender EDC baru. (41 bank dipantau)"
     assert "BRI" not in text and "BNI" not in text
+
+
+def test_light_inbox_json_rusak_exit_tiga(monkeypatch, tmp_path, capsys):
+    """Inbox browser light yang rusak dibedakan dari salah pakai argumen."""
+    _no_network(monkeypatch)
+    inbox = _write_bytes(tmp_path, "light-rusak.json", b"{ bukan json }")
+
+    rc = _run([
+        "run", "--mode", "light", "--inbox", str(inbox), "--dry-run",
+        "--today", "2026-10-23",
+    ], monkeypatch, tmp_path)
+
+    assert rc == 3
+    assert "inbox tidak sah" in capsys.readouterr().err

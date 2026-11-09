@@ -1,4 +1,4 @@
-"""Loader inbox mode full: baca inbox/full-YYYY-MM-DD.json, validasi skema.
+"""Loader inbox mode light/full, validasi skema inbox yang sama.
 
 Item tanpa url DITOLAK (sesuai DESIGN: "item tanpa url ditolak"). Validasi
 mengembalikan item yang sah plus daftar alasan penolakan, bukan diam-diam

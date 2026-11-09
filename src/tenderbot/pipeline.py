@@ -296,13 +296,55 @@ def run_light(
     feeds: Optional[list[NewsFeed]] = None,
     gdelt_sleep=None,
     skip_news: bool = False,
+    inbox: Optional[InboxLoadResult] = None,
 ) -> RunReport:
+    """Mode light, dengan inbox browser opsional yang diproses sebagai portal."""
     run_date = today.isoformat()
     report = RunReport(run_date=run_date, mode="light")
     candidates = collect_light(
         fetcher, banks, feeds or [], keywords, state, run_date, report,
         gdelt_sleep=gdelt_sleep, skip_news=skip_news,
     )
+
+    if inbox is not None:
+        # Hasil browser belum disaring kolektor. Karena itu item inbox masuk ke
+        # jalur kandidat portal yang sama: filter, enrich, status, dan dedup.
+        report.inbox_rejected = list(inbox.rejected)
+        candidates.extend(inbox.items)
+
+        alias_map = _build_alias_map(banks)
+        checked_canon = {
+            _canon_bank(bank.name, alias_map)
+            for bank in banks
+        }
+        checked_canon.update(
+            _canon_bank(str(name), alias_map)
+            for name in inbox.coverage_checked
+            if str(name).strip()
+        )
+        report.checked = len(checked_canon)
+
+        # Browser sudah membuka bank di coverage.checked, jadi bank itu tidak
+        # lagi dilaporkan sebagai portal yang "butuh browser".
+        inbox_checked = {
+            _canon_bank(str(name), alias_map)
+            for name in inbox.coverage_checked
+            if str(name).strip()
+        }
+        report.deferred_js = [
+            deferred for deferred in report.deferred_js
+            if _canon_bank(re.split(r"\s*(?:\(|:)", deferred, maxsplit=1)[0], alias_map)
+            not in inbox_checked
+        ]
+
+        # Kegagalan kolektor browser adalah bagian dari laporan run light.
+        for failed in inbox.coverage_failed:
+            if isinstance(failed, dict):
+                report.failed.append((
+                    str(failed.get("bank", "?")),
+                    str(failed.get("reason", "?")),
+                ))
+
     process_candidates(candidates, keywords, state, today, run_date, report,
                        fetcher=fetcher, banks=banks)
     report.unhealthy_sources = state.unhealthy_sources()
