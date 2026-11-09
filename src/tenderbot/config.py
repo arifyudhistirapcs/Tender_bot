@@ -43,6 +43,8 @@ class Keywords:
     procurement: list[str]
     edc: list[str]
     reject: list[str]
+    alih_daya: list[str] = field(default_factory=list)
+    alih_data: list[str] = field(default_factory=list)
     credible_news_domains: list[str] = field(default_factory=list)
 
 
@@ -101,6 +103,8 @@ def load_keywords(path: Optional[Path] = None) -> Keywords:
         procurement=list(data.get("procurement") or []),
         edc=list(data.get("edc") or []),
         reject=list(data.get("reject") or []),
+        alih_daya=list(data.get("alih_daya") or []),
+        alih_data=list(data.get("alih_data") or []),
         credible_news_domains=list(data.get("credible_news_domains") or []),
     )
     if not kw.procurement or not kw.edc:

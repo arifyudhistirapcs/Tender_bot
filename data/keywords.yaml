@@ -28,6 +28,37 @@ edc:
   - terminal edc
   - electronic data capture
 
+# Kata kunci tender alih daya (tenaga kerja), hanya dari portal.
+alih_daya:
+  - alih daya
+  - outsourcing
+  - outsourching          # salah ketik di URL Bankaltimtara
+  - tenaga kerja
+  - penyedia jasa tenaga
+  - jasa keamanan
+  - tenaga keamanan
+  - satpam
+  - jasa pengemudi
+  - jasa driver
+  - pramubakti
+  - cleaning service
+  - jasa kebersihan
+  - call center
+  - telesales
+
+# Kata kunci tender alih data, hanya dari portal.
+alih_data:
+  - alih data
+  - alih media
+  - migrasi data
+  - konversi data
+  - data entry
+  - entry data
+  - entri data
+  - digitalisasi dokumen
+  - digitalisasi arsip
+  - pengelolaan arsip
+  - pengarsipan
 # Kata buang: bila muncul, item dibuang apa pun isinya.
 # "lelang" di bank sering berarti penjualan agunan, bukan pengadaan.
 reject:
