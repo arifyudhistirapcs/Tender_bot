@@ -1,4 +1,4 @@
-"""Saringan aturan: procurement AND edc AND NOT reject, dan batas usia 90 hari."""
+"""Saringan aturan kategori: procurement, kategori, bukan reject, usia <=90 hari."""
 
 from __future__ import annotations
 
@@ -29,10 +29,13 @@ def _contains_any(haystack: str, needles: list[str]) -> Optional[str]:
 def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     """Terapkan aturan saringan ke satu item.
 
-    Teks yang diperiksa = judul + evidence (keduanya dinormalisasi).
-    Urutan: reject dulu (buang), lalu usia, lalu wajib procurement + edc.
+    Procurement dan reject diperiksa pada judul + evidence. Kategori EDC juga
+    memakai keduanya, sedangkan kategori alih daya/data hanya memakai judul
+    portal agar bukti kartu tetangga dan berita umum tidak ikut lolos.
     """
     text = normalize_text(f"{item.title} {item.evidence}")
+    title = normalize_text(item.title)
+    item.category = None
 
     hit_reject = _contains_any(text, keywords.reject)
     if hit_reject:
@@ -50,8 +53,16 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     if not hit_proc:
         return FilterResult(False, "tidak ada kata pengadaan")
 
-    hit_edc = _contains_any(text, keywords.edc)
-    if not hit_edc:
-        return FilterResult(False, "tidak ada kata EDC")
+    # Prioritas kategori: EDC, lalu alih data, lalu alih daya. EDC tetap
+    # melihat evidence seperti perilaku lama; dua kategori baru hanya portal
+    # dan hanya judul agar berita umum outsourcing tidak ikut dilaporkan.
+    if _contains_any(text, keywords.edc):
+        item.category = "edc"
+    elif item.source_type == "portal" and _contains_any(title, keywords.alih_data):
+        item.category = "alih_data"
+    elif item.source_type == "portal" and _contains_any(title, keywords.alih_daya):
+        item.category = "alih_daya"
+    else:
+        return FilterResult(False, "tidak ada kata EDC/alih daya/alih data")
 
     return FilterResult(True, "")

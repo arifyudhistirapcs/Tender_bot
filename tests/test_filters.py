@@ -44,11 +44,10 @@ def test_tanpa_kata_pengadaan_ditolak():
     assert "pengadaan" in res.reason
 
 
-def test_tanpa_kata_edc_ditolak():
+def test_jasa_kebersihan_masuk_alih_daya():
     it = _item("Pengadaan jasa kebersihan kantor pusat")
-    res = evaluate(it, KW, TODAY)
-    assert not res.passed
-    assert "EDC" in res.reason
+    assert evaluate(it, KW, TODAY).passed
+    assert it.category == "alih_daya"
 
 
 def test_lebih_tua_dari_90_hari_ditolak():

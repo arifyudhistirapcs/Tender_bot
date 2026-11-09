@@ -22,6 +22,7 @@ class Item:
     deadline: Optional[str] = None
     value_idr: Optional[int] = None
     source_type: str = "portal"  # portal | berita | rilis
+    category: Optional[str] = None  # edc | alih_daya | alih_data
     evidence: str = ""
     media_name: str = ""  # nama media untuk item berita (domain feed atau host)
     unverified_source: bool = False  # True bila media di luar daftar kredibel

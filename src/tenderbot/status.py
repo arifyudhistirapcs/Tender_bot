@@ -31,6 +31,28 @@ STATUS_ONGOING = "berjalan"
 STATUS_CLOSED = "tutup"
 STATUS_UNKNOWN = "tidak_diketahui"
 
+# Judul ini mengumumkan hasil/proses yang sudah selesai, bukan membuka tender.
+_RESULT_ANNOUNCEMENT_PHRASES = (
+    "pemenang",
+    "penetapan pemenang",
+    "hasil koreksi",
+    "hasil kualifikasi",
+    "hasil prakualifikasi",
+    "hasil evaluasi",
+    "pembatalan",
+    "dibatalkan",
+    "gagal lelang",
+    "lelang gagal",
+)
+
+
+def is_result_announcement(title: str) -> bool:
+    """True bila judul adalah pengumuman hasil, bukan tender terbuka."""
+    from .models import normalize_text
+
+    normalized = normalize_text(title)
+    return any(normalize_text(phrase) in normalized for phrase in _RESULT_ANNOUNCEMENT_PHRASES)
+
 
 def _last_close(item: Item) -> Optional[date]:
     """Tanggal tutup terakhir: max(reg_close, submit_close, deadline)."""
@@ -45,6 +67,9 @@ def _last_close(item: Item) -> Optional[date]:
 
 def compute_status(item: Item, today: date) -> str:
     """Kembalikan salah satu status dan tidak mengubah item."""
+    if is_result_announcement(item.title):
+        return STATUS_CLOSED
+
     reg_open = parse_iso_date(item.reg_open)
     last_close = _last_close(item)
 
@@ -97,7 +122,8 @@ def report_decision(item: Item, today: date) -> tuple[bool, str]:
     status = item.status or compute_status(item, today)
 
     if status == STATUS_CLOSED:
-        return (False, "sudah tutup")
+        reason = "pengumuman hasil" if is_result_announcement(item.title) else "sudah tutup"
+        return (False, reason)
 
     if status == STATUS_UNKNOWN:
         ref = (
