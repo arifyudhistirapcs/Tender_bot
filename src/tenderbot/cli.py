@@ -192,12 +192,14 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     fetcher = Fetcher()
 
-    if args.mode == "full":
-        if not args.inbox:
-            print("[tenderbot] mode full wajib --inbox PATH", file=sys.stderr)
-            return 2
+    inbox = None
+    if args.inbox:
         try:
             inbox = load_inbox(Path(args.inbox))
+            if inbox.mode != args.mode:
+                raise InboxError(
+                    f"mode inbox '{inbox.mode}' tidak cocok dengan mode run '{args.mode}'"
+                )
         except InboxError as exc:
             # Inbox tidak sah / tidak ada: run GAGAL (exit bukan nol), pesan ke
             # stderr, dan state TIDAK disimpan (kita return sebelum record_run).
@@ -206,15 +208,21 @@ def cmd_run(args: argparse.Namespace) -> int:
             print(f"[tenderbot] inbox tidak sah: {exc}", file=sys.stderr)
             _emit_report(
                 args,
-                RunReport(run_date=run_date, mode="full"),
+                RunReport(run_date=run_date, mode=args.mode),
                 ReportContext(event=event, dry_run=args.dry_run, sent=False,
                               skipped=f"inbox tidak sah: {exc}"),
             )
             return 3
+    elif args.mode == "full":
+        print("[tenderbot] mode full wajib --inbox PATH", file=sys.stderr)
+        return 2
+
+    if args.mode == "full":
+        # inbox pasti ada karena mode full tanpa --inbox sudah keluar di atas.
         report = run_full(fetcher, banks, keywords, state, today, inbox, feeds=feeds)
     else:
         report = run_light(fetcher, banks, keywords, state, today, feeds=feeds,
-                           skip_news=args.skip_news)
+                           skip_news=args.skip_news, inbox=inbox)
 
     _print_report(report)
 
@@ -260,7 +268,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     run_p = sub.add_parser("run", help="jalankan satu run")
     run_p.add_argument("--mode", choices=["light", "full"], required=True)
-    run_p.add_argument("--inbox", help="path file inbox (mode full)")
+    run_p.add_argument("--inbox", help="path file inbox (mode light atau full)")
     run_p.add_argument("--dry-run", action="store_true",
                        help="cetak JSON pesan, jangan kirim, jangan simpan state")
     run_p.add_argument("--today", help="override tanggal YYYY-MM-DD (uji)")
