@@ -109,7 +109,7 @@ def _item_card(item: Item) -> dict:
         widgets.append({"textParagraph": {"text": f"<b>{item.title}</b>"}})
 
     rows: list[tuple[str, Optional[str]]] = [
-        ("Bank", item.bank),
+        ("Sumber" if item.group == "pemerintah" else "Bank", item.bank),
         ("Status", _status_label(item)),
         ("Tanggal pengumuman", _fmt_date(item.posted or item.published)),
         ("Nilai/HPS", format_rupiah(item.value_idr)),

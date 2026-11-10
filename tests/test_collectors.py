@@ -337,3 +337,106 @@ def test_html_list_tidak_memotong_angka_awal_yang_bukan_tanggal():
     titles = {item.url: item.title for item in res.items}
     assert titles["https://contoh.bank/p/1"] == "10 Paket 2026 Pengadaan Mesin EDC Android"
     assert titles["https://contoh.bank/p/2"] == "Pengumuman Tender Pengadaan Smart EDC"
+
+
+# ---- Sumber Bank Indonesia dan INAPROC ----
+
+def test_bi_tender_hanya_tabel_buka_dengan_span_dan_tanggal():
+    from tenderbot.collectors.bi_tender import collect_bi_tender
+
+    url = "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+    bank = Bank(name="Bank Indonesia", group="bank_sentral", access="public")
+    result = collect_bi_tender(
+        FakeFetcher({url: (200, read_fixture("bi_tender.html"))}), bank, url
+    )
+
+    assert result.ok
+    assert len(result.items) == 10
+    span_title = result.items[2]
+    assert span_title.title.startswith("Pengadaan Penyediaan")
+    assert "P eng adaan" not in span_title.title
+    assert span_title.published == span_title.posted == "2026-11-05"
+    assert span_title.reg_close == "2026-11-11"
+    assert "Open for RFI" in span_title.evidence
+    assert all("AMDK" not in item.title for item in result.items)
+
+
+def test_bi_tender_tanpa_baris_adalah_gagal():
+    from tenderbot.collectors.bi_tender import collect_bi_tender
+
+    url = "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+    result = collect_bi_tender(
+        FakeFetcher({url: (200, "<p>Pengadaan yang sedang dibuka</p><table></table>")}),
+        Bank(name="Bank Indonesia", group="bank_sentral"), url,
+    )
+    assert not result.ok
+    assert result.error == "0 baris tabel pengadaan BI"
+
+
+def test_zendesk_section_memuat_detail_text_dan_tanggal():
+    from tenderbot.collectors.zendesk_section import collect_zendesk_section
+
+    url = "https://bantuan.inaproc.id/api/v2/help_center/id-id/sections/11107275848207/articles.json?sort_by=created_at&sort_order=desc&per_page=30"
+    result = collect_zendesk_section(
+        FakeFetcher({url: (200, read_fixture("inaproc_section.json"))}),
+        Bank(name="INAPROC", group="pemerintah", access="public"), url,
+    )
+
+    assert result.ok
+    assert len(result.items) == 2
+    item = result.items[1]
+    assert item.published == item.posted == "2026-11-02"
+    assert item.group == "pemerintah"
+    assert "<p>" not in item.evidence
+    assert "Direktorat Layanan Infrastruktur Digital" in item.detail_text
+    assert len(item.detail_text) <= 8000
+
+
+def test_news_false_tidak_dikirim_ke_kolektor_berita(tmp_path):
+    from tenderbot.pipeline import collect_light, RunReport
+
+    bank = Bank(name="INAPROC", group="pemerintah", access="public", news=False)
+    fetcher = FakeFetcher({})
+    report = RunReport(run_date="2026-11-10", mode="light")
+    candidates = collect_light(
+        fetcher, [bank], [], load_keywords(), State.load(tmp_path),
+        "2026-11-10", report,
+    )
+    assert candidates == []
+    assert fetcher.calls == []
+    assert report.news_checked_banks == []
+
+
+def test_enrich_false_source_tidak_membuka_detail(tmp_path):
+    url = "https://contoh.bank/daftar"
+    bank = Bank(
+        name="Bank Contoh", group="bpd", access="public",
+        sources=[Source(url=url, type="html", enrich=False)],
+    )
+    fetcher = FakeFetcher({
+        url: (200, '<ul><li><a href="/detail">Pengadaan Smart EDC</a></li></ul>'),
+    })
+    run_light(
+        fetcher, [bank], load_keywords(), State.load(tmp_path), date(2026, 11, 10),
+        skip_news=True,
+    )
+    assert fetcher.calls == [url]
+
+
+def test_gchat_pemerintah_memakai_sumber_dan_bukan_bank_dipantau(tmp_path):
+    item = __import__("tenderbot.models", fromlist=["Item"]).Item(
+        bank="INAPROC", group="pemerintah", title="Pengadaan Smart EDC",
+        url="https://inaproc.id/pengumuman", status="berjalan",
+    )
+    card = build_message([item], 44, [])["cardsV2"][0]
+    assert "Sumber" in str(card)
+    assert "Bank'" not in str(card)
+
+    report = run_light(
+        FakeFetcher({}),
+        [Bank(name="Bank Contoh", group="bpd"), Bank(name="INAPROC", group="pemerintah")],
+        load_keywords(), State.load(tmp_path), date(2026, 11, 10), skip_news=True,
+    )
+    assert report.checked == 2
+    assert report.monitored_banks == 1
+    assert "(1 bank dipantau)" in build_message([], report.monitored_banks)["text"]

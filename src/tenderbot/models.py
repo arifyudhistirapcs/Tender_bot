@@ -27,6 +27,8 @@ class Item:
     detail_text: Optional[str] = None  # teks detail/PDF kolektor browser, maks. 8000 karakter
     media_name: str = ""  # nama media untuk item berita (domain feed atau host)
     unverified_source: bool = False  # True bila media di luar daftar kredibel
+    group: str = ""  # kelompok sumber dari banks.yaml, mis. pemerintah
+    enrich: bool = True  # False bila source melarang pengayaan jaringan
     # ---- Field pengayaan detail (opsional; None bila tak tertulis di sumber) ----
     posted: Optional[str] = None       # tanggal posting/pengumuman, ISO
     reg_open: Optional[str] = None      # buka pendaftaran/pengambilan dokumen, ISO

@@ -227,7 +227,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     _print_report(report)
 
     payload = gchat.build_message(
-        report.new_items, report.checked, report.failed, note=note
+        report.new_items, report.monitored_banks, report.failed, note=note
     )
     outcome = gchat.send(payload, dry_run=args.dry_run)
     print(f"[tenderbot] {outcome.message}", file=sys.stderr)
