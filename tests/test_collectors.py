@@ -440,3 +440,17 @@ def test_gchat_pemerintah_memakai_sumber_dan_bukan_bank_dipantau(tmp_path):
     assert report.checked == 2
     assert report.monitored_banks == 1
     assert "(1 bank dipantau)" in build_message([], report.monitored_banks)["text"]
+
+
+def test_only_bank_nama_persis_tidak_memilih_maybank_indonesia():
+    from tenderbot.cli import _filter_banks
+
+    banks = [
+        Bank(name="Maybank Indonesia"),
+        Bank(name="Bank Indonesia"),
+        Bank(name="INAPROC"),
+    ]
+    assert [bank.name for bank in _filter_banks(banks, ["Bank Indonesia", "INAPROC"])] == [
+        "Bank Indonesia", "INAPROC",
+    ]
+    assert [bank.name for bank in _filter_banks(banks, ["Maybank"])] == ["Maybank Indonesia"]
