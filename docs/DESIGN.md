@@ -22,7 +22,7 @@ Tiap bank punya `access`:
 | `not_found` | portal tidak ditemukan | berita + rilis pers + halaman pengumuman bank |
 | `blocked` | situs menolak klien otomatis | berita saja; blokir tidak diakali |
 
-Setiap run harus menyentuh SEMUA bank di daftar, minimal lewat pencarian berita. Laporan menyebut jumlah bank yang dicek dan bank yang gagal diakses beserta alasannya.
+Setiap run harus menyentuh SEMUA bank di daftar, minimal lewat pencarian berita. Laporan menyebut jumlah bank yang dicek dan bank yang gagal diakses beserta alasannya. Sumber tambahan Bank Indonesia (`bi_tender`) dan INAPROC (`zendesk_section`) dibaca dari daftar pengumuman publik; `news: false` mengecualikannya dari kolektor berita dan `enrich: false` mencegah pembukaan detail jaringan.
 
 ## Dua mode run
 

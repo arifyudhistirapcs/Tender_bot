@@ -112,6 +112,25 @@ def _emit_report(args: argparse.Namespace, report: RunReport, ctx: ReportContext
         print(f"[tenderbot] gagal menulis laporan: {exc}", file=sys.stderr)
 
 
+def _filter_banks(banks, selectors: list[str]):
+    """Pilih nama persis bila tersedia; selector lain tetap mendukung substring.
+
+    Ini mencegah ``--only-bank \"Bank Indonesia\"`` turut memilih Maybank
+    Indonesia, sambil mempertahankan selector singkat seperti ``Sumut`` untuk
+    uji/debug lama.
+    """
+    wanted = [selector.lower() for selector in selectors]
+    exact_names = {bank.name.lower() for bank in banks}
+    return [
+        bank for bank in banks
+        if any(
+            bank.name.lower() == selector
+            or (selector not in exact_names and selector in bank.name.lower())
+            for selector in wanted
+        )
+    ]
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     today = _parse_today(args.today)
     run_date = today.isoformat()
@@ -128,8 +147,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     # --only-bank membatasi ke bank yang namanya memuat substring (boleh berulang);
     # --skip-news mematikan kolektor berita (feed + GDELT) supaya deterministik.
     if args.only_bank:
-        wanted = [s.lower() for s in args.only_bank]
-        banks = [b for b in banks if any(w in b.name.lower() for w in wanted)]
+        banks = _filter_banks(banks, args.only_bank)
         if not banks:
             print(f"[tenderbot] --only-bank {args.only_bank} tak cocok bank mana pun.",
                   file=sys.stderr)
@@ -227,7 +245,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     _print_report(report)
 
     payload = gchat.build_message(
-        report.new_items, report.checked, report.failed, note=note
+        report.new_items, report.monitored_banks, report.failed, note=note
     )
     outcome = gchat.send(payload, dry_run=args.dry_run)
     print(f"[tenderbot] {outcome.message}", file=sys.stderr)

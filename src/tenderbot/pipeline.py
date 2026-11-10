@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 from . import filters
-from .collectors import html_list, pdf_list, rss
+from .collectors import bi_tender, html_list, pdf_list, rss, zendesk_section
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate
@@ -36,6 +36,7 @@ class RunReport:
     run_date: str
     mode: str
     checked: int = 0
+    monitored_banks: int = 0  # tidak termasuk group pemerintah
     failed: list[tuple[str, str]] = field(default_factory=list)  # (nama, alasan)
     candidates: int = 0
     passed_filter: int = 0
@@ -58,6 +59,8 @@ _COLLECTOR_BY_TYPE = {
     "rss": rss.collect_rss,
     "html": html_list.collect_html_list,
     "pdf_list": pdf_list.collect_pdf_list,
+    "bi_tender": bi_tender.collect_bi_tender,
+    "zendesk_section": zendesk_section.collect_zendesk_section,
 }
 
 
@@ -88,6 +91,9 @@ def _collect_public(
                 state.record_source_failure(src.url, reason, run_date)
                 report.failed.append((f"{bank.name} ({src.type})", reason))
             else:
+                for item in res.items:
+                    item.group = bank.group
+                    item.enrich = src.enrich
                 state.record_source_ok(src.url, run_date, item_count=item_count)
                 out.extend(res.items)
         else:
@@ -114,10 +120,13 @@ def _collect_news(
       - bila semua sumber berita gagal -> catat per bank dengan alasannya.
     """
     items: list[Item] = []
+    eligible_banks = [bank for bank in banks if bank.news]
+    if not eligible_banks:
+        return items
 
     # 1. Feed RSS media (sekali per feed).
     feed_items, feed_ok, feed_failures = rss.collect_media_feeds(
-        fetcher, feeds, banks, keywords.edc, keywords.credible_news_domains
+        fetcher, feeds, eligible_banks, keywords.edc, keywords.credible_news_domains
     )
     items.extend(feed_items)
     any_feed_ok = any(feed_ok.values())
@@ -137,9 +146,9 @@ def _collect_news(
     if gdelt_sleep is not None:
         kwargs["sleep"] = gdelt_sleep
     gdelt_raw, gdelt_covered_query, gdelt_err = rss.collect_gdelt(
-        fetcher, banks, keywords.edc, keywords.credible_news_domains, **kwargs
+        fetcher, eligible_banks, keywords.edc, keywords.credible_news_domains, **kwargs
     )
-    gdelt_items, _gdelt_article_covered = rss.map_gdelt_to_banks(gdelt_raw, banks)
+    gdelt_items, _gdelt_article_covered = rss.map_gdelt_to_banks(gdelt_raw, eligible_banks)
     items.extend(gdelt_items)
     if not gdelt_err:
         state.record_source_ok("gdelt", run_date)
@@ -154,7 +163,7 @@ def _collect_news(
     #   - GDELT kelompoknya berhasil diambil (bank ada di gdelt_covered_query), ATAU
     #   - setidaknya satu feed RSS berhasil (feed menyentuh semua bank lewat saring).
     # Bila keduanya gagal untuk bank itu -> masuk failed dengan alasan gabungan.
-    for bank in banks:
+    for bank in eligible_banks:
         covered = (bank.name in gdelt_covered_query) or any_feed_ok
         if covered:
             report.news_checked_banks.append(bank.name)
@@ -237,11 +246,12 @@ def process_candidates(
     """
     report.candidates = len(candidates)
     # Peta nama bank -> info daftar vendor (dari banks.yaml), untuk kartu.
-    vendor_by_bank: dict[str, tuple[Optional[str], Optional[str]]] = {}
+    vendor_by_bank: dict[str, tuple[Optional[str], Optional[str], str]] = {}
     for b in banks or []:
         vendor_by_bank[b.name] = (
             b.vendor_registration_url or None,
             b.vendor_registration_note or None,
+            b.group,
         )
     # Judul yang sudah dilihat (untuk near-dup), ditambah yang lolos di run ini.
     seen_titles = state.seen_titles()
@@ -278,7 +288,7 @@ def process_candidates(
             _apply_fields(item, extract_fields(item.detail_text, value_fallback=False))
 
         # Pengayaan detail jaringan (opsional; butuh jaringan).
-        if enrich and fetcher is not None:
+        if enrich and fetcher is not None and item.enrich:
             try:
                 enrich_item(item, fetcher)
             except Exception:
@@ -312,6 +322,8 @@ def process_candidates(
                 item.vendor_registration_url = vinfo[0]
             if item.vendor_registration_note is None:
                 item.vendor_registration_note = vinfo[1]
+            if not item.group:
+                item.group = vinfo[2]
 
         report.new_items.append(item)
 
@@ -329,7 +341,11 @@ def run_light(
 ) -> RunReport:
     """Mode light, dengan inbox browser opsional yang diproses sebagai portal."""
     run_date = today.isoformat()
-    report = RunReport(run_date=run_date, mode="light")
+    report = RunReport(
+        run_date=run_date,
+        mode="light",
+        monitored_banks=sum(1 for bank in banks if bank.group != "pemerintah"),
+    )
     candidates = collect_light(
         fetcher, banks, feeds or [], keywords, state, run_date, report,
         gdelt_sleep=gdelt_sleep, skip_news=skip_news,
@@ -457,7 +473,11 @@ def run_full(
 ) -> RunReport:
     """Mode full: gabung item inbox (hasil agen AI) dengan kolektor light."""
     run_date = today.isoformat()
-    report = RunReport(run_date=run_date, mode="full")
+    report = RunReport(
+        run_date=run_date,
+        mode="full",
+        monitored_banks=sum(1 for bank in banks if bank.group != "pemerintah"),
+    )
     report.inbox_rejected = list(inbox.rejected)
 
     # Kolektor light menaikkan report.checked per bank (= jumlah bank di yaml).

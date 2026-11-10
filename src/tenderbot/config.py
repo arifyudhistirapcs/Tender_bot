@@ -16,8 +16,9 @@ DATA_DIR = REPO_ROOT / "data"
 @dataclass
 class Source:
     url: str
-    type: str  # rss | html | pdf_list
+    type: str  # rss | html | pdf_list | bi_tender | zendesk_section
     needs_js: bool = False  # situs dirender JavaScript; kolektor light melewati
+    enrich: bool = True  # False: jangan buka detail/lampiran lagi setelah koleksi
 
 
 @dataclass
@@ -31,6 +32,7 @@ class Bank:
     needs_js: bool = False  # portal utama bank dirender JavaScript (butuh browser)
     vendor_registration_url: str = ""  # diisi agen riset lain nanti; boleh kosong
     vendor_registration_note: str = ""  # catatan singkat cara/ syarat daftar
+    news: bool = True  # False: tidak ikut kolektor atau peta alias berita
 
     @property
     def news_terms(self) -> list[str]:
@@ -75,6 +77,7 @@ def load_banks(path: Optional[Path] = None) -> list[Bank]:
                 url=s["url"],
                 type=s["type"],
                 needs_js=bool(s.get("needs_js", False)),
+                enrich=bool(s.get("enrich", True)),
             )
             for s in (raw.get("sources") or [])
         ]
@@ -89,6 +92,7 @@ def load_banks(path: Optional[Path] = None) -> list[Bank]:
                 needs_js=bool(raw.get("needs_js", False)),
                 vendor_registration_url=raw.get("vendor_registration_url", "") or "",
                 vendor_registration_note=raw.get("vendor_registration_note", "") or "",
+                news=bool(raw.get("news", True)),
             )
         )
     if not banks:
