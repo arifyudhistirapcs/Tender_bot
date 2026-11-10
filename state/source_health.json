@@ -1,11 +1,11 @@
 {
   "feed:https://finance.detik.com/rss": {
-    "consecutive_failures": 1,
-    "last_error": "2026-11-10: gagal",
-    "last_ok": "2026-11-09"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-10"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 20,
+    "consecutive_failures": 21,
     "last_error": "2026-11-10: gagal",
     "last_ok": "2026-10-23"
   },
@@ -20,9 +20,9 @@
     "last_ok": "2026-11-10"
   },
   "feed:https://news.detik.com/rss": {
-    "consecutive_failures": 1,
-    "last_error": "2026-11-10: gagal",
-    "last_ok": "2026-11-09"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-10"
   },
   "feed:https://rss.tempo.co/": {
     "consecutive_failures": 0,
@@ -55,9 +55,15 @@
     "last_ok": "2026-11-10"
   },
   "gdelt": {
-    "consecutive_failures": 20,
+    "consecutive_failures": 21,
     "last_error": "2026-11-10: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
+  },
+  "https://bantuan.inaproc.id/api/v2/help_center/id-id/sections/11107275848207/articles.json?sort_by=created_at&sort_order=desc&per_page=30": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_item_count": 30,
+    "last_ok": "2026-11-10"
   },
   "https://e-tender.banksultra.co.id/": {
     "consecutive_failures": 0,
@@ -66,7 +72,7 @@
     "last_ok": "2026-11-10"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 2,
+    "consecutive_failures": 3,
     "last_error": "2026-11-10: timeout > 20d",
     "last_ok": null
   },
@@ -92,6 +98,12 @@
     "consecutive_failures": 0,
     "last_error": null,
     "last_item_count": 5,
+    "last_ok": "2026-11-10"
+  },
+  "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx": {
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_item_count": 10,
     "last_ok": "2026-11-10"
   },
   "https://www.bpdbali.co.id/pengumuman": {

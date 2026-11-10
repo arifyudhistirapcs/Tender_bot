@@ -204,5 +204,15 @@
     "new_items": 4,
     "slot": "pagi",
     "status": "ok"
+  },
+  {
+    "checked": 45,
+    "date": "2026-11-10",
+    "failed": 3,
+    "hour_wib": 16,
+    "mode": "light",
+    "new_items": 0,
+    "slot": "sore",
+    "status": "ok"
   }
 ]
