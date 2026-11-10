@@ -2,7 +2,7 @@
 
 Tender Bot memantau tender pengadaan EDC, alih daya tenaga kerja, dan alih data di bank-bank Indonesia, lalu melaporkannya ke Space Google Chat perusahaan dua kali setiap hari kerja.
 
-Cakupan: BUMN, bank swasta KBMI 3–4, dan seluruh BPD. Saat ini ada 44 bank di [`data/banks.yaml`](data/banks.yaml).
+Cakupan: BUMN, bank swasta KBMI 3–4, seluruh BPD, Bank Indonesia, dan pengumuman pengadaan INAPROC. Saat ini ada 44 bank serta dua sumber tambahan di [`data/banks.yaml`](data/banks.yaml). Sumber dapat memakai kolektor `bi_tender` atau `zendesk_section`; `news: false` mengecualikan sumber dari berita dan `enrich: false` menonaktifkan pembukaan detail jaringan.
 
 Yang dilaporkan dan yang tidak:
 

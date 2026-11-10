@@ -22,7 +22,7 @@ Tujuannya: menemukan tender pengadaan EDC atau managed service EDC di bank Indon
 
 Panggil `spawn_sub_agents` (blocking) dengan tiga agen `crew` "Yang ngeriset", satu per kelompok:
 
-1. BUMN + swasta: BRI, Bank Mandiri, BNI, BTN, BSI, BCA, CIMB Niaga, Danamon, PermataBank, Maybank Indonesia, OCBC Indonesia, Panin Bank, Bank Mega, SMBC Indonesia, UOB Indonesia, Bank Sinarmas.
+1. BUMN + swasta: BRI, Bank Mandiri, BNI, BTN, BSI, BCA, CIMB Niaga, Danamon, PermataBank, Maybank Indonesia, OCBC Indonesia, Panin Bank, Bank Mega, SMBC Indonesia, UOB Indonesia, Bank Sinarmas, Bank Indonesia, INAPROC.
 2. BPD Sumatra & Jawa: Bank Aceh, Bank Sumut, Bank Nagari, Bank Riau Kepri, Bank Jambi, Bank Sumsel Babel, Bank Bengkulu, Bank Lampung, bank bjb, Bank Jakarta, Bank Jateng, BPD DIY, Bank Jatim, Bank Banten.
 3. BPD Bali–Papua: BPD Bali, Bank NTB Syariah, Bank NTT, Bank Kalbar, Bank Kalteng, Bank Kalsel, Bankaltimtara, Bank SulutGo, Bank Sulselbar, Bank Sultra, Bank Sulteng, Bank Maluku Malut, Bank Papua.
 
@@ -45,7 +45,7 @@ Teks tugas tiap agen wajib memuat semua aturan berikut.
 - Dari portal bank, cari juga tender alih daya (outsourcing tenaga kerja, jasa keamanan, driver, cleaning service, call center) dan alih data (migrasi data, data entry, digitalisasi dokumen/arsip). Untuk setiap item portal itu, isi field `"category"` sebagai `"alih_daya"` atau `"alih_data"`.
 
 **Sumber**
-1. Portal dan halaman daftar pengadaan resmi bank. INI SUMBER UTAMA. Buka setiap URL di `sources` bank itu di `banks.yaml` lebih dulu, lalu `vendor_registration_url`. Contoh halaman yang benar: https://www.btn.co.id/en/Procurement/Procurement-List, sebuah daftar pengadaan publik bertanggal tanpa login.
+1. Portal dan halaman daftar pengadaan resmi bank. INI SUMBER UTAMA. Buka setiap URL di `sources` bank itu di `banks.yaml` lebih dulu, lalu `vendor_registration_url`. Contoh halaman yang benar: https://www.btn.co.id/en/Procurement/Procurement-List, sebuah daftar pengadaan publik bertanggal tanpa login. Untuk Bank Indonesia baca tabel "Pengadaan yang sedang dibuka", dan untuk INAPROC baca bagian Pengumuman. Item INAPROC berasal dari instansi pemerintah, jadi tulis nama instansinya di `evidence`.
 2. Media kredibel, HANYA pelengkap setelah portal dibuka: kompas.com, detik.com, cnbcindonesia.com, bisnis.com, kontan.co.id, katadata.co.id, tempo.co, antaranews.com, infobanknews.com, idxchannel.com, investor.id, cnnindonesia.com.
 
 Sumber lain boleh dipakai, tetapi item dari sumber itu ditandai `"unverified_source": true`.

@@ -508,3 +508,31 @@ banks:
       Halaman Pengumuman Lelang teridentifikasi, tetapi menolak klien otomatis
       dan robots.txt dengan HTTP 403. Blokir dihormati; mode light melewatinya
       dan mode full membukanya dengan browser.
+
+
+  # =================== BANK SENTRAL & PEMERINTAH ===================
+  - name: Bank Indonesia
+    aliases: ["Bank Indonesia"]
+    group: bank_sentral
+    access: public
+    news: false
+    sources:
+      - url: "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+        type: bi_tender
+        enrich: false
+    notes: >-
+      Tabel publik "Pengadaan yang sedang dibuka" memuat tanggal pengumuman,
+      batas akhir pendaftaran, dan status. Hanya tabel ini dipakai; status
+      Open tidak menentukan tender masih terbuka, batas pendaftaran yang menentukan.
+
+  - name: INAPROC
+    group: pemerintah
+    access: public
+    news: false
+    sources:
+      - url: "https://bantuan.inaproc.id/api/v2/help_center/id-id/sections/11107275848207/articles.json?sort_by=created_at&sort_order=desc&per_page=30"
+        type: zendesk_section
+        enrich: false
+    notes: >-
+      Pengumuman publik dari instansi pemerintah melalui API Zendesk section
+      Pengumuman. Halaman untuk pembaca: https://inaproc.id/#pengumuman.
