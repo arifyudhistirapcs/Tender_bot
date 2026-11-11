@@ -501,6 +501,20 @@ def run_full(
             checked_canon.add(_canon_bank(str(name), alias_map))
     report.checked = len(checked_canon)
 
+    # Sejak 13 Nov 2026 skrip submit 07.15 menggabung kolektor browser ke inbox
+    # full, jadi bank di coverage.checked sudah dibaca dan tidak dilaporkan
+    # lagi sebagai "butuh browser" (sama seperti mode light dengan inbox).
+    inbox_checked = {
+        _canon_bank(str(name), alias_map)
+        for name in inbox.coverage_checked
+        if str(name).strip()
+    }
+    report.deferred_js = [
+        deferred for deferred in report.deferred_js
+        if _canon_bank(re.split(r"\s*(?:\(|:)", deferred, maxsplit=1)[0], alias_map)
+        not in inbox_checked
+    ]
+
     # ---- Gabung daftar GAGAL tanpa duplikat (kanonik), alasan digabung ----
     # report.failed sudah berisi kegagalan kolektor (berita/sumber). Entri itu
     # memakai nama berhias ("Bank X (berita)", "BRI (html)", "feed ...",
