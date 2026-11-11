@@ -163,3 +163,24 @@ def test_failed_dki_dan_jakarta_digabung(monkeypatch, tmp_path):
     assert len(jakarta_like) == 1
     _, reason = jakarta_like[0]
     assert "domain baru" in reason and "domain lama" in reason
+
+
+# ---- Bank yang dibaca kolektor browser tidak lagi "butuh browser" ----
+
+def test_full_bank_dibaca_kolektor_tidak_dilaporkan_butuh_browser(monkeypatch, tmp_path):
+    """Sejak 13 Nov 2026 inbox full memuat hasil kolektor browser 07.15."""
+    def _fake(fetcher, banks, feeds, keywords, state, run_date, report,
+              gdelt_sleep=None, skip_news=False):
+        report.checked = len(banks)
+        report.deferred_js.extend([
+            "BTN (https://www.btn.co.id/en/Procurement/Procurement-List): butuh browser, dicek di mode full",
+            "Bank Jakarta: portal butuh browser, dicek di mode full",
+        ])
+        return []
+    monkeypatch.setattr(pipeline, "collect_light", _fake)
+    banks = _banks() + [Bank(name="BTN", aliases=["BBTN"], group="bumn", access="public")]
+    inbox = InboxLoadResult(run_date="2026-10-23", mode="full", coverage_checked=["BTN"])
+
+    report = run_full(None, banks, KW, State.load(tmp_path), TODAY, inbox)
+
+    assert report.deferred_js == ["Bank Jakarta: portal butuh browser, dicek di mode full"]
