@@ -5,7 +5,7 @@
     "last_ok": "2026-11-11"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 22,
+    "consecutive_failures": 23,
     "last_error": "2026-11-11: gagal",
     "last_ok": "2026-10-23"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-11"
   },
   "gdelt": {
-    "consecutive_failures": 22,
+    "consecutive_failures": 23,
     "last_error": "2026-11-11: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -72,7 +72,7 @@
     "last_ok": "2026-11-11"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 4,
+    "consecutive_failures": 5,
     "last_error": "2026-11-11: timeout > 20d",
     "last_ok": null
   },
