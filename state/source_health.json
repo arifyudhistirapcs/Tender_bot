@@ -5,7 +5,7 @@
     "last_ok": "2026-11-16"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 28,
+    "consecutive_failures": 29,
     "last_error": "2026-11-16: gagal",
     "last_ok": "2026-10-23"
   },
@@ -25,7 +25,7 @@
     "last_ok": "2026-11-16"
   },
   "feed:https://rss.tempo.co/": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_error": "2026-11-16: gagal",
     "last_ok": "2026-11-13"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-16"
   },
   "gdelt": {
-    "consecutive_failures": 28,
+    "consecutive_failures": 29,
     "last_error": "2026-11-16: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -72,7 +72,7 @@
     "last_ok": "2026-11-16"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 10,
+    "consecutive_failures": 11,
     "last_error": "2026-11-16: timeout > 20d",
     "last_ok": null
   },
