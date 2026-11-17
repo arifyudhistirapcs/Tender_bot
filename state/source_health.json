@@ -25,7 +25,7 @@
     "last_ok": "2026-11-17"
   },
   "feed:https://rss.tempo.co/": {
-    "consecutive_failures": 3,
+    "consecutive_failures": 4,
     "last_error": "2026-11-17: gagal",
     "last_ok": "2026-11-13"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-17"
   },
   "gdelt": {
-    "consecutive_failures": 30,
+    "consecutive_failures": 31,
     "last_error": "2026-11-17: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -72,7 +72,7 @@
     "last_ok": "2026-11-17"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 12,
+    "consecutive_failures": 13,
     "last_error": "2026-11-17: timeout > 20d",
     "last_ok": null
   },
