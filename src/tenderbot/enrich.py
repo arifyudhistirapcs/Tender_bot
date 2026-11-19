@@ -305,12 +305,20 @@ _RE_DURATION = re.compile(
 )
 
 
+_RE_TERAKHIR = re.compile(r"\s+terakhir\b", re.IGNORECASE)
+
+
+_RE_EXPERIENCE_DURATION = re.compile(r"pengalaman|kurun\s+waktu", re.IGNORECASE)
+
+
 def _extract_duration(flat: str) -> Optional[str]:
-    m = _RE_DURATION.search(flat)
-    if not m:
-        return None
-    num = m.group(1).replace(".", "")
-    return f"{num} {m.group(2).lower()}"
+    for m in _RE_DURATION.finditer(flat):
+        # "3 (Tiga) Tahun terakhir" / "kurun waktu ..." = riwayat pengalaman.
+        if _RE_TERAKHIR.match(flat, m.end()) or _RE_EXPERIENCE_DURATION.search(flat[max(0, m.start() - 50): m.start()]):
+            continue
+        num = m.group(1).replace(".", "")
+        return f"{num} {m.group(2).lower()}"
+    return None
 
 
 _RE_METHOD = re.compile(
