@@ -8,6 +8,7 @@ import unicodedata
 from dataclasses import dataclass, field, asdict
 from datetime import date
 from typing import Optional
+from .dates_id import _MONTHS
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 
@@ -71,6 +72,25 @@ def normalize_text(text: str) -> str:
     text = _PUNCT_RE.sub(" ", text)
     text = _WS_RE.sub(" ", text).strip()
     return text
+
+
+_TITLE_DATE = (
+    r"\d{1,2}\s+(?:" + "|".join(re.escape(m) for m in _MONTHS) + r")\.?\s+(?:\d{4}|\d{2})"
+)
+_TITLE_DATE_LEAD = re.compile(rf"^\s*{_TITLE_DATE}\b[\s:|,\u2013\u2014-]*", re.IGNORECASE)
+_TITLE_DATE_TAIL = re.compile(rf"[\s:|,\u2013\u2014-]*\b{_TITLE_DATE}\s*$", re.IGNORECASE)
+
+
+def strip_title_date(title: str) -> str:
+    """Buang tanggal di awal atau akhir judul ("03 November 2026 Lelang ...").
+
+    Portal daftar kadang menempelkan tanggal posting ke judul. Hanya dipakai
+    untuk membandingkan judul; fingerprint lama tidak diubah.
+    """
+    if not title:
+        return ""
+    text = _TITLE_DATE_LEAD.sub("", title, count=1)
+    return _TITLE_DATE_TAIL.sub("", text, count=1).strip()
 
 
 def canonical_url(url: str) -> str:

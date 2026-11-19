@@ -51,7 +51,14 @@ _RE_NUMERIC = re.compile(r"\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b")
 
 # Pemisah rentang: "s.d", "s/d", "sampai dengan", "sampai", "hingga", "-", "–".
 _RANGE_SPLIT = re.compile(
-    r"\s*(?:s\.?/?d\.?|sampai\s+dengan|sampai|hingga|s\.d|–|—|\bs\b|/s)\s*",
+    r"\s*(?:s\.?/?d\.?|sampai\s+dengan|sampai|hingga|s\.d|–|—|\bs\b|/s|(?<=\s)-(?=\s))\s*",
+    re.IGNORECASE,
+)
+_RE_MONTH_BEFORE = re.compile(rf"(?:{_MONTH_ALT})\.?\s*$", re.IGNORECASE)
+# "19 s.d. 23 November 2026": bulan/tahun hanya ada di tanggal kedua.
+_RE_DAY_RANGE = re.compile(
+    rf"(?<!\d)(?<!\d/)(?<!\d-)(\d{{1,2}})\s*(?:s\.?\s*/?\s*d\.?|sampai\s+dengan|sampai|hingga|[-–—])\s*"
+    rf"(\d{{1,2}})\s+({_MONTH_ALT})\.?\s+(\d{{2}}|\d{{4}})\b",
     re.IGNORECASE,
 )
 
@@ -108,6 +115,14 @@ def parse_date_range(text: str) -> tuple[Optional[date], Optional[date]]:
         return (None, None)
     # Cari semua tanggal dulu; bila ada >=2 dan ada penanda rentang, ambil
     # dua tanggal pertama sebagai (mulai, selesai).
+    dr = _RE_DAY_RANGE.search(text)
+    if dr and not _RE_MONTH_BEFORE.search(text[: dr.start(1)]):
+        month = _MONTHS.get(dr.group(3).lower().rstrip("."))
+        year = _expand_year(dr.group(4))
+        first = _mk_date(int(dr.group(1)), month, year) if month else None
+        second = _mk_date(int(dr.group(2)), month, year) if month else None
+        if first and second and first <= second:
+            return (first, second)
     all_dates = _all_dates(text)
     has_range_marker = bool(_RANGE_SPLIT.search(text))
     if len(all_dates) >= 2 and has_range_marker:

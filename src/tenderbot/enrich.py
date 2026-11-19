@@ -20,7 +20,7 @@ from typing import Optional
 from urllib.parse import urljoin
 
 from .collectors.base import extract_links, html_to_text
-from .dates_id import parse_date_range, parse_rupiah, parse_single_date
+from .dates_id import _RE_RUPIAH, parse_date_range, parse_rupiah, parse_single_date
 from .http_client import AccessError, Fetcher
 from .models import Item
 
@@ -249,8 +249,11 @@ def _extract_value(flat: str, *, value_fallback: bool = True) -> Optional[int]:
         r"nilai hps",
         r"\bnilai\b",
     ):
-        m = re.search(label, flat, re.IGNORECASE)
-        if m:
+        for m in re.finditer(label, flat, re.IGNORECASE):
+            # Label umum "nilai" sering muncul di syarat pengalaman
+            # ("nilai kontrak minimal Rp..."); itu bukan nilai tender.
+            if label == r"\bnilai\b" and _is_experience_context(flat, m.start()):
+                continue
             window = flat[m.end(): m.end() + 120]
             val = parse_rupiah(window)
             if val is not None:
@@ -260,8 +263,26 @@ def _extract_value(flat: str, *, value_fallback: bool = True) -> Optional[int]:
 
     # Fallback seluruh teks hanya layak untuk nilai tender minimal Rp1 juta.
     # Angka kecil seperti ticker kurs bukan nilai tender.
-    value = parse_rupiah(flat)
-    return value if value is not None and value >= 1_000_000 else None
+    for m in _RE_RUPIAH.finditer(flat):
+        if _is_experience_context(flat, m.start()):
+            continue
+        value = parse_rupiah(m.group(0))
+        if value is not None and value >= 1_000_000:
+            return value
+        break
+    return None
+
+
+# Frasa syarat pengalaman: angka di sekitarnya bukan nilai/durasi tender.
+_RE_EXPERIENCE = re.compile(
+    r"pengalaman|nilai\s+kontrak|kurun\s+waktu|masing-masing\s+nilai|\bminimal\b",
+    re.IGNORECASE,
+)
+
+
+def _is_experience_context(flat: str, pos: int, before: int = 160) -> bool:
+    """True bila ``pos`` berada di kalimat syarat pengalaman (teks sebelumnya)."""
+    return bool(_RE_EXPERIENCE.search(flat[max(0, pos - before): pos]))
 
 
 _RE_VOLUME = re.compile(
@@ -284,12 +305,20 @@ _RE_DURATION = re.compile(
 )
 
 
+_RE_TERAKHIR = re.compile(r"\s+terakhir\b", re.IGNORECASE)
+
+
+_RE_EXPERIENCE_DURATION = re.compile(r"pengalaman|kurun\s+waktu", re.IGNORECASE)
+
+
 def _extract_duration(flat: str) -> Optional[str]:
-    m = _RE_DURATION.search(flat)
-    if not m:
-        return None
-    num = m.group(1).replace(".", "")
-    return f"{num} {m.group(2).lower()}"
+    for m in _RE_DURATION.finditer(flat):
+        # "3 (Tiga) Tahun terakhir" / "kurun waktu ..." = riwayat pengalaman.
+        if _RE_TERAKHIR.match(flat, m.end()) or _RE_EXPERIENCE_DURATION.search(flat[max(0, m.start() - 50): m.start()]):
+            continue
+        num = m.group(1).replace(".", "")
+        return f"{num} {m.group(2).lower()}"
+    return None
 
 
 _RE_METHOD = re.compile(

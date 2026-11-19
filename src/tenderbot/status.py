@@ -22,7 +22,7 @@ from datetime import date, timedelta
 from typing import Optional
 
 from .dates_id import _MONTHS
-from .models import Item, normalize_text, parse_iso_date
+from .models import Item, normalize_text, parse_iso_date, strip_title_date
 
 STALE_UNKNOWN_DAYS = 45
 
@@ -62,7 +62,7 @@ def is_result_announcement(title: str) -> bool:
 def title_core_tokens(title: str) -> frozenset[str]:
     """Token inti judul untuk memasangkan tender dengan pengumuman hasil."""
     return frozenset(
-        token for token in normalize_text(title).split()
+        token for token in normalize_text(strip_title_date(title)).split()
         if token not in _TITLE_CORE_IGNORED
     )
 
