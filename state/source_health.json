@@ -5,7 +5,7 @@
     "last_ok": "2026-11-19"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 3,
+    "consecutive_failures": 4,
     "last_error": "2026-11-19: gagal",
     "last_ok": "2026-11-17"
   },
@@ -20,8 +20,8 @@
     "last_ok": "2026-11-19"
   },
   "feed:https://news.detik.com/rss": {
-    "consecutive_failures": 0,
-    "last_error": null,
+    "consecutive_failures": 1,
+    "last_error": "2026-11-19: gagal",
     "last_ok": "2026-11-19"
   },
   "feed:https://rss.tempo.co/": {
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-19"
   },
   "gdelt": {
-    "consecutive_failures": 34,
+    "consecutive_failures": 35,
     "last_error": "2026-11-19: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -72,7 +72,7 @@
     "last_ok": "2026-11-19"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 16,
+    "consecutive_failures": 17,
     "last_error": "2026-11-19: timeout > 20d",
     "last_ok": null
   },
@@ -83,7 +83,7 @@
     "last_ok": "2026-11-19"
   },
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
-    "consecutive_failures": 1,
+    "consecutive_failures": 2,
     "last_error": "2026-11-19: halaman terbuka tetapi 0 tautan (sebelumnya 375)",
     "last_item_count": 375,
     "last_ok": "2026-11-18"
