@@ -7,7 +7,7 @@ import re
 from datetime import date, timedelta
 from typing import Iterable
 
-from .models import Item, fingerprint, normalize_text, parse_iso_date
+from .models import Item, fingerprint, normalize_text, parse_iso_date, strip_title_date
 
 NEAR_DUP_WINDOW_DAYS = 60
 NEAR_DUP_RATIO = 0.90
@@ -49,7 +49,7 @@ def is_near_duplicate(
     Tanggal acuan item memakai published bila ada, selain itu today.
     """
     item_date = parse_iso_date(item.published) or today
-    item_title = normalize_text(item.title)
+    item_title = normalize_text(strip_title_date(item.title))
     item_bank = normalize_text(item.bank)
     window = timedelta(days=NEAR_DUP_WINDOW_DAYS)
 
@@ -59,7 +59,8 @@ def is_near_duplicate(
         seen_date = parse_iso_date(seen_iso) or item_date
         if abs((item_date - seen_date).days) > window.days:
             continue
-        ratio = difflib.SequenceMatcher(None, item_title, title).ratio()
-        if ratio >= NEAR_DUP_RATIO and not _has_distinct_identity(item_title, title):
+        seen_title = normalize_text(strip_title_date(title))
+        ratio = difflib.SequenceMatcher(None, item_title, seen_title).ratio()
+        if ratio >= NEAR_DUP_RATIO and not _has_distinct_identity(item_title, seen_title):
             return True
     return False
