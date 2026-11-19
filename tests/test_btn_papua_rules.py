@@ -37,3 +37,22 @@ def test_frasa_pengalaman_bukan_durasi():
 def test_durasi_kontrak_asli_tetap_terbaca():
     text = PENGALAMAN_DENPASAR + " Jangka waktu pelaksanaan pekerjaan 36 (tiga puluh enam) Bulan."
     assert extract_fields(text)["duration"] == "36 bulan"
+
+
+# ---- 3. rentang tanggal pendaftaran ----
+
+def test_rentang_bulan_hanya_di_tanggal_kedua():
+    text = "Pendaftaran Hari/tanggal : Kamis s.d. Senin/19 s.d. 23 November 2026 Pukul : 08.00 WIB s.d 17.00 WIB"
+    out = extract_fields(text)
+    assert (out["reg_open"], out["reg_close"]) == ("2026-11-19", "2026-11-23")
+
+
+def test_rentang_btn_kamis_senin_dua_tanggal_lengkap():
+    text = (
+        "Jadwal pendaftaran Hari/tanggal : Kamis – Senin (19 November 2026 – 23 November 2026) "
+        "(Hari Kerja) Pukul : 08.00 WIB s.d 17.00 WIB"
+    )
+    out = extract_fields(text)
+    assert (out["reg_open"], out["reg_close"]) == ("2026-11-19", "2026-11-23")
+    out = extract_fields(text.replace("–", "-"))
+    assert (out["reg_open"], out["reg_close"]) == ("2026-11-19", "2026-11-23")
