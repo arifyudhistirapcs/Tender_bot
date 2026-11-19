@@ -306,3 +306,128 @@ def test_fallback_nilai_menolak_angka_di_bawah_satu_juta():
 
 def test_nilai_berlabel_tetap_dibaca_tanpa_batas_minimum_fallback():
     assert extract_fields("HPS: Rp 1.250.000.000")["value_idr"] == 1_250_000_000
+
+
+# ---- PDF lampiran hanya dipakai bila judul cocok (kasus BTN 207 vs 208) ----
+
+import fitz  # noqa: E402
+
+from tenderbot.enrich import pdf_matches_title  # noqa: E402
+
+BTN_LIST_URL = "https://www.btn.co.id/en/Procurement/Procurement-List"
+BTN_207_URL = "https://www.btn.co.id/files/2026/Nov/207-BTN-PFAD-XI-2026.pdf"
+BTN_208_URL = "https://www.btn.co.id/files/2026/Nov/208-BTN-PFAD-XI-2026.pdf"
+BTN_207_TEXT = (
+    "PENGUMUMAN TENDER/SELEKSI UMUM No. 207/BTN/PFAD/XI/2026 Tgl: 19 November 2026 "
+    "PT Bank Tabungan Negara (Persero) Tbk. akan melaksanakan Tender/Seleksi Umum "
+    "Pengadaan Jasa Kontraktor Pekerjaan Renovasi dan Relayout KC Denpasar, "
+    "dengan ketentuan. Jangka waktu pekerjaan 90 hari."
+)
+BTN_208_TEXT = (
+    "PENGUMUMAN TENDER/SELEKSI UMUM No. 208/BTN/PFAD/XI/2026 Tgl. 19 November 2026 "
+    "PT Bank Tabungan Negara (Persero) Tbk akan melaksanakan Pengadaan Perusahaan "
+    "Penyedia Jasa Tenaga Alih Daya (TAD) Consumer Loan Marketing (CLM) dan "
+    "Collection Kring Pensiunan, dengan ketentuan. Jangka waktu pekerjaan 24 bulan."
+)
+TITLE_TAD = "Pengadaan Jasa Tenaga Alih Daya (TAD) Consumer Loan Marketing dan Collection Kring Pensiunan"
+TITLE_DENPASAR = "Pengadaan Jasa Kontraktor Pekerjaan Renovasi dan Relayout KC Denpasar"
+
+
+def _pdf(text: str) -> bytes:
+    doc = fitz.open()
+    page = doc.new_page()
+    page.insert_textbox(fitz.Rect(40, 40, 560, 400), text, fontsize=10)
+    data = doc.tobytes()
+    doc.close()
+    return data
+
+
+def _btn_fetcher():
+    html = (
+        f'<html><body><iframe src="{BTN_207_URL}"></iframe>'
+        f'<iframe src="{BTN_208_URL}"></iframe></body></html>'
+    )
+    return _PdfFetcher(
+        routes={BTN_LIST_URL: (200, html)},
+        pdf_routes={BTN_207_URL: _pdf(BTN_207_TEXT), BTN_208_URL: _pdf(BTN_208_TEXT)},
+    )
+
+
+def test_pdf_matches_title_aturan_80_persen():
+    assert pdf_matches_title(TITLE_TAD, BTN_208_TEXT)
+    assert not pdf_matches_title(TITLE_TAD, BTN_207_TEXT)
+    assert pdf_matches_title(TITLE_DENPASAR, BTN_207_TEXT)
+    assert not pdf_matches_title(TITLE_DENPASAR, BTN_208_TEXT)
+    assert not pdf_matches_title("", BTN_207_TEXT)
+
+
+def test_enrich_halaman_daftar_bersama_item_tad_pakai_pdf_208():
+    item = Item(bank="BTN", title=TITLE_TAD, url=BTN_LIST_URL, source_type="portal")
+    enrich_item(item, _btn_fetcher())
+    assert item.attachment_url == BTN_208_URL
+    assert item.duration == "24 bulan"      # dari 208, bukan 90 hari dari 207
+
+
+def test_enrich_halaman_daftar_bersama_item_denpasar_pakai_pdf_207():
+    item = Item(bank="BTN", title=TITLE_DENPASAR, url=BTN_LIST_URL, source_type="portal")
+    enrich_item(item, _btn_fetcher())
+    assert item.attachment_url == BTN_207_URL
+    assert item.duration == "90 hari"
+
+
+def test_enrich_tanpa_pdf_cocok_tanpa_attachment_dan_field():
+    item = Item(bank="BTN", title="Pengadaan Mesin ATM Cash Recycling Kantor Pusat",
+                url=BTN_LIST_URL, source_type="portal")
+    enrich_item(item, _btn_fetcher())
+    assert item.attachment_url is None
+    assert item.duration is None
+
+
+def test_enrich_halaman_daftar_satu_lampiran_tak_cocok_diabaikan():
+    # Satu PDF saja, tapi url item halaman daftar bersama -> pengecualian TIDAK berlaku.
+    html = f'<html><a href="{BTN_207_URL}">lampiran pengumuman</a></html>'
+    ff = _PdfFetcher(routes={BTN_LIST_URL: (200, html)},
+                     pdf_routes={BTN_207_URL: _pdf(BTN_207_TEXT)})
+    item = Item(bank="BTN", title=TITLE_TAD, url=BTN_LIST_URL)
+    enrich_item(item, ff)
+    assert item.attachment_url is None
+    assert item.duration is None
+
+
+def test_enrich_pengecualian_detail_satu_lampiran_judul_tak_cocok():
+    # Halaman detail khusus item (bukan daftar) dgn tepat satu PDF: perilaku lama.
+    detail = "https://bank.example/pengumuman/tender-tad-clm"
+    html = f'<html><a href="{BTN_208_URL}">lampiran</a></html>'
+    ff = _PdfFetcher(routes={detail: (200, html)},
+                     pdf_routes={BTN_208_URL: _pdf(BTN_208_TEXT)})
+    item = Item(bank="X", title="T", url=detail)
+    enrich_item(item, ff)
+    assert item.attachment_url == BTN_208_URL
+    assert item.duration == "24 bulan"
+
+
+def test_enrich_detail_dua_lampiran_judul_tak_cocok_diabaikan():
+    detail = "https://bank.example/pengumuman/tender-x"
+    html = (f'<a href="{BTN_207_URL}">a</a><a href="{BTN_208_URL}">b</a>')
+    ff = _PdfFetcher(routes={detail: (200, html)},
+                     pdf_routes={BTN_207_URL: _pdf(BTN_207_TEXT),
+                                 BTN_208_URL: _pdf(BTN_208_TEXT)})
+    item = Item(bank="X", title="T", url=detail)
+    enrich_item(item, ff)
+    assert item.attachment_url is None
+
+
+def test_enrich_url_item_adalah_pdf_perilaku_lama():
+    # Judul sengaja tak cocok: PDF pada item.url dipakai tanpa cek judul.
+    ff = _PdfFetcher(routes={}, pdf_routes={BTN_208_URL: _pdf(BTN_208_TEXT)})
+    item = Item(bank="BTN", title="Judul lain sama sekali", url=BTN_208_URL)
+    enrich_item(item, ff)
+    assert item.attachment_url == BTN_208_URL
+    assert item.duration == "24 bulan"
+
+
+def test_enrich_tidak_menimpa_attachment_url_dari_inbox():
+    inbox_pdf = "https://btn.example/dari-inbox.pdf"
+    item = Item(bank="BTN", title=TITLE_TAD, url=BTN_LIST_URL, attachment_url=inbox_pdf)
+    enrich_item(item, _btn_fetcher())
+    assert item.attachment_url == inbox_pdf
