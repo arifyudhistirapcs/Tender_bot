@@ -654,14 +654,75 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
         ptext = pdf_bytes_to_text(pres.content)
         if not ptext:
             continue
-        before = _snapshot(item)
+        # Lampiran hanya dipakai bila judul item cocok dengan isi PDF, atau
+        # bila masuk pengecualian eksplisit (lihat _pdf_accepted).
+        if not _pdf_accepted(item, ptext, len(attachments)):
+            continue
         _apply_fields(item, extract_fields(ptext))
-        if item.attachment_url is None and _snapshot(item) != before:
-            item.attachment_url = pdf_url
-        elif item.attachment_url is None:
+        if item.attachment_url is None:
             item.attachment_url = pdf_url
 
     return item
+
+
+# ---- Kecocokan judul item dengan PDF lampiran ----
+
+PDF_TITLE_MATCH_RATIO = 0.8
+PDF_TITLE_HEAD_CHARS = 600
+
+_RE_NON_WORD = re.compile(r"[^\w\s]", re.UNICODE)
+
+
+def _norm_words(text: str) -> list[str]:
+    """Huruf kecil, tanpa tanda baca, spasi dirapatkan -> daftar kata."""
+    return _RE_NON_WORD.sub(" ", (text or "").lower()).split()
+
+
+def pdf_matches_title(title: str, pdf_text: str) -> bool:
+    """True bila >=80% kata judul (ternormalisasi) ada di 600 karakter awal
+    teks PDF (ternormalisasi). Aturan sama dengan kolektor laptop."""
+    words = _norm_words(title)
+    if not words:
+        return False
+    head = " ".join(_norm_words(pdf_text))[:PDF_TITLE_HEAD_CHARS]
+    head_words = set(head.split())
+    hit = sum(1 for w in words if w in head_words)
+    return hit / len(words) >= PDF_TITLE_MATCH_RATIO
+
+
+# Segmen terakhir path yang menandakan halaman daftar yang dipakai banyak item.
+_LIST_PAGE_SEGMENTS = {
+    "list", "daftar", "index", "procurement", "procurement-list", "tender",
+    "pengumuman", "pengadaan", "announcement", "announcements", "lelang",
+}
+
+
+def _is_shared_list_url(url: str) -> bool:
+    """Heuristik: URL tanpa path, atau segmen terakhirnya nama halaman daftar
+    (mis. /en/Procurement/Procurement-List). Ragu -> anggap TIDAK aman, jadi
+    pengecualian satu-lampiran tidak berlaku (lebih baik tanpa rincian)."""
+    from urllib.parse import urlsplit
+    parts = [p for p in urlsplit(url or "").path.split("/") if p]
+    if not parts:
+        return True
+    last = parts[-1].lower()
+    return last in _LIST_PAGE_SEGMENTS or last.endswith(("-list", "_list"))
+
+
+def _pdf_accepted(item: Item, pdf_text: str, n_attachments: int) -> bool:
+    """Boleh memakai PDF ini untuk item?
+
+    1. Judul item cocok dengan awal teks PDF -> ya.
+    2. Pengecualian (perilaku lama): halaman detail hanya punya TEPAT SATU
+       lampiran PDF dan item.url bukan halaman daftar bersama -> ya, walau
+       judul tak cocok (lampiran itu milik halaman detail item ini).
+       (Item yang url-nya sendiri PDF tidak lewat jalur ini: teksnya dibaca
+       langsung di langkah 1 enrich_item, tanpa pemeriksaan judul.)
+    3. Selain itu -> tidak (abaikan PDF).
+    """
+    if pdf_matches_title(item.title, pdf_text):
+        return True
+    return n_attachments == 1 and not _is_shared_list_url(item.url)
 
 
 def _host_of(url: str) -> str:
