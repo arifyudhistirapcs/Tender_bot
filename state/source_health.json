@@ -5,7 +5,7 @@
     "last_ok": "2026-11-20"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 5,
+    "consecutive_failures": 6,
     "last_error": "2026-11-20: gagal",
     "last_ok": "2026-11-17"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-20"
   },
   "gdelt": {
-    "consecutive_failures": 36,
+    "consecutive_failures": 37,
     "last_error": "2026-11-20: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -72,7 +72,7 @@
     "last_ok": "2026-11-20"
   },
   "https://eprocurement.bankjatim.co.id/": {
-    "consecutive_failures": 18,
+    "consecutive_failures": 19,
     "last_error": "2026-11-20: timeout > 20d",
     "last_ok": null
   },
@@ -85,7 +85,7 @@
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_item_count": 375,
+    "last_item_count": 376,
     "last_ok": "2026-11-20"
   },
   "https://www.banksumut.co.id/archive-jasa-barang/": {
