@@ -354,5 +354,15 @@
     "new_items": 1,
     "slot": "sore",
     "status": "ok"
+  },
+  {
+    "checked": 45,
+    "date": "2026-11-20",
+    "failed": 17,
+    "hour_wib": 7,
+    "mode": "full",
+    "new_items": 1,
+    "slot": "pagi",
+    "status": "ok"
   }
 ]
