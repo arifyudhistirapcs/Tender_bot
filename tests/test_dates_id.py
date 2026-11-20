@@ -85,3 +85,17 @@ def test_tanggal_bulan_singkat_tahun_dua_digit():
     start, end = parse_date_range("29 Okt 26 s.d 30 Okt 26")
     assert start == date(2026, 10, 29)
     assert end == date(2026, 10, 30)
+
+
+def test_jadwal_daftar_hari_berkoma_pdf_210():
+    teks = ("Hari/Tanggal : Jumat, Senin s.d. Rabu/20, 23 s.d. 25 November 2026 "
+            "(hari kerja) Pukul : 08:00 WIB s.d. 16:00 WIB")
+    assert parse_date_range(teks) == (date(2026, 11, 20), date(2026, 11, 25))
+
+
+def test_jadwal_format_lain_tetap():
+    assert parse_date_range("Kamis s.d. Senin/19 s.d. 23 November 2026") == (
+        date(2026, 11, 19), date(2026, 11, 23))
+    assert parse_date_range(
+        "Kamis - Senin (19 November 2026 - 23 November 2026)") == (
+        date(2026, 11, 19), date(2026, 11, 23))
