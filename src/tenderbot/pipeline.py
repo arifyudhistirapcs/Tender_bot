@@ -12,7 +12,7 @@ from . import filters
 from .collectors import bi_tender, html_list, pdf_list, rss, zendesk_section
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
-from .dedup import ensure_fingerprint, is_near_duplicate
+from .dedup import ensure_fingerprint, is_near_duplicate, is_same_url_duplicate
 from .enrich import _apply_fields, enrich_item, extract_fields
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
@@ -255,6 +255,7 @@ def process_candidates(
         )
     # Judul yang sudah dilihat (untuk near-dup), ditambah yang lolos di run ini.
     seen_titles = state.seen_titles()
+    seen_urls = state.seen_urls()
 
     # Judul inti pengumuman hasil per bank. Ini dihitung untuk SELURUH inbox
     # run, agar tender yang muncul sebelum pengumumannya tetap ditutup.
@@ -275,12 +276,13 @@ def process_candidates(
 
         if state.is_seen(item.fingerprint):
             continue
-        if is_near_duplicate(item, seen_titles, today):
+        if is_same_url_duplicate(item, seen_urls) or is_near_duplicate(item, seen_titles, today):
             continue
 
         # Item baru dan unik: tandai seen lebih dulu (apa pun keputusannya).
         state.mark_seen(item, run_date)
         seen_titles.append((item.bank, normalize_text(item.title), item.published or run_date))
+        seen_urls.append((item.bank, item.url))
 
         # Teks detail dari kolektor browser hanya untuk pengayaan. Saringan
         # sudah selesai sehingga kata di PDF/detail tidak bisa meloloskan item.
