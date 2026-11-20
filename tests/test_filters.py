@@ -60,3 +60,31 @@ def test_lebih_tua_dari_90_hari_ditolak():
 def test_tanggal_masa_depan_ditolak():
     it = _item("Pengadaan sewa mesin EDC", published="2027-01-01")
     assert not evaluate(it, KW, TODAY).passed
+
+
+def _portal(title, source_type="portal"):
+    it = Item(bank="BTN", title=title, url="https://x.example/2",
+              published="2026-10-13", evidence="", source_type=source_type)
+    return it, evaluate(it, KW, TODAY)
+
+
+def test_layanan_kas_atm_alih_daya():
+    for judul in (
+        "Pengadaan Jasa Sentralisasi Kas Bank Sumut Wilayah Nias Kepada Perusahaan Pihak Ketiga",
+        "Pengadaan Jasa Cash Replenishment & First Line Maintenance (CR-FLM) ATM-CRM BTN Periode 2027-2028",
+    ):
+        it, res = _portal(judul)
+        assert res.passed, judul
+        assert it.category == "alih_daya"
+
+
+def test_beli_sewa_mesin_atm_crm_tidak_lolos():
+    for judul in ("Pengadaan Mesin ATM dan CRM", "Sewa Mesin CRM"):
+        _, res = _portal(judul)
+        assert not res.passed, judul
+
+
+def test_berita_cash_replenishment_bukan_alih_daya():
+    it, res = _portal("Pengadaan layanan cash replenishment bank", source_type="news")
+    assert it.category != "alih_daya"
+    assert not res.passed

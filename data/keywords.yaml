@@ -45,6 +45,20 @@ alih_daya:
   - jasa kebersihan
   - call center
   - telesales
+  # Layanan kas/ATM (jasa, bukan pembelian mesin). Tanpa kata tunggal atm/kas/cash.
+  - sentralisasi kas
+  - cash replenishment
+  - first line maintenance
+  - cr-flm
+  - cash in transit
+  - cash processing
+  - pengelolaan kas
+  - pengelolaan atm
+  - pengisian atm
+  - pengisian uang atm
+  - jasa kas titipan
+  - kas titipan
+  - pengolahan uang
 
 # Kata kunci tender alih data, hanya dari portal.
 alih_data:

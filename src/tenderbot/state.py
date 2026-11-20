@@ -69,6 +69,10 @@ class State:
             out.append((rec.get("bank", ""), rec.get("title", ""), rec.get("published") or ""))
         return out
 
+    def seen_urls(self) -> list[tuple[str, str]]:
+        """(bank, url) untuk cek duplikat url sama."""
+        return [(r.get("bank", ""), r.get("url") or "") for r in self.seen.values()]
+
     def mark_seen(self, item: Item, run_date: str) -> None:
         self.seen[item.fingerprint] = {
             "bank": item.bank,

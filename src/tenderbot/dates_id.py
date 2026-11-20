@@ -62,6 +62,9 @@ _RE_DAY_RANGE = re.compile(
     re.IGNORECASE,
 )
 
+# Daftar hari berkoma tepat sebelum rentang: "/20, " pada "Rabu/20, 23 s.d. 25 ...".
+_RE_DAY_LIST_BEFORE = re.compile(r"(?<!\d)(?<!\d/)(?<!\d-)((?:\d{1,2}\s*,\s*)+)$")
+
 
 def _expand_year(value: str) -> int:
     """Ubah tahun dua digit pada daftar tender menjadi 2000–2099.
@@ -119,7 +122,13 @@ def parse_date_range(text: str) -> tuple[Optional[date], Optional[date]]:
     if dr and not _RE_MONTH_BEFORE.search(text[: dr.start(1)]):
         month = _MONTHS.get(dr.group(3).lower().rstrip("."))
         year = _expand_year(dr.group(4))
-        first = _mk_date(int(dr.group(1)), month, year) if month else None
+        first_day = int(dr.group(1))
+        # "Rabu/20, 23 s.d. 25 November": daftar hari berkoma di depan rentang;
+        # tanggal buka = hari paling awal dari daftar itu.
+        lead = _RE_DAY_LIST_BEFORE.search(text[: dr.start(1)])
+        if lead:
+            first_day = min([first_day] + [int(d) for d in re.findall(r"\d+", lead.group(1))])
+        first = _mk_date(first_day, month, year) if month else None
         second = _mk_date(int(dr.group(2)), month, year) if month else None
         if first and second and first <= second:
             return (first, second)
