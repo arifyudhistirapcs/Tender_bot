@@ -374,5 +374,15 @@
     "new_items": 1,
     "slot": "sore",
     "status": "ok"
+  },
+  {
+    "checked": 45,
+    "date": "2026-11-23",
+    "failed": 5,
+    "hour_wib": 16,
+    "mode": "light",
+    "new_items": 1,
+    "slot": "sore",
+    "status": "ok"
   }
 ]
