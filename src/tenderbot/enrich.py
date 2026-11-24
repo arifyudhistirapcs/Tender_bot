@@ -349,6 +349,20 @@ def _extract_method(flat: str) -> Optional[str]:
     return " ".join(w.capitalize() if w.islower() else w for w in phrase.split())
 
 
+_RE_REG_BLOCK_END = re.compile(r"pemasukan|penawaran|aanwijzing", re.IGNORECASE)
+_RE_REG_ANCHOR = re.compile(r"hari\s*/\s*tanggal|dengan\s+jadwal\s+sebagai\s+berikut", re.IGNORECASE)
+
+def _reg_block_anchor_windows(flat: str, pos: int) -> list[str]:
+    """Jendela jadwal di blok pendaftaran yang jauh dari kata "pendaftaran".
+
+    Daftar email panjang bisa memisahkan kata itu dari "Hari/Tanggal". Blok
+    berakhir di kata pemasukan/penawaran/aanwijzing berikutnya.
+    """
+    tail = flat[pos: pos + 1500]
+    end = _RE_REG_BLOCK_END.search(tail)
+    block = tail[: end.start()] if end else tail
+    return [flat[pos + m.start(): pos + m.start() + 300] for m in _RE_REG_ANCHOR.finditer(block)]
+
 def _extract_reg_dates(flat: str) -> tuple[Optional[str], Optional[str]]:
     """Cari tanggal pada setiap label jadwal yang relevan.
 
@@ -358,12 +372,21 @@ def _extract_reg_dates(flat: str) -> tuple[Optional[str], Optional[str]]:
     """
     for label in (r"pengambilan\s+dokumen", r"pendaftaran"):
         for match in re.finditer(label, flat, re.IGNORECASE):
-            start, end = parse_date_range(flat[match.start(): match.start() + 300])
-            if start or end:
-                return (
-                    start.isoformat() if start else None,
-                    end.isoformat() if end else None,
-                )
+            first = flat[match.start(): match.start() + 300]
+            if label == r"pendaftaran":
+                stop = _RE_REG_BLOCK_END.search(first, len(match.group(0)))
+                if stop:
+                    first = first[: stop.start()]
+            windows = [first]
+            if label == r"pendaftaran":
+                windows.extend(_reg_block_anchor_windows(flat, match.end()))
+            for window in windows:
+                start, end = parse_date_range(window)
+                if start or end:
+                    return (
+                        start.isoformat() if start else None,
+                        end.isoformat() if end else None,
+                    )
     return (None, None)
 
 
