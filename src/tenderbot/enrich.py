@@ -291,8 +291,17 @@ _RE_VOLUME = re.compile(
 )
 
 
+_RE_SENTENCE_END = re.compile(r"\.\s+(?=[A-Z])")
+
+
+def _is_volume_experience(flat: str, pos: int) -> bool:
+    """Seperti _is_experience_context, tapi hanya di kalimat yang sama."""
+    before = _RE_SENTENCE_END.split(flat[max(0, pos - 160): pos])[-1]
+    return bool(_RE_EXPERIENCE.search(before))
+
+
 def _extract_volume(flat: str) -> Optional[str]:
-    m = _RE_VOLUME.search(flat)
+    m = next((c for c in _RE_VOLUME.finditer(flat) if not _is_volume_experience(flat, c.start())), None)
     if not m:
         return None
     num = m.group(1).replace(".", "")
