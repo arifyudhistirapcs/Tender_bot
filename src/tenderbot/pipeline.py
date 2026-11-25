@@ -224,6 +224,14 @@ def collect_light(
     return raw
 
 
+def _norm_url(url: str) -> str:
+    """Normalisasi ringan untuk membandingkan url: tanpa #fragmen, tanpa slash
+    akhir, host huruf kecil."""
+    from urllib.parse import urlsplit, urlunsplit
+    p = urlsplit((url or "").strip())
+    return urlunsplit((p.scheme.lower(), p.netloc.lower(), p.path.rstrip("/"), p.query, ""))
+
+
 def process_candidates(
     candidates: list[Item],
     keywords: Keywords,
@@ -267,6 +275,19 @@ def process_candidates(
             if core:
                 result_cores_by_bank.setdefault(normalize_text(candidate.bank), set()).add(core)
 
+    # url yang dipakai lebih dari satu item dalam run ini = halaman daftar bersama.
+    url_counts: dict[str, int] = {}
+    for candidate in candidates:
+        url_counts[candidate.url] = url_counts.get(candidate.url, 0) + 1
+    # url sumber di banks.yaml = halaman daftar, juga untuk item dari inbox agen.
+    source_urls: set[str] = set()
+    no_enrich_urls: set[str] = set()
+    for b in banks or []:
+        for src in b.sources:
+            source_urls.add(_norm_url(src.url))
+            if not src.enrich:
+                no_enrich_urls.add(_norm_url(src.url))
+
     for item in candidates:
         verdict = filters.evaluate(item, keywords, today)
         if not verdict.passed:
@@ -290,9 +311,12 @@ def process_candidates(
             _apply_fields(item, extract_fields(item.detail_text, value_fallback=False))
 
         # Pengayaan detail jaringan (opsional; butuh jaringan).
-        if enrich and fetcher is not None and item.enrich:
+        nurl = _norm_url(item.url)
+        if enrich and fetcher is not None and item.enrich and nurl not in no_enrich_urls:
             try:
-                enrich_item(item, fetcher)
+                enrich_item(item, fetcher,
+                            shared_list_page=url_counts.get(item.url, 0) > 1
+                            or nurl in source_urls)
             except Exception:
                 pass  # kegagalan pengayaan tidak boleh menggagalkan run
 
