@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import time
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -64,6 +65,12 @@ _COLLECTOR_BY_TYPE = {
 }
 
 
+# Jeda sebelum mencoba ulang halaman yang tiba-tiba kosong (tes menolkannya).
+EMPTY_RETRY_DELAY_SECONDS = 5.0
+# Coba ulang hanya bila sumber ini biasanya berisi sedikitnya sekian item.
+EMPTY_RETRY_MIN_PREVIOUS = 10
+
+
 def _collect_public(
     fetcher: Fetcher, bank: Bank, state: State, run_date: str, report: RunReport
 ) -> list[Item]:
@@ -80,13 +87,25 @@ def _collect_public(
             report.failed.append((f"{bank.name} ({src.url})", f"tipe tak dikenal: {src.type}"))
             continue
         res: CollectResult = collector(fetcher, bank, src.url)
+        previous_count = state.last_source_item_count(src.url)
+        retried = False
+        if (
+            res.ok
+            and len(res.items) == 0
+            and previous_count is not None
+            and previous_count >= EMPTY_RETRY_MIN_PREVIOUS
+        ):
+            # Situs kadang mengirim halaman kosong sesaat: coba ulang SEKALI.
+            retried = True
+            time.sleep(EMPTY_RETRY_DELAY_SECONDS)
+            res = collector(fetcher, bank, src.url)
         if res.ok:
             item_count = len(res.items)
             report.source_candidates.append((f"{bank.name} ({src.type})", item_count))
-            previous_count = state.last_source_item_count(src.url)
             if item_count == 0 and previous_count is not None and previous_count >= 10:
                 reason = (
                     f"halaman terbuka tetapi 0 tautan (sebelumnya {previous_count})"
+                    + (", dicoba ulang 1x" if retried else "")
                 )
                 state.record_source_failure(src.url, reason, run_date)
                 report.failed.append((f"{bank.name} ({src.type})", reason))
@@ -97,8 +116,9 @@ def _collect_public(
                 state.record_source_ok(src.url, run_date, item_count=item_count)
                 out.extend(res.items)
         else:
-            state.record_source_failure(src.url, res.error or "gagal", run_date)
-            report.failed.append((f"{bank.name} ({src.type})", res.error or "gagal"))
+            err = (res.error or "gagal") + (", dicoba ulang 1x" if retried else "")
+            state.record_source_failure(src.url, err, run_date)
+            report.failed.append((f"{bank.name} ({src.type})", err))
     return out
 
 

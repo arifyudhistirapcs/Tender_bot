@@ -1,5 +1,6 @@
 """Uji integrasi pipeline: item sama tidak terkirim dua kali lintas run."""
 
+import pytest
 from datetime import date
 from urllib.parse import quote_plus
 
@@ -171,6 +172,69 @@ def _portal_bank(url: str) -> Bank:
     )
 
 
+@pytest.fixture(autouse=True)
+def _no_retry_delay(monkeypatch):
+    monkeypatch.setattr("tenderbot.pipeline.EMPTY_RETRY_DELAY_SECONDS", 0)
+
+
+class _SeqFetcher(FakeFetcher):
+    """Jawaban berurutan per url: tiap fetch mengambil jawaban berikutnya."""
+
+    def __init__(self, url, bodies):
+        super().__init__({})
+        self._url, self._bodies = url, list(bodies)
+
+    def fetch(self, url, bypass_robots=False):
+        body = self._bodies.pop(0) if len(self._bodies) > 1 else self._bodies[0]
+        self.routes = {url: (200, body)}
+        return super().fetch(url)
+
+
+_EMPTY = "<html><body>Belum ada pengumuman</body></html>"
+_FULL = "<html><body>" + "".join(
+    f'<a href="/pengadaan/{i}">Pengadaan Jasa Alih Daya {i}</a>' for i in range(12)
+) + "</body></html>"
+
+
+def test_portal_kosong_lalu_berisi_dipakai_tanpa_gagal(tmp_path):
+    url = "https://contoh.bank/pengadaan"
+    state = State.load(tmp_path)
+    state.record_source_ok(url, "2026-11-03", item_count=374)
+    ff = _SeqFetcher(url, [_EMPTY, _FULL])
+
+    report = run_light(ff, [_portal_bank(url)], KW, state, TODAY, skip_news=True)
+
+    assert report.failed == []
+    assert ff.calls.count(url) == 2
+    assert state.last_source_item_count(url) > 0
+    assert state.source_health[url]["consecutive_failures"] == 0
+
+
+def test_portal_kosong_dua_kali_gagal_dengan_alasan_dicoba_ulang(tmp_path):
+    url = "https://contoh.bank/pengadaan"
+    state = State.load(tmp_path)
+    state.record_source_ok(url, "2026-11-03", item_count=374)
+    ff = _SeqFetcher(url, [_EMPTY, _EMPTY, _FULL])
+
+    report = run_light(ff, [_portal_bank(url)], KW, state, TODAY, skip_news=True)
+
+    reason = "halaman terbuka tetapi 0 tautan (sebelumnya 374), dicoba ulang 1x"
+    assert report.failed == [("Bank Contoh (html)", reason)]
+    assert ff.calls.count(url) == 2  # hanya satu kali coba ulang
+
+
+def test_portal_kosong_riwayat_kecil_tidak_dicoba_ulang(tmp_path):
+    url = "https://contoh.bank/pengadaan"
+    state = State.load(tmp_path)
+    state.record_source_ok(url, "2026-11-03", item_count=9)
+    ff = _SeqFetcher(url, [_EMPTY, _FULL])
+
+    report = run_light(ff, [_portal_bank(url)], KW, state, TODAY, skip_news=True)
+
+    assert report.failed == []
+    assert ff.calls.count(url) == 1
+
+
 def test_portal_kosong_dengan_riwayat_besar_dicatat_gagal(tmp_path):
     url = "https://contoh.bank/pengadaan"
     state = State.load(tmp_path)
@@ -181,7 +245,7 @@ def test_portal_kosong_dengan_riwayat_besar_dicatat_gagal(tmp_path):
         [_portal_bank(url)], KW, state, TODAY, skip_news=True,
     )
 
-    reason = "halaman terbuka tetapi 0 tautan (sebelumnya 374)"
+    reason = "halaman terbuka tetapi 0 tautan (sebelumnya 374), dicoba ulang 1x"
     assert report.failed == [("Bank Contoh (html)", reason)]
     assert report.source_candidates == [("Bank Contoh (html)", 0)]
     assert state.source_health[url]["consecutive_failures"] == 1
