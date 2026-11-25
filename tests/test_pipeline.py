@@ -247,3 +247,59 @@ def test_pipeline_browser_detail_skips_ticker_but_keeps_bsi_schedule(tmp_path):
     assert item.reg_open == "2026-10-30"
     assert item.reg_close == "2026-11-04"
     assert item.submit_close == "2026-11-06"
+
+# ---- Url sumber banks.yaml = halaman daftar, juga untuk item inbox ----
+
+def _pdf_bytes(text: str) -> bytes:
+    import fitz
+    doc = fitz.open()
+    doc.new_page().insert_text((72, 72), text)
+    return doc.tobytes()
+
+
+class _PdfOrHtmlFetcher(FakeFetcher):
+    def __init__(self, routes, pdf_routes):
+        super().__init__(routes)
+        self.pdf_routes = pdf_routes
+
+    def fetch(self, url, bypass_robots=False):
+        if url in self.pdf_routes:
+            from tenderbot.http_client import FetchResult
+            self.calls.append(url)
+            return FetchResult(url=url, status=200, text="", content=self.pdf_routes[url],
+                               content_type="application/pdf")
+        return super().fetch(url)
+
+
+def test_inbox_url_sumber_enrich_false_tidak_diperkaya(tmp_path):
+    from tenderbot.models import Item
+    from tenderbot.pipeline import RunReport, process_candidates
+    url = "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+    banks = [Bank(name="Bank Indonesia", sources=[Source(url=url, type="bi_tender", enrich=False)])]
+    item = Item(bank="Bank Indonesia",
+                title="Jasa Tenaga Kerja Alih Daya Bongkar Muat Arsip",
+                url=url + "/#tabel", source_type="portal")
+    ff = FakeFetcher({url: (200, "<html>jangka waktu 16 (enam belas) tahun</html>")})
+    process_candidates([item], KW, State.load(tmp_path), date(2026, 11, 25), "2026-11-25",
+                       RunReport(run_date="2026-11-25", mode="full"),
+                       fetcher=ff, banks=banks)
+    assert ff.calls == []
+    assert item.duration is None
+
+
+def test_inbox_url_sumber_btn_daftar_pdf_cocok_tetap_dipakai(tmp_path):
+    from tenderbot.models import Item
+    from tenderbot.pipeline import RunReport, process_candidates
+    url = "https://www.btn.co.id/en/Procurement/Procurement-List"
+    pdf_url = "https://www.btn.co.id/files/208.pdf"
+    title = "Pengadaan Jasa Alih Daya Tenaga Kerja"
+    banks = [Bank(name="BTN", sources=[Source(url=url, type="html")])]
+    item = Item(bank="BTN", title=title, url=url, source_type="portal")
+    html = f'<a href="{pdf_url}">Unduh lampiran pengadaan PDF</a> jangka waktu 99 bulan'
+    ff = _PdfOrHtmlFetcher({url: (200, html)},
+                           {pdf_url: _pdf_bytes(title + "\njangka waktu 12 bulan")})
+    process_candidates([item], KW, State.load(tmp_path), date(2026, 11, 25), "2026-11-25",
+                       RunReport(run_date="2026-11-25", mode="full"),
+                       fetcher=ff, banks=banks)
+    assert pdf_url in ff.calls
+    assert item.duration == "12 bulan"  # dari PDF, bukan HTML (99 bulan)
