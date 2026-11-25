@@ -431,3 +431,37 @@ def test_enrich_tidak_menimpa_attachment_url_dari_inbox():
     item = Item(bank="BTN", title=TITLE_TAD, url=BTN_LIST_URL, attachment_url=inbox_pdf)
     enrich_item(item, _btn_fetcher())
     assert item.attachment_url == inbox_pdf
+
+# ---- Halaman daftar bersama: HTML-nya tidak boleh mengisi field ----
+
+def test_halaman_daftar_bersama_html_tidak_mengisi_field():
+    url = "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+    html = ("<html><body>Pengadaan Jasa Bongkar Muat. jangka waktu 16 (enam belas) "
+            "tahun. Tabel pengadaan lain.</body></html>")
+    assert extract_fields("jangka waktu 16 (enam belas) tahun").get("duration")
+    item = Item(bank="Bank Indonesia", title="Jasa Tenaga Kerja Bongkar Muat",
+                url=url, published="2026-11-19", reg_close="2026-11-27")
+    enrich_item(item, FakeFetcher({url: (200, html)}), shared_list_page=True)
+    assert item.duration is None
+    assert item.published == "2026-11-19"
+    assert item.reg_close == "2026-11-27"
+
+
+def test_halaman_daftar_bersama_pdf_cocok_tetap_mengisi():
+    url = "https://www.btn.co.id/en/Procurement/Procurement-List"
+    pdf_url = "https://www.btn.co.id/files/208.pdf"
+    html = f'<a href="{pdf_url}">Unduh lampiran pengadaan PDF</a> jangka waktu 99 bulan'
+    item = Item(bank="BTN", title="Pengumuman Pelelangan Pengadaan Barang Jasa Pelelangan Umum", url=url)
+    ff = _PdfFetcher(routes={url: (200, html)},
+                     pdf_routes={pdf_url: VENDOR_PDF.read_bytes()})
+    enrich_item(item, ff, shared_list_page=True)
+    assert item.duration == "36 bulan"  # dari PDF, bukan HTML
+    assert item.value_idr == 6_993_000_000
+
+
+def test_halaman_detail_sendiri_tetap_diperkaya_dari_html():
+    url = "https://www.banksumut.co.id/jasa_barang/smart-edc/"
+    html = "<html><body>Pengumuman. jangka waktu 24 bulan.</body></html>"
+    item = Item(bank="Bank Sumut", title="Pengadaan Smart EDC", url=url)
+    enrich_item(item, FakeFetcher({url: (200, html)}))
+    assert item.duration == "24 bulan"

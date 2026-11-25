@@ -267,6 +267,11 @@ def process_candidates(
             if core:
                 result_cores_by_bank.setdefault(normalize_text(candidate.bank), set()).add(core)
 
+    # url yang dipakai lebih dari satu item dalam run ini = halaman daftar bersama.
+    url_counts: dict[str, int] = {}
+    for candidate in candidates:
+        url_counts[candidate.url] = url_counts.get(candidate.url, 0) + 1
+
     for item in candidates:
         verdict = filters.evaluate(item, keywords, today)
         if not verdict.passed:
@@ -292,7 +297,8 @@ def process_candidates(
         # Pengayaan detail jaringan (opsional; butuh jaringan).
         if enrich and fetcher is not None and item.enrich:
             try:
-                enrich_item(item, fetcher)
+                enrich_item(item, fetcher,
+                            shared_list_page=url_counts.get(item.url, 0) > 1)
             except Exception:
                 pass  # kegagalan pengayaan tidak boleh menggagalkan run
 

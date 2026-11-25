@@ -623,13 +623,18 @@ def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str], Opti
     return (text, attachments, wp_title)
 
 
-def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM) -> Item:
+def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM,
+                shared_list_page: bool = False) -> Item:
     """Buka halaman detail item lalu lampiran PDF; isi field yang kosong.
 
     Penemuan lampiran: tautan PDF/gambar/tombol/onclick/data-* di HTML, lalu
     tautan Google Drive, lalu (bila HTML tak terakses) WordPress REST API.
     Tidak pernah menimpa field yang SUDAH terisi (mis. dari inbox agen AI).
     Gagal akses (robots/timeout/blokir) -> item dikembalikan apa adanya.
+
+    shared_list_page=True: item.url dipakai banyak item (halaman daftar), jadi
+    teks HTML-nya bukan milik item ini dan TIDAK mengisi field; hanya PDF yang
+    judulnya cocok yang boleh (tanpa pengecualian satu-lampiran).
     """
     detail_text = ""
     attachments: list[str] = []
@@ -670,7 +675,8 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
         item.title = choose_title(item.title, detail_title)
 
     # Terapkan field dari teks detail (HTML + konten REST).
-    _apply_fields(item, extract_fields(detail_text))
+    if not shared_list_page:
+        _apply_fields(item, extract_fields(detail_text))
 
     # 3. Baca lampiran PDF (maksimal N).
     for pdf_url in attachments[:max_pdfs]:
@@ -688,7 +694,7 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM)
             continue
         # Lampiran hanya dipakai bila judul item cocok dengan isi PDF, atau
         # bila masuk pengecualian eksplisit (lihat _pdf_accepted).
-        if not _pdf_accepted(item, ptext, len(attachments)):
+        if not _pdf_accepted(item, ptext, len(attachments), shared_list_page):
             continue
         _apply_fields(item, extract_fields(ptext))
         if item.attachment_url is None:
@@ -741,7 +747,8 @@ def _is_shared_list_url(url: str) -> bool:
     return last in _LIST_PAGE_SEGMENTS or last.endswith(("-list", "_list"))
 
 
-def _pdf_accepted(item: Item, pdf_text: str, n_attachments: int) -> bool:
+def _pdf_accepted(item: Item, pdf_text: str, n_attachments: int,
+                  shared_list_page: bool = False) -> bool:
     """Boleh memakai PDF ini untuk item?
 
     1. Judul item cocok dengan awal teks PDF -> ya.
@@ -754,7 +761,8 @@ def _pdf_accepted(item: Item, pdf_text: str, n_attachments: int) -> bool:
     """
     if pdf_matches_title(item.title, pdf_text):
         return True
-    return n_attachments == 1 and not _is_shared_list_url(item.url)
+    return (n_attachments == 1 and not shared_list_page
+            and not _is_shared_list_url(item.url))
 
 
 def _host_of(url: str) -> str:
