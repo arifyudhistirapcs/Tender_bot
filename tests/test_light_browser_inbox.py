@@ -1,5 +1,6 @@
 """Kontrak inbox browser untuk mode light dan portal publik baru."""
 
+from dataclasses import replace
 from datetime import date
 
 import pytest
@@ -85,9 +86,17 @@ def test_light_tanpa_inbox_tetap_sama(tmp_path):
 def test_portal_baru_bank_jatim_dan_sultra_dikoleksi(
     tmp_path, bank_name, url, fixture
 ):
-    """Kedua source baru dibaca kolektor HTML memakai fixture lokal kecil."""
+    """Kedua source baru dibaca kolektor HTML memakai fixture lokal kecil.
+
+    Portal e-proc Bank Jatim dipindah ke kolektor browser laptop (needs_js)
+    sejak 26 Nov 2026 karena selalu timeout dari runner GitHub. Parser HTML-nya
+    tetap diuji di sini dengan needs_js dimatikan pada salinan source.
+    """
     configured = {bank.name: bank for bank in load_banks()}[bank_name]
     source = next(item for item in configured.sources if item.url == url)
+    if bank_name == "Bank Jatim":
+        assert source.needs_js is True
+        source = replace(source, needs_js=False)
     bank = Bank(
         name=configured.name,
         aliases=configured.aliases,
@@ -105,3 +114,21 @@ def test_portal_baru_bank_jatim_dan_sultra_dikoleksi(
     assert report.passed_filter == 1
     assert len(report.dropped) == 1
     assert "EDC" in report.dropped[0][1]
+
+
+def test_portal_eproc_bank_jatim_ditunda_ke_browser(tmp_path):
+    """Mode light melewati portal e-proc Bank Jatim; halaman lelang utama tetap dibaca."""
+    configured = {bank.name: bank for bank in load_banks()}["Bank Jatim"]
+    main_url = "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan"
+    eproc_url = "https://eprocurement.bankjatim.co.id/"
+    by_url = {s.url: s for s in configured.sources}
+    assert by_url[main_url].needs_js is False
+    assert by_url[eproc_url].needs_js is True
+
+    report = run_light(
+        FakeFetcher({main_url: (200, "<html><body></body></html>")}),
+        [configured], KW, State.load(tmp_path), TODAY, skip_news=True,
+    )
+
+    assert any(eproc_url in note for note in report.deferred_js)
+    assert all(eproc_url not in name for name, _ in report.failed)

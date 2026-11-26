@@ -212,11 +212,15 @@ banks:
         type: html
       - url: "https://eprocurement.bankjatim.co.id/"
         type: html
+        needs_js: true
     notes: >-
       Halaman "Lelang Pengadaan" HTML server-side berpaginasi; tiap item
       tertaut PDF pola /files/pengumuman/<tahun>/<bulan>/. Portal
       eprocurement.bankjatim.co.id juga terbaca bot pada 9 November 2026
-      dengan empat judul pengadaan. Pendaftaran peserta luring.
+      dengan empat judul pengadaan. Sejak awal November portal itu selalu
+      timeout dari runner GitHub (25 run berturut-turut per 26 November
+      2026) tetapi terbuka normal dari laptop, jadi dibaca kolektor browser
+      laptop. Pendaftaran peserta luring.
 
   - name: BPD Bali
     aliases: ["BPD Bali", "Bank Pembangunan Daerah Bali"]
