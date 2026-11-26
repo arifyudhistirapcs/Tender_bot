@@ -30,15 +30,17 @@ SEND_TIMEOUT = 20
 # bukan di subtitle header kartu Google Chat yang akan terpangkas.
 TITLE_SUBTITLE_MAX = 80
 
-_CATEGORY_ORDER = ("edc", "alih_daya", "alih_data")
+_CATEGORY_ORDER = ("edc", "alih_daya", "aplikasi_it", "alih_data")
 _CATEGORY_CARD_TITLES = {
     "edc": "Tender EDC",
     "alih_daya": "Tender Alih Daya",
+    "aplikasi_it": "Tender Aplikasi/IT",
     "alih_data": "Tender Alih Data",
 }
 _CATEGORY_OPENING_LABELS = {
     "edc": "EDC",
     "alih_daya": "alih daya",
+    "aplikasi_it": "aplikasi IT",
     "alih_data": "alih data",
 }
 
@@ -197,7 +199,7 @@ def build_message(
     # Tidak ada tender: satu kalimat umum dengan jumlah bank dipantau.
     return {
         "text": (
-            "Tidak ada info tender EDC, alih daya, atau alih data baru. "
+            "Tidak ada info tender EDC, alih daya, aplikasi/IT, atau alih data baru. "
             f"({checked_count} bank dipantau)"
         )
     }

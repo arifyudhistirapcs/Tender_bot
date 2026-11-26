@@ -23,7 +23,7 @@ class Item:
     deadline: Optional[str] = None
     value_idr: Optional[int] = None
     source_type: str = "portal"  # portal | berita | rilis
-    category: Optional[str] = None  # edc | alih_daya | alih_data
+    category: Optional[str] = None  # edc | alih_daya | alih_data | aplikasi_it
     evidence: str = ""
     detail_text: Optional[str] = None  # teks detail/PDF kolektor browser, maks. 8000 karakter
     media_name: str = ""  # nama media untuk item berita (domain feed atau host)

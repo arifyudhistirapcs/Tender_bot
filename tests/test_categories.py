@@ -30,13 +30,21 @@ def test_bsi_ppj_tad_masuk_alih_daya():
     assert item.category == "alih_daya"
 
 
-def test_lisensi_firewall_checkpoint_tidak_masuk_kategori():
+def test_lisensi_firewall_checkpoint_masuk_aplikasi_it():
     item = _item("Pengadaan Lisensi Firewall Checkpoint")
+
+    result = evaluate(item, KEYWORDS, TODAY)
+    assert result.passed
+    assert item.category == "aplikasi_it"
+
+
+def test_judul_non_kategori_ditolak_dengan_alasan():
+    item = _item("Pengadaan Kursi Kantor")
 
     result = evaluate(item, KEYWORDS, TODAY)
     assert not result.passed
     assert item.category is None
-    assert result.reason == "tidak ada kata EDC/alih daya/alih data"
+    assert result.reason == "tidak ada kata EDC/alih daya/alih data/aplikasi IT"
 
 
 def test_pengumuman_pemenang_alih_daya_ditutup_dengan_alasan_hasil():

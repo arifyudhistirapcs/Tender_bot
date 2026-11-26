@@ -97,7 +97,7 @@ def load_inbox(path: Path) -> InboxLoadResult:
                 source_type=str(raw.get("source_type", "berita")),
                 category=(
                     raw.get("category")
-                    if raw.get("category") in {"edc", "alih_daya", "alih_data"}
+                    if raw.get("category") in {"edc", "alih_daya", "alih_data", "aplikasi_it"}
                     else None
                 ),
                 evidence=str(raw.get("evidence", "")),

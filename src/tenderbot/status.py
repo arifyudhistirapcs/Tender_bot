@@ -84,9 +84,31 @@ def _last_close(item: Item) -> Optional[date]:
     return max(dates) if dates else None
 
 
+# Penanda status eksplisit di judul: hanya bentuk dalam kurung atau di akhir
+# judul, supaya kata biasa di tengah judul ("Closed Loop") tidak terbaca.
+_RE_MARK_CLOSED = re.compile(
+    r"(?:\(\s*(?:closed|ditutup|tutup|selesai)\s*\)|\b(?:closed|ditutup|selesai))\s*$",
+    re.IGNORECASE,
+)
+_RE_MARK_OPEN = re.compile(r"(?:\(\s*open\s*\)|\bopen)\s*$", re.IGNORECASE)
+
+
+def title_status_marker(title: str) -> Optional[str]:
+    """STATUS_CLOSED / STATUS_ONGOING dari penanda eksplisit di judul, atau None."""
+    t = (title or "").strip()
+    if _RE_MARK_CLOSED.search(t):
+        return STATUS_CLOSED
+    if _RE_MARK_OPEN.search(t):
+        return STATUS_ONGOING
+    return None
+
+
 def compute_status(item: Item, today: date) -> str:
     """Kembalikan salah satu status dan tidak mengubah item."""
     if is_result_announcement(item.title):
+        return STATUS_CLOSED
+    marker = title_status_marker(item.title)
+    if marker == STATUS_CLOSED:
         return STATUS_CLOSED
 
     reg_open = parse_iso_date(item.reg_open)
@@ -96,7 +118,8 @@ def compute_status(item: Item, today: date) -> str:
         # Tanpa tutup, tapi bila reg_open jelas di masa depan -> akan_dibuka.
         if reg_open is not None and reg_open > today:
             return STATUS_UPCOMING
-        return STATUS_UNKNOWN
+        # "(OPEN)" di judul = berjalan bila tak ada tanggal tutup yang lebih tegas.
+        return STATUS_ONGOING if marker == STATUS_ONGOING else STATUS_UNKNOWN
 
     if reg_open is not None and reg_open > today:
         return STATUS_UPCOMING

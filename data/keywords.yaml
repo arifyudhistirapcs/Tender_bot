@@ -17,6 +17,8 @@ procurement:
   - managed service
   - pengelolaan
   - jasa layanan
+  - maintenance
+  - jasa tenaga
 
 # Kata yang memastikan ini tentang mesin EDC (bukan singkatan lain).
 # "EDC" telanjang sengaja TIDAK dipakai karena bertabrakan dengan
@@ -45,6 +47,30 @@ alih_daya:
   - jasa kebersihan
   - call center
   - telesales
+  # Layanan berbasis tenaga kerja (man-powered service), semua bank.
+  - jasa tenaga
+  - tenaga pendukung
+  - tenaga ahli
+  - petugas
+  - office boy
+  - resepsionis
+  - teller
+  - customer service
+  - frontliner
+  - kurir
+  - messenger
+  - juru parkir
+  - tenaga kebersihan
+  - bongkar muat
+  - jasa pengamanan
+  - sales force
+  - tenaga pemasaran
+  - collection
+  - collector
+  - telemarketing
+  - help desk
+  - jasa operator
+  - tenaga operator
   # Layanan kas/ATM (jasa, bukan pembelian mesin). Tanpa kata tunggal atm/kas/cash.
   - sentralisasi kas
   - cash replenishment
@@ -73,6 +99,50 @@ alih_data:
   - digitalisasi arsip
   - pengelolaan arsip
   - pengarsipan
+# Kata kunci tender aplikasi/IT (semua proyek IT), hanya dari portal, judul saja.
+# Substring pada teks ternormalisasi: JANGAN pakai istilah pendek (pc, it, ssl,
+# api, ai, ti) atau "sistem"/"digital" sendirian (Sistem Kelistrikan, Digital Branch).
+aplikasi_it:
+  - aplikasi
+  - application
+  - software
+  - perangkat lunak
+  - lisensi
+  - license
+  - server
+  - storage
+  - hardware
+  - perangkat keras
+  - laptop
+  - komputer
+  - jaringan komunikasi data
+  - network
+  - firewall
+  - data center
+  - pusat data
+  - disaster recovery
+  - cloud
+  - database
+  - data warehouse
+  - core banking
+  - mobile banking
+  - internet banking
+  - sistem informasi
+  - teknologi informasi
+  - management system
+  - fraud detection
+  - e-kyc
+  - sertifikat digital
+  - secure socket layer
+  - cyber
+  - keamanan siber
+  - security analytics
+  - penetration testing
+  - api gateway
+  - chatbot
+  - artificial intelligence
+  - machine learning
+  - ibm power
 # Kata buang: bila muncul, item dibuang apa pun isinya.
 # "lelang" di bank sering berarti penjualan agunan, bukan pengadaan.
 reject:
@@ -84,6 +154,7 @@ reject:
   - everyday carry
   - uji klinis                # BSI Group memakai "Electronic Data Capture" untuk uji klinis
   - clinical trial
+  - sosialisasi         # undangan/acara (mis. INAPROC), bukan tender
 
 # Media nasional/bisnis kredibel. Item berita dari domain lain tetap boleh
 # masuk, tetapi diberi label unverified_source (ditampilkan di pesan).

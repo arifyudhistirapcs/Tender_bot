@@ -14,7 +14,9 @@ from .collectors import bi_tender, html_list, pdf_list, rss, zendesk_section
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate, is_same_url_duplicate
-from .enrich import _apply_fields, enrich_item, extract_fields
+from .enrich import (
+    _apply_fields, enrich_item, extract_fields, is_bank_name_only, is_truncated_duplicate,
+)
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
 from .models import Item
@@ -308,7 +310,23 @@ def process_candidates(
             if not src.enrich:
                 no_enrich_urls.add(_norm_url(src.url))
 
+    names_by_bank = {
+        normalize_text(b.name): [b.name, *b.aliases] for b in banks or []
+    }
+
+    titles_by_bank: dict[str, list[str]] = {}
+    for candidate in candidates:
+        titles_by_bank.setdefault(normalize_text(candidate.bank), []).append(candidate.title)
+
     for item in candidates:
+        # Cuplikan terpotong ("...") yang duplikat judul utuh item lain bank yang sama.
+        if is_truncated_duplicate(item.title, titles_by_bank[normalize_text(item.bank)]):
+            report.dropped.append((item.bank, item.title, "judul terpotong, duplikat item lain"))
+            continue
+        # Judul yang hanya nama bank (cuplikan situs, bukan tender) dibuang sebelum saringan.
+        if is_bank_name_only(item.title,
+                             names_by_bank.get(normalize_text(item.bank), [item.bank])):
+            continue
         verdict = filters.evaluate(item, keywords, today)
         if not verdict.passed:
             continue
@@ -317,7 +335,13 @@ def process_candidates(
 
         if state.is_seen(item.fingerprint):
             continue
-        if is_same_url_duplicate(item, seen_urls) or is_near_duplicate(item, seen_titles, today):
+        # Aturan "url sama = duplikat" tidak berlaku untuk halaman daftar
+        # bersama (url dipakai >1 item di run ini atau url sumber banks.yaml),
+        # mis. Bank Maluku Malut /informasitender: dua tender IT berbeda.
+        list_page = url_counts.get(item.url, 0) > 1 or _norm_url(item.url) in source_urls
+        if (not list_page and is_same_url_duplicate(item, seen_urls)) or is_near_duplicate(
+            item, seen_titles, today
+        ):
             continue
 
         # Item baru dan unik: tandai seen lebih dulu (apa pun keputusannya).
@@ -336,7 +360,8 @@ def process_candidates(
             try:
                 enrich_item(item, fetcher,
                             shared_list_page=url_counts.get(item.url, 0) > 1
-                            or nurl in source_urls)
+                            or nurl in source_urls,
+                            bank_names=names_by_bank.get(normalize_text(item.bank)))
             except Exception:
                 pass  # kegagalan pengayaan tidak boleh menggagalkan run
 
