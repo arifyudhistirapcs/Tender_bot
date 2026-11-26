@@ -71,7 +71,9 @@ def test_dua_tender_beda_di_halaman_daftar_sama_tetap_dikirim(tmp_path):
     items = [
         Item(bank="Bank Maluku Malut", title=software, url=url, published="2026-10-23",
              source_type="portal"),
-        Item(bank="Bank Maluku Malut", title=ppjt, url=url, published="2026-10-05",
+        # Tanggal dibuat baru: tender tanpa tanggal tutup yang sudah lama
+        # sengaja dibuang oleh aturan status, bukan bagian uji ini.
+        Item(bank="Bank Maluku Malut", title=ppjt, url=url, published="2026-11-20",
              source_type="portal"),
     ]
     report = RunReport(run_date="2026-11-26", mode="light")
