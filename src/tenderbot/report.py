@@ -35,8 +35,9 @@ _STATUS_LABEL = {
 _ITEM_DATE_FIELDS = ("posted", "reg_open", "reg_close", "submit_close",
                      "published", "deadline")
 
-_CATEGORY_ORDER = ("edc", "alih_daya", "alih_data")
-_CATEGORY_LABELS = {"edc": "EDC", "alih_daya": "Alih daya", "alih_data": "Alih data"}
+_CATEGORY_ORDER = ("edc", "alih_daya", "aplikasi_it", "alih_data")
+_CATEGORY_LABELS = {"edc": "EDC", "alih_daya": "Alih daya",
+                    "aplikasi_it": "Aplikasi/IT", "alih_data": "Alih data"}
 
 
 def _category(item: Item) -> str:
@@ -197,6 +198,7 @@ def build_report_md(report: RunReport, ctx: ReportContext) -> str:
             f"{len(c.new_items)} tender baru dilaporkan "
             f"(EDC {_category_counts(c.new_items)["edc"]}, "
             f"alih daya {_category_counts(c.new_items)["alih_daya"]}, "
+            f"aplikasi IT {_category_counts(c.new_items)["aplikasi_it"]}, "
             f"alih data {_category_counts(c.new_items)["alih_data"]}; "
             f"berjalan {c.ongoing_count}, akan dibuka {c.upcoming_count}, "
             f"tanggal tutup belum diketahui {c.unknown_count})."
