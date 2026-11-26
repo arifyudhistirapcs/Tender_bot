@@ -22,7 +22,7 @@ from urllib.parse import urljoin
 from .collectors.base import extract_links, html_to_text
 from .dates_id import _RE_RUPIAH, parse_date_range, parse_rupiah, parse_single_date
 from .http_client import AccessError, Fetcher
-from .models import Item
+from .models import Item, normalize_text
 
 MAX_PDFS_PER_ITEM = 3
 
@@ -135,7 +135,19 @@ def _is_truncated(title: str) -> bool:
     return t.endswith("...") or t.endswith("\u2026")
 
 
-def choose_title(list_title: str, detail_title: Optional[str]) -> str:
+_COMPANY_WORDS = frozenset({"pt", "tbk", "persero", "the"})
+
+
+def is_bank_name_only(title: str, bank_names: list[str]) -> bool:
+    """True bila judul hanya nama/alias bank (tanpa PT/Tbk/Persero), bukan judul tender."""
+    def core(s: str) -> str:
+        return " ".join(w for w in normalize_text(s).split() if w not in _COMPANY_WORDS)
+    t = core(title)
+    return bool(t) and any(t == core(n) for n in bank_names)
+
+
+def choose_title(list_title: str, detail_title: Optional[str],
+                 bank_names: Optional[list[str]] = None) -> str:
     """Pilih judul akhir untuk tampilan.
 
     Pakai judul detail bila:
@@ -147,7 +159,7 @@ def choose_title(list_title: str, detail_title: Optional[str]) -> str:
     """
     lst = (list_title or "").strip()
     det = (detail_title or "").strip()
-    if not det:
+    if not det or is_bank_name_only(det, bank_names or []):
         return lst
     if _is_truncated(lst):
         return det
@@ -624,7 +636,8 @@ def _fetch_wp_detail(item: Item, fetcher: Fetcher) -> tuple[str, list[str], Opti
 
 
 def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM,
-                shared_list_page: bool = False) -> Item:
+                shared_list_page: bool = False,
+                bank_names: Optional[list[str]] = None) -> Item:
     """Buka halaman detail item lalu lampiran PDF; isi field yang kosong.
 
     Penemuan lampiran: tautan PDF/gambar/tombol/onclick/data-* di HTML, lalu
@@ -671,8 +684,10 @@ def enrich_item(item: Item, fetcher: Fetcher, max_pdfs: int = MAX_PDFS_PER_ITEM,
     # Judul utuh: pakai judul detail bila lebih baik (lihat choose_title).
     # Fingerprint TIDAK dihitung ulang -- tetap dari judul daftar asli yang
     # sudah di-set pemanggil sebelum enrich, jadi state/seen.json tidak pecah.
-    if detail_title:
-        item.title = choose_title(item.title, detail_title)
+    # Halaman daftar bersama: judul halaman bukan milik item ini, jadi tidak dipakai
+    # (kasus BPD Bali: judul terpotong diganti nama bank).
+    if detail_title and not shared_list_page:
+        item.title = choose_title(item.title, detail_title, bank_names or [item.bank])
 
     # Terapkan field dari teks detail (HTML + konten REST).
     if not shared_list_page:

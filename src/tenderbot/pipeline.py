@@ -14,7 +14,7 @@ from .collectors import bi_tender, html_list, pdf_list, rss, zendesk_section
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate, is_same_url_duplicate
-from .enrich import _apply_fields, enrich_item, extract_fields
+from .enrich import _apply_fields, enrich_item, extract_fields, is_bank_name_only
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
 from .models import Item
@@ -308,7 +308,15 @@ def process_candidates(
             if not src.enrich:
                 no_enrich_urls.add(_norm_url(src.url))
 
+    names_by_bank = {
+        normalize_text(b.name): [b.name, *b.aliases] for b in banks or []
+    }
+
     for item in candidates:
+        # Judul yang hanya nama bank (cuplikan situs, bukan tender) dibuang sebelum saringan.
+        if is_bank_name_only(item.title,
+                             names_by_bank.get(normalize_text(item.bank), [item.bank])):
+            continue
         verdict = filters.evaluate(item, keywords, today)
         if not verdict.passed:
             continue
@@ -336,7 +344,8 @@ def process_candidates(
             try:
                 enrich_item(item, fetcher,
                             shared_list_page=url_counts.get(item.url, 0) > 1
-                            or nurl in source_urls)
+                            or nurl in source_urls,
+                            bank_names=names_by_bank.get(normalize_text(item.bank)))
             except Exception:
                 pass  # kegagalan pengayaan tidak boleh menggagalkan run
 
