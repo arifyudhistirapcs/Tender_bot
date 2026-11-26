@@ -154,6 +154,7 @@ reject:
   - everyday carry
   - uji klinis                # BSI Group memakai "Electronic Data Capture" untuk uji klinis
   - clinical trial
+  - sosialisasi         # undangan/acara (mis. INAPROC), bukan tender
 
 # Media nasional/bisnis kredibel. Item berita dari domain lain tetap boleh
 # masuk, tetapi diberi label unverified_source (ditampilkan di pesan).
