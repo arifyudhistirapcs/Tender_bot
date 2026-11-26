@@ -335,7 +335,13 @@ def process_candidates(
 
         if state.is_seen(item.fingerprint):
             continue
-        if is_same_url_duplicate(item, seen_urls) or is_near_duplicate(item, seen_titles, today):
+        # Aturan "url sama = duplikat" tidak berlaku untuk halaman daftar
+        # bersama (url dipakai >1 item di run ini atau url sumber banks.yaml),
+        # mis. Bank Maluku Malut /informasitender: dua tender IT berbeda.
+        list_page = url_counts.get(item.url, 0) > 1 or _norm_url(item.url) in source_urls
+        if (not list_page and is_same_url_duplicate(item, seen_urls)) or is_near_duplicate(
+            item, seen_titles, today
+        ):
             continue
 
         # Item baru dan unik: tandai seen lebih dulu (apa pun keputusannya).

@@ -59,3 +59,23 @@ def test_pipeline_catat_dropped_dan_kirim_sisanya(tmp_path):
     titles = [i.title for i in report.new_items]
     assert MIMIX in titles and POTONG not in titles
     assert all(d[1] != TANPA_PADANAN for d in report.dropped if d[2].startswith("judul terpotong"))
+
+
+def test_dua_tender_beda_di_halaman_daftar_sama_tetap_dikirim(tmp_path):
+    """Bank Maluku Malut: dua tender IT berbeda memakai url /informasitender yang sama."""
+    url = "https://www.bankmalukumalut.co.id/informasitender"
+    software = ("PENGUMUMAN PEMILIHAN LANGSUNG/SELEKSI LANGSUNG PENGADAAN BARANG DAN/ATAU JASA "
+                "PENGEMBANGAN SOFTWARE...")
+    ppjt = ("PENGUMUMAN PELELANGAN PENGADAAN BARANG DAN/ATAU JASA PIHAK PENYEDIA JASA "
+            "TEKNOLOGI INFORMASI (PPJT...")
+    items = [
+        Item(bank="Bank Maluku Malut", title=software, url=url, published="2026-10-23",
+             source_type="portal"),
+        Item(bank="Bank Maluku Malut", title=ppjt, url=url, published="2026-10-05",
+             source_type="portal"),
+    ]
+    report = RunReport(run_date="2026-11-26", mode="light")
+    process_candidates(items, load_keywords(), State.load(tmp_path), date(2026, 11, 26),
+                       "2026-11-26", report, fetcher=None, enrich=False)
+    titles = [i.title for i in report.new_items]
+    assert software in titles and ppjt in titles
