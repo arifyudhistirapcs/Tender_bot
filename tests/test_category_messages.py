@@ -36,7 +36,7 @@ def test_pembuka_campuran_dan_urutan_kartu_sesuai_kontrak():
 
 def test_pesan_kosong_menyebut_semua_kategori():
     assert build_message([], 9)["text"] == (
-        "Tidak ada info tender EDC, alih daya, atau alih data baru. (9 bank dipantau)"
+        "Tidak ada info tender EDC, alih daya, aplikasi/IT, atau alih data baru. (9 bank dipantau)"
     )
 
 
@@ -49,6 +49,6 @@ def test_laporan_dikelompokkan_dan_meringkas_per_kategori():
     markdown = build_report_md(report, context)
     data = build_report_json(report, context)
 
-    assert "EDC 1, alih daya 1, alih data 1" in markdown
+    assert "EDC 1, alih daya 1, aplikasi IT 0, alih data 1" in markdown
     assert markdown.index("EDC:") < markdown.index("Alih daya:") < markdown.index("Alih data:")
-    assert data["counts"]["categories"] == {"edc": 1, "alih_daya": 1, "alih_data": 1}
+    assert data["counts"]["categories"] == {"edc": 1, "alih_daya": 1, "aplikasi_it": 0, "alih_data": 1}
