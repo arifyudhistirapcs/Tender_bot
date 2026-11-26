@@ -14,7 +14,9 @@ from .collectors import bi_tender, html_list, pdf_list, rss, zendesk_section
 from .collectors.base import CollectResult
 from .config import Bank, Keywords, NewsFeed
 from .dedup import ensure_fingerprint, is_near_duplicate, is_same_url_duplicate
-from .enrich import _apply_fields, enrich_item, extract_fields, is_bank_name_only
+from .enrich import (
+    _apply_fields, enrich_item, extract_fields, is_bank_name_only, is_truncated_duplicate,
+)
 from .http_client import Fetcher
 from .inbox import InboxLoadResult
 from .models import Item
@@ -312,7 +314,15 @@ def process_candidates(
         normalize_text(b.name): [b.name, *b.aliases] for b in banks or []
     }
 
+    titles_by_bank: dict[str, list[str]] = {}
+    for candidate in candidates:
+        titles_by_bank.setdefault(normalize_text(candidate.bank), []).append(candidate.title)
+
     for item in candidates:
+        # Cuplikan terpotong ("...") yang duplikat judul utuh item lain bank yang sama.
+        if is_truncated_duplicate(item.title, titles_by_bank[normalize_text(item.bank)]):
+            report.dropped.append((item.bank, item.title, "judul terpotong, duplikat item lain"))
+            continue
         # Judul yang hanya nama bank (cuplikan situs, bukan tender) dibuang sebelum saringan.
         if is_bank_name_only(item.title,
                              names_by_bank.get(normalize_text(item.bank), [item.bank])):

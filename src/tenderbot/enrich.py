@@ -135,6 +135,32 @@ def _is_truncated(title: str) -> bool:
     return t.endswith("...") or t.endswith("\u2026")
 
 
+_TRUNC_MIN_CHARS = 40
+
+
+def is_truncated_duplicate(title: str, other_titles: list[str]) -> bool:
+    """True bila judul terpotong ("...") hanyalah cuplikan salah satu judul utuh lain.
+
+    Setelah elipsis dibuang dan dinormalisasi, cocok bila: (1) judul itu awalan
+    judul lain; atau (2) 40 karakter terakhirnya ada di judul lain (cuplikan sering
+    diawali kalimat pembuka, jadi bukan awalan). Sengaja TIDAK ada aturan "memuat 40
+    karakter awal judul lain": awalan umum ("Pengumuman Pelelangan Pengadaan Barang
+    dan/atau Jasa ...") menyamakan tender berbeda (Bank Maluku Malut).
+    """
+    if not _is_truncated(title):
+        return False
+    core = normalize_text(re.sub(r"(?:\.{2,}|\u2026)\s*$", "", title.rstrip()))
+    if len(core) < _TRUNC_MIN_CHARS:
+        return False
+    for other in other_titles:
+        if _is_truncated(other):
+            continue
+        o = normalize_text(other)
+        if o.startswith(core) or core[-_TRUNC_MIN_CHARS:] in o:
+            return True
+    return False
+
+
 _COMPANY_WORDS = frozenset({"pt", "tbk", "persero", "the"})
 
 
