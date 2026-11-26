@@ -10,6 +10,7 @@ from .config import Keywords
 from .models import Item, normalize_text, parse_iso_date
 
 MAX_AGE_DAYS = 90
+VALID_CATEGORIES = {"edc", "alih_daya", "alih_data", "aplikasi_it"}
 
 
 @dataclass
@@ -36,7 +37,7 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     text = normalize_text(f"{item.title} {item.evidence}")
     title = normalize_text(item.title)
     supplied_category = (
-        item.category if item.category in {"edc", "alih_daya", "alih_data"} else None
+        item.category if item.category in VALID_CATEGORIES else None
     )
     item.category = None
 
@@ -56,13 +57,13 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
     if not hit_proc:
         return FilterResult(False, "tidak ada kata pengadaan")
 
-    # Prioritas kategori: EDC, lalu alih data, lalu alih daya. EDC tetap
+    # Prioritas kategori: EDC, alih data, alih daya, lalu aplikasi IT. EDC tetap
     # melihat evidence seperti perilaku lama; dua kategori baru hanya portal
     # dan hanya judul agar berita umum outsourcing tidak ikut dilaporkan.
     # Kategori alih daya/data dari riset penuh hanya dipercaya bila item portal.
     # Di luar portal, nilai ulang dari judul/evidence dengan aturan biasa.
     if supplied_category == "edc" or (
-        supplied_category in {"alih_daya", "alih_data"} and item.source_type == "portal"
+        supplied_category in VALID_CATEGORIES - {"edc"} and item.source_type == "portal"
     ):
         item.category = supplied_category
     elif _contains_any(text, keywords.edc):
@@ -71,7 +72,9 @@ def evaluate(item: Item, keywords: Keywords, today: date) -> FilterResult:
         item.category = "alih_data"
     elif item.source_type == "portal" and _contains_any(title, keywords.alih_daya):
         item.category = "alih_daya"
+    elif item.source_type == "portal" and _contains_any(title, keywords.aplikasi_it):
+        item.category = "aplikasi_it"
     else:
-        return FilterResult(False, "tidak ada kata EDC/alih daya/alih data")
+        return FilterResult(False, "tidak ada kata EDC/alih daya/alih data/aplikasi IT")
 
     return FilterResult(True, "")
