@@ -1,4 +1,11 @@
 {
+  "033ebd61aa717c0d70e96ba6fcab9c331d3d6c1c62eb378b6f381d61e4996ce5": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan 3 (Tiga) Server Baremetal Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-3-tiga-server-baremetal-bank-jatim"
+  },
   "035e777643d598ef5019db01a8b325aca1dd13bc4bfe23da5615a1731f67c9f3": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
@@ -13,12 +20,33 @@
     "title": "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Perseroda)",
     "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
   },
+  "063671736b6a0b157b79d8a23e9a0beb182ca87d1761af88ef1a3b6f5c0c16aa": {
+    "bank": "BPD Bali",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-24",
+    "title": "Pengumuman Pemenang Tender Pengadaan Pembangunan Infrastruktur dan Jaringan Disaster Recovery Center (DRC) Renon Site Bank BPD Bali",
+    "url": "https://www.bpdbali.co.id/pengumuman/read/466"
+  },
+  "07bee014c034e21ea81586513863ad8f540d113b2213207c52534cdd33288d39": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-12",
+    "title": "IT Pengadaan Konsolidasi Maintenance Storage BNI Cloud DC dan DRC BNI 12 Oktober 2026 13 Oktober 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
   "092e74a66ebd0f0297f3e6450b53ad7c960ac96e538281ca84efabc8c95413c2": {
     "bank": "Bank Jatim",
     "first_seen": "2026-10-23",
     "published": null,
     "title": "Market Sounding Pengadaan Penyedia Jasa Managed Service Perangkat Electronic Data Capture (EDC) Soundbox",
     "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/market-sounding-pengadaan-penyedia-jasa-managed-service-perangkat-electronic-data-capture-edc-soundb"
+  },
+  "0c96e4c41d14c203842fa5c8bc0c784ece37be702f0eb50ba00ade015a90eaf4": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Rekapitulasi Evaluasi Dokumen Penawaran Pengadaan 1 (satu) Unit Server Baremetal Warehouse Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-rekapitulasi-evaluasi-dokumen-penawaran-pengadaan-1-satu-unit-server-baremetal-warehouse-bank"
   },
   "0eeaa130f5bbcf9c31b4586547a2aa2bcc098821bff40c05d097bbf06c343fbe": {
     "bank": "Bank Papua",
@@ -27,12 +55,33 @@
     "title": "23 November 2026 Hasil Koreksi Aritmatik Lelang Pekerjaan Pengadaan Outsourcing Jasa Driver Bank Papua KCU Merauke",
     "url": "https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33"
   },
+  "0f70ebb2b1e629ac30d685a2bd2e4b0264bb854cf0e7925b25044aadaa40c0bd": {
+    "bank": "BPD Bali",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-25",
+    "title": "Pengumuman Pemenang Tender Pengadaan Penambahan dan Renewal License serta Support Maintenance untuk Aplikasi Privileged Access Management (PAM) CyberArk Bank BPD Bali",
+    "url": "https://www.bpdbali.co.id/pengumuman/read/467"
+  },
+  "1042ee1a47352f87c3ec57f64901a1f7f2aad97a6b34ae77fee0f3f18be8afbf": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-01",
+    "title": "IT Pengadaan Perangkat Storage untuk Transactional System pada Data Center BNI. 01 September 2026 04 September 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
   "15cbc7629f3f3a071b426db539707e68d893abb0d4f9de92e1a81d32862832d0": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
     "published": "2026-10-23",
     "title": "Pemenang Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Jakarta",
     "url": "https://bankpapua.co.id/home/index/detail/pemenang-lelang-pekerjaan-pengadaan-outsourcing-jasa-keamanan-security-bank-papua-kc-jakarta-1959"
+  },
+  "16a8c9d43017b400df98763272d2b8315a76bc686aa755e4fc639c8e86ec15f8": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Perpanjangan Subscription Lisensi & Jasa Maintenance Outsystem",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/perpanjangan-subscription-lisensi-jasa-maintenance-outsystem"
   },
   "1d5fc173c89827f087a756af49a92d23028d41d90523c80fe1c09551a260bd39": {
     "bank": "Bankaltimtara",
@@ -41,12 +90,68 @@
     "title": "Pengumuman Pemenang Tender Penyedia Jasa Tenaga Kerja Alih Daya Jasa Cleaning Service Wilayah 2 PT BPD Kaltim Kaltara",
     "url": "https://www.bankaltimtara.co.id/id/pengumuman/pengumuman-pemenang-tender-penyedia-jasa-tenaga-kerja-alih-daya-jasa-cleaning-service-wilayah-2-pt-bpd-kaltim-kaltara"
   },
+  "1da373bcb97ae34652ab9108528d39f9660f6dd5e8e976ef6f3ef945908c9fff": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemenang Pengadaan Nutanix Database Service",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemenang-pengadaan-nutanix-database-service"
+  },
+  "1e141b76cf3ef22f9d7419c6f8d9010a7af44429471301dfb7d2a5b2aaa32dee": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Penambahan Lisensi dan Jasa Maintenance Kaseya Enspoint Management",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-penambahan-lisensi-dan-jasa-maintenance-kaseya-enspoint-management"
+  },
+  "2135ba839b5ca6f6f40120b877a4b1839b41e65beaba2c244220a429baf66333": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "(PASCAKUALIFIKASI) PENGADAAN VIRTUALISASI SERVER MENGGUNAKAN TEKNOLOGI HYPERCONVERGED",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pascakualifikasi-pengadaan-virtualisasi-server-menggunakan-teknologi-hyperconverged"
+  },
+  "21ccc3a30b4cba5daff2e4a8d68be9c648da09cdad4ffd68eaee4780d7513981": {
+    "bank": "Bank Maluku Malut",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-05",
+    "title": "PENGUMUMAN PELELANGAN PENGADAAN BARANG DAN/ATAU JASA PIHAK PENYEDIA JASA TEKNOLOGI INFORMASI (PPJT...",
+    "url": "https://www.bankmalukumalut.co.id/informasitender"
+  },
+  "278fdfef424df7a1d1d65b37b43abf4efbd9a6c8641322b11227fc07522b09ee": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Pengadaan Implementasi Platform Machine Learning Berbasis Artficial Intelligence (AI)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-pengadaan-implementasi-platform-machine-learning-berbasis-artficial-int"
+  },
+  "27e25226d2f5a6557a72f8cf3c98287b6a510714c02703d2b06fff4ffe90965a": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemenang Pengadaan Renewal Subscrption Lisensi dan Jasa Maintenance Outsystem",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemenang-pengadaan-renewal-subscrption-lisensi-dan-jasa-maintenance-outsystem"
+  },
   "29ee277867c658b4f9e3ffb0237f187c7dc61afaf8d643459b6fbc93347e2c22": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
     "published": "2026-10-22",
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Driver Bank Papua KC TImika",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-driver-bank-papua-kc-timika-1958"
+  },
+  "2b14a96c0d642b89c58ec13f9cf6b2ab5dca99cdbd038c84062437798c703dc6": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan Server Baremetal",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-server-baremetal"
+  },
+  "2b215e6a45287c3a985d6e10e1fb46331da77217e26cd31582c04d2c33e1b298": {
+    "bank": "Bank Nagari",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-28",
+    "title": "Lelang Pascakualifikasi Sederhana Pengadaan Oracle Database 28 September 2026 download",
+    "url": "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
   },
   "2ce79b1e040045d52bac6d99be455e0a1621b2665e250913f747dcfd002c40b4": {
     "bank": "Bankaltimtara",
@@ -55,6 +160,13 @@
     "title": "Pengumuman Pemenang Tender Penyedia Jasa Tenaga Kerja Alih Daya Jasa Cleaning Service Wilayah 3 PT BPD Kaltim Kaltara",
     "url": "https://www.bankaltimtara.co.id/id/pengumuman/pengumuman-pemenang-tender-penyedia-jasa-tenaga-kerja-alih-daya-jasa-cleaning-service-wilayah-3-pt-bpd-kaltim-kaltara"
   },
+  "2dacdd13514e874c2b8da259e755409fe06a03e3b985d81c47eb4db237361eca": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender Pascakualifikasi Red Hat Enterprise Linux (RHEL) Virtual Data Center (VDC)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-red-hat-enterprise-linux-rhel-virtual-data-center-vdc"
+  },
   "303805badebafa4882cf7a4ee89d9ce2f91000c4410ee91dec5e2fb879387415": {
     "bank": "Bank Sumut",
     "first_seen": "2026-11-20",
@@ -62,12 +174,89 @@
     "title": "Pengadaan Jasa Sentralisasi Kas Bank Sumut Wilayah Nias Kepada Perusahaan Pihak Ketiga (Pelelangan Umum Pascakualifikasi)",
     "url": "https://www.banksumut.co.id/jasa_barang/pengadaan-jasa-sentralisasi-kas-bank-sumut-wilayah-nias-kepada-perusahaan-pihak-ketiga/"
   },
+  "31706c64f1aa69dba2277f0d45a0535059c8f84c20056904306fa2fba7a96b02": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-18",
+    "title": "IT Pengadaan Enterprise License Agreement (ELA) IBM (SOA, DATA, MDM) Thn 2026-2029 18 November 2026 25 November 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "318354a6037bbbafa1189d5456088c76733c7de3fd70dd08587a5b46f9130b2b": {
+    "bank": "Bank Indonesia",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-13",
+    "title": "Warranty, Subscription dan Pemeliharaan Server untuk Aplikasi BI Fast Payment",
+    "url": "https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/58215_58215_Warranty,%20Subscription%20dan%20Pemeliharaan%20Server%20untuk%20Aplikasi%20BI%20Fast%20Payment.aspx"
+  },
   "33251fbc631a46a8c0e15bfeac7136eca1ff84b14bc950d24252ee5ff9fb9cc0": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
     "published": "2026-11-03",
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KCU Sorong",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-keamanan-security-bank-papua-kcu-sorong-1970"
+  },
+  "336c78ac911157b2526c8374eacd0da2553387677714779124f6e540c28d9e7e": {
+    "bank": "BPD Bali",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-09",
+    "title": "Pengumuman Pemenang Tender Pengadaan Renewal License, Maintenance & Hardware Support Nutanix Cloud Infrastructure (NCI) Ultimate Software pada Infrastruktur Hyper Converged Infrastructure (HCI) Nutanix Cluster Critical DC Baturiti Site Bank BPD Bali",
+    "url": "https://www.bpdbali.co.id/pengumuman/read/462"
+  },
+  "36414a5bc1957147484c2dd9afdb3c520f994a8908f332a7e69ac9e1abaf5980": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Application Programming Interface (API) Management Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-application-programming-interface-api-management-bank-j"
+  },
+  "370b9964290c1f391b9315d10f69e2117118fbcf52586a5d92fc5d75342ec524": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan Kompartemen Data Center",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-kompartemen-data-center"
+  },
+  "3b72fac35ea6cf436b3d773c3748c8a5664004edafbc3ad0285b2257e6164ea6": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Aplikasi Endpoint Management",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-aplikasi-endpoint-management"
+  },
+  "426659baf706f3dec5888c8b3ccf06832f1e9d87b5ba9abfc8992176be820e55": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Server Baremetal Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-server-baremetal-bank-jatim"
+  },
+  "42f786e1264bad8f12885e03141dae5b7fdfba2536d122f6051b3a0005f7e664": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Gagal Pengadaan Aplikasi Jatim Inventory Management System (J-IMS)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-gagal-pengadaan-aplikasi-jatim-inventory-management-system-j-ims"
+  },
+  "4505c7b4688886d3a88a945c2e2990c393799e30b3bf8679a18118518cc64a05": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemenang Pengadaan Upgrade next Generation Firewall",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemenang-pengadaan-upgrade-next-generation-firewall"
+  },
+  "488a04484fb2e319e398f4582588747d90366601b1c325e6124d5896a4ead41a": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Akhir Pengadaan Implementasi Aplikasi Fraud Detection System (FDS) Real Time",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-akhir-pengadaan-implementasi-aplikasi-fraud-detection-system-fds-real-t"
+  },
+  "4976bdb78997ed2fd33f4856e55a3b808de53fc5cfa04578cfefd2206f7c4b66": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pascakualifikasi Pengadaan Penambahan Lisensi Dan Jasa Maintenance Kaseya Endpoint Management",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pascakualifikasi-pengadaan-penambahan-lisensi-dan-jasa-maintenance-kaseya-endpoint-management"
   },
   "4ab3eb8b96b79cc751b77efd888d860a530bbec4e194de37e64a93abe5bbe492": {
     "bank": "Bank Papua",
@@ -83,6 +272,41 @@
     "title": "Pekerjaan Pengadaan Sewa Beli Mesin Smart Electronic Data Capture (Smart EDC) PT Bank Sumut (Pers...",
     "url": "https://www.banksumut.co.id/jasa_barang/pekerjaan-pengadaan-sewa-beli-mesin-smart-electronic-data-capture-smart-edc-pt-bank-sumut-perseroda/"
   },
+  "4d91c04e2d893684bb1cc60bcbf84aa8ae4da902f8ebcdce1cbc0c1bd8c1c95d": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-24",
+    "title": "IT Pengadaan Server Berbasis ARM pada Data Center BNI 24 November 2026 25 November 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "4e6c4bbc9234356e20c44dcc6efff602c9f585c826533e9126038c61fcd69caa": {
+    "bank": "Bank Kalsel",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pelaksana Pengadaan Lisensi Firewall Checkpoint Front End 2026",
+    "url": "https://www.bankkalsel.co.id/informasi/detail/12?cat=12"
+  },
+  "4f39ec3a1246d6a4cc06a600486ca3e2fa1fd67659640ec9fa3e752dc487e027": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Virtualoisasi Server Teknologi Hyperconverged",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengadaan-virtualoisasi-server-teknologi-hyperconverged"
+  },
+  "510b6aa42512a230117f13e7275179594f67c7e1676f7f7578485c19c4124273": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Market Sounding Pengadaan Aplikasi System Tresuri",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/market-sounding-pengadaan-aplikasi-system-tresuri"
+  },
+  "58fb4964773347f120697c7a88bd0cc5d10fefedd7fba1b473153ab8a4bbf8d2": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender (Pascakualifikasi) Pengadaan Aplikasi Monitoring ATM",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-pengadaan-aplikasi-monitoring-atm"
+  },
   "597664d31a6084b090eb81e61a87600f9af6a1b16688f1eb1e99f519eaeb5f18": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
@@ -90,12 +314,138 @@
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Cleaning Services Bank Papua KC Timika",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-cleaning-services-bank-papua-kc-timika-1952"
   },
+  "5ac3832c6e907a591ea5597d0718792b9e61cf31807227ac96d346e41f02564f": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Log Management System",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengadaan-log-management-system"
+  },
+  "5c12cba1810aebc85dcc67ac54abde003c5db77f4cf552b83171a9ff72cd65d7": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Renewal Lisensi Kaseya Endpoint Management",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengadaan-renewal-lisensi-kaseya-endpoint-management"
+  },
+  "5e848f6a717b9b0d4f7afc95e8cd5f13bc466ffc491feb070d335a6e2aa91f27": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Perpanjangan Subscription Lisensi Dan Jasa Maintenance Outsystem PT Bank Pembangunan Daerah Jawa Timur Tbk",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-perpanjangan-subscription-lisensi-dan-jasa-maintenance"
+  },
+  "5fe849ea386d6b832c2afbc2acbc2f4da59f64e8b88c098adf43b7a12b303246": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pascakualifikasi Tender Pengadaan Kompartemen Data Center",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pascakualifikasi-tender-pengadaan-kompartemen-data-center"
+  },
+  "617bb44bade77fe6beaaad39739a30e44f491a02f2f85265bce207c14012bc44": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan Imlementasi Aplikasi Fraud Detection System (FDS) Real Time",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-imlementasi-aplikasi-fraud-detection-system-fds-real-time"
+  },
+  "65cc2db2bba23956aca329b982621ae0a88fbffe8a4bed69086944c99f017052": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Market Sounding Pengadaan Aplikasi E-Tickting dan Problem Solving",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/market-sounding-pengadaan-aplikasi-e-tickting-dan-problem-solving"
+  },
+  "66d10bd25efc9488f1b2b2d4d71d71a6f026058a0fbc614ceb873b65ae25e9cb": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Hasil Rekapitulasi Evaluasi Dokumen Penawaran Pengadaan Network Monitoring System (NMS)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-hasil-rekapitulasi-evaluasi-dokumen-penawaran-pengadaan-network-monitoring-system-nms"
+  },
+  "66e86dd600e6b1e5a9bbfc25d0b2856c8bbcf6d7df1281c600648a19437fd830": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pascakualifikasi Pengadaan Server Baremetal",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pascakualifikasi-pengadaan-server-baremetal"
+  },
+  "68524d83e97bb82d5e3dcdfe88d2e1837b96a76392cf132bb5f0758ad908ce01": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan Ulang Upgrade Mail Server",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-ulang-upgrade-mail-server"
+  },
   "68b17ff8e7f81cd3725e9322483cc6ec8db45b68d35b7c93b9afc7df830d009f": {
     "bank": "BTN",
     "first_seen": "2026-11-20",
     "published": "2026-11-20",
     "title": "Pengadaan Jasa Pemenuhan Tenaga Alih Daya (TAD) Superbuddy Tahun 2026-2027",
     "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "69f5faa3b07efa86c8ae82224e09b980d60f63809a85f0c5c97fb4459c96760a": {
+    "bank": "Bank Indonesia",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-04",
+    "title": "Penyediaan Perpanjangan ATS dan Pemeliharaan Software",
+    "url": "https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/57937_57937_Penyediaan%20Perpanjangan%20ATS%20dan%20Pemeliharaan%20Software.aspx"
+  },
+  "6a4f666016506345c3aca0ddc9411da17638cde4d9ee139d1840a0e8f7319d3b": {
+    "bank": "Bank Nagari",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-23",
+    "title": "Pengadaan Sarana Kerja Hardware Komputer Inventaris PT Bank Nagari 23 November 2026 download",
+    "url": "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
+  },
+  "6a6483bb3e50bbaaac8cd6f5f0939c784d90166302c1de57124115659bd635aa": {
+    "bank": "Bank Indonesia",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-30",
+    "title": "Pengadaan Perpanjangan Lisensi dan Pemeliharaan Software Dataiku untuk Data Analytics Tahun 2027 - 2030",
+    "url": "https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/Pengadaan-Perpanjangan-Lisensi-dan-Pemeliharaan-Software-Dataiku-untuk-Data-Analytics-Tahun-2027-2030.aspx"
+  },
+  "6ab4542f6d77b63762e090b2d0dc955b67500051a93d8aa5dc2123d7e096ce31": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender Pascakualifikasi Upgrade Next Generation Firewall",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-upgrade-next-generation-firewall"
+  },
+  "6b28da25efb285d591b0f9f81ca2edc350949a61dfd3373f6ab717e8f2f37d17": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan 1 (satu) Unit Server Baremetal DataWarehouse Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-1-satu-unit-server-baremetal-datawarehouse-bank-jatim"
+  },
+  "6c2a36ea7d7f463240627c450711668027db7c7317150b7bf69e3317420ad8f3": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-21",
+    "title": "IT Pengadaan Jasa Expertise Hire Core Banking untuk Project Avatar 21 Oktober 2026 23 Oktober 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "6c5ed5a1df770969ac24d73b44b5c3c38fcafe8fb96ebde148f377b9404e47a6": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender Pascakualifikasi Pengadaan Log Management System",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-pengadaan-log-management-system"
+  },
+  "6cef9f2c7d3578ec5e7ae0d02e935a03edae264fb809f20963a3bc7856977461": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan Upgrade Next Generation Firewall",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-upgrade-next-generation-firewall"
+  },
+  "6da6c64a3d3ee2ea7fc1ed15bb473b7b7a76d53e393f971829266390100020b0": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Ulang Administrasi untuk Pengadaan Implementasi Platform Machine Learning berbasis AI",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-ulang-administrasi"
   },
   "6e291ce34be93ececee0a538b494cf97ee4f3e9b70c2a9bcccb7bcfa82f263b9": {
     "bank": "Bank Papua",
@@ -110,6 +460,41 @@
     "published": "2026-11-06",
     "title": "06 November 2026 Hasil Koreksi Aritmatik Lelang Pekerjaan Pengadaan Outsourcing Jasa Driver Bank Papua KC TImika",
     "url": "https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33"
+  },
+  "79008ad209fe2064e9ad2eeef4842dbeeddae9f2986518fa6821fa0986521fa8": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Pengadaan Aplikasi Jatim Inventory Management System",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-pengadaan-aplikasi-jatim-inventory-management-system"
+  },
+  "7a7112d8f56eef2de009bd0b740c89f62aae86340d86931e445eea0759ffc926": {
+    "bank": "Bank Sulselbar",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-14",
+    "title": "Pengadaan Renewal Lisensi Internet Content Adaptive Protocol (ICAP) PT. Bank Sulselbar",
+    "url": "https://eproc.banksulselbar.co.id/pengumuman/tender/pengadaan-renewal-lisensi-internet-content-adaptive-protocol-icap-pt-bank-sulselbar/ZB73KMpLyKxWnYk3gO_0pmIvZG9kYWowcjF2UnUzWDNVa0I1elE9PQ?tab=detail"
+  },
+  "7eb7c4d30cfc5997d81131f0954f17495a1843d677e40c6b5aa6c32d4067a1f6": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Server IBM iSERIES Untuk Core Banking System PT Bank Pembangunan Daerah Jawa Timur Tbk",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-server-ibm-iseries-untuk-core-banking-system-pt-bank-pe"
+  },
+  "81f50887b6404f681fe3702ffd60f8417b2a0518c3764347cd67185c9045310d": {
+    "bank": "INAPROC",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-02",
+    "title": "Pengumuman Market Sounding Pengadaan Pra DIPA 2027 Paket Pekerjaan Pemeliharaan Aplikasi Layanan Infrastruktur Digital Kementerian Komunikasi dan Digital",
+    "url": "https://bantuan.inaproc.id/hc/id-id/articles/18219333456015-Pengumuman-Market-Sounding-Pengadaan-Pra-DIPA-2027-Paket-Pekerjaan-Pemeliharaan-Aplikasi-Layanan-Infrastruktur-Digital-Kementerian-Komunikasi-dan-Digital"
+  },
+  "83d694e831c3c1aba47cae77e27e02463a10a1d41713f0478ebd50dc455b3168": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Rekapitulasi Evaluasi Dokumen Penawaran Pengadaan 3 Server Baremetal Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-rekapitulasi-evaluasi-dokumen-penawaran-pengadaan-3-server-baremetal-bank-jatim"
   },
   "83ed114b188e3584c31f4fa534ed4b1cd39e5a39452a690f6ac1fe6d911e7926": {
     "bank": "Bank Papua",
@@ -132,12 +517,82 @@
     "title": "PENGUMUMAN PEMENANG PENGADAAN JASA OUTSOURCING CLEANING SERVICE, PRAMUBAKTI DAN TEKNISI BANK LAMPUNG",
     "url": "https://www.banklampung.co.id/artikel/pengumuman"
   },
+  "889cf31293eda0af5a6c518e25be625212f157c115887264e55215cae47cdd33": {
+    "bank": "BTN",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-11",
+    "title": "Pengadaan Alternatif Layanan E-KYC Digital Verification",
+    "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "898a74a92486d61b639764214882d409002741eab337e41129c0749e3745f320": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Pengadaan Aplikasi Endpoint Management",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-pengadaan-aplikasi-endpoint-management"
+  },
+  "8b5fc46cceffab51fc3b00181cc0eceff3a18db397c1b9b6e79c65f48dcd6f69": {
+    "bank": "BPD Bali",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-11",
+    "title": "Pengumuman Tender Dengan Pascakualifikasi Untuk Pengadaan Renewal License Maintenance Support Replikasi DB2 For 1 MIMIX Server IBM Power system 9 Bank BPD Bali",
+    "url": "https://www.bpdbali.co.id/pengumuman/read/463"
+  },
+  "9101493965768d63b58fae2867e4ba57b0c8e573f6a4061b95688b2aa6924374": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Implementasi Platform Machine Learning Berbasis Artificial Intelligence (AI)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-implementasi-platform-machine-learning-berbasis-artific"
+  },
+  "93219b8ebc59512f35b455f48a46595078d3b4396c5b2d3a3b1408e7692354f6": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan Implementasi Platform Machine Learning Berbasis Artificial Intelligence (AI)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-implementasi-platform-machine-learning-berbasis-artificial-intelligenc"
+  },
+  "9451c065b65997b66db3cc067c30b8492d7a11ed73c0977ecc222b9a67c66ef0": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-16",
+    "title": "Pengumuman Tender Pengadaan 1 (SATU) Unit Server Baremetal Data Warehouse Bank Pembangunan Daerah Jawa Timur",
+    "url": "https://eprocurement.bankjatim.co.id/main/index/beritad/?id=19"
+  },
+  "9465468ad0a3704b427b2558f7f15dcd7e32853bcaab21c64ac701423e1710a7": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan Infastructure WiFi 6 & Network Access Control PT Bank Pembangunan Daerah Jawa Timur Tbk",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-infastructure-wifi-6-network-access-control-pt-bank-pembangunan-daerah-jawa"
+  },
   "94c1fe3c95bdbece770f9108d9041bfeec3ff430f9f4f662bea69a6b1e59dbea": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
     "published": "2026-11-03",
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Waisai",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-keamanan-security-bank-papua-kc-waisai-1969"
+  },
+  "9506c3ab52627891c78534166ad4cd374a6209910cab961cd60f647568777835": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Aplikasi Monitoring ATM",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengadaan-aplikasi-monitoring-atm"
+  },
+  "952626158b68d968371324e56c3e8c910a0f45aa4f318cd710d6d10d21fd4c38": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender Pascakualifikasi Renewal Subscription License dan Outsystem Maintenance Services",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-renewal-subscription-license-dan-outsystem-maintenance-services"
+  },
+  "9738625e2b985bde7b79626a9671263a69f9892728b5137482d07802c00283c0": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-04",
+    "title": "IT Pengadaan Perangkat Server AI Accelarator pada Data Center BNI 04 September 2026 08 September 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
   },
   "98748a8040e15003649ab9d4b2c6a4402cab4a877b179b5f481f6a34f6c8b483": {
     "bank": "BSI",
@@ -146,12 +601,103 @@
     "title": "Pengadaan “Penyedia Jasa Tenaga Alih Daya (PPJ TAD) Tahun 2027\"",
     "url": "https://www.bankbsi.co.id/news-update/info-nasabah/pengadaan-penyedia-jasa-tenaga-alih-daya-ppj-tad-tahun-2027"
   },
+  "9d5b880a6c4e0fa7bc269f8e9504e0f148d0a419bcb7d37f4fea0a023bd96904": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Peremajaan Server DB Internet Banking & Perpanjangan ATS Oracle Internet Banking PT Bank Pembangunan Daerah Jawa Timur Tbk.",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-peremajaan-server-db-internet-banking-perpanjangan-ats"
+  },
+  "a0ea5177f1a7930bc6e64cb9063bce4fe783279e1ae21ed2e2a2af318782a84b": {
+    "bank": "BTN",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-06",
+    "title": "Pengadaan Perangkat PC & Laptop TKDN Kebutuhan SMBCI Project Alpa",
+    "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "a12b031f9fb207b3bd61708f855021651b89dd135578f4fcf099938682743173": {
+    "bank": "BPD Bali",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-11",
+    "title": "Pengumuman Tender Dengan Pascakualifikasi Untuk Pengadaan License MIMIX Temporary dan Transfer License MIMIX Bank BPD Bali",
+    "url": "https://www.bpdbali.co.id/pengumuman/read/464"
+  },
+  "a205863d54556cd03131e40423694cb15f4130301607b361552bd118bbeef3d1": {
+    "bank": "BTN",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-26",
+    "title": "Pengadaan Secure Socket Layer (SSL) Automation",
+    "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "a2bf508355d76fbfe35cbc80e2ae490ca2bd8788225e94f19d9266eb09d07587": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-24",
+    "title": "IT Pengadaan Penambahan License IT Automation Tool 24 September 2026 28 September 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "a3b196c96d983b6e7943584bec7174799fed4e92a97b0645a620dd593cd87db6": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-23",
+    "title": "IT Pengadaan Perangkat Network untuk Peningkatan Kapasitas Production, DMZ 23 November 2026 26 November 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "a53c3e06341bbb0f55e3941c771b5da63b1e4367887776cc608957012c940b3b": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Implementasi Aplikasi Fraud Detection System (FDS) Real Time",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-implementasi-aplikasi-fraud-detection-system-fds-real-t"
+  },
+  "a55a0f2c493adb1b0ff58301c9da11249042670a3206afbe6ae427b35f869bfa": {
+    "bank": "BTN",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-29",
+    "title": "Pengadaan Maintenance Server Fisik Berbasis Prosesor Intel",
+    "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "a82847b3b60c06ceb6b9361b637e3c470d8dcc887634cb6b7bf652b4d78b1303": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan Renewal Subscrption Lisensi dan Jasa Maintenance Outsystem",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-renewal-subscrption-lisensi-dan-jasa-maintenance-outsystem"
+  },
+  "a95f2c45555b587e1fe9b69195fb1cfd9da44646162e545d127743542ab646a4": {
+    "bank": "Bank Sultra",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Perpanjangan Lisensi dan Garansi Perangkat HCI Nutanix Data Center dan Disaster Recovery Center BPD Sultra",
+    "url": "https://e-tender.banksultra.co.id/tender/detail/MTk="
+  },
+  "aa2132d10be41694f705192f84aefce44b6271e3e6146d72fb3fce8b6d97b508": {
+    "bank": "Bank Indonesia",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-11",
+    "title": "Pengadaan Penyediaan dan Pemeliharaan Security Analytics di Bank Indonesia Tahun",
+    "url": "https://www.bi.go.id/id/layanan/lelang-jasa-barang/announcement/Pages/57612_57612_Pengadaan%20Penyediaan%20dan%20Pemeliharaan%20Security%20Analytics%20di%20Bank%20Indonesia%20Tahun.aspx"
+  },
   "aae9bfa0ff3a2680ca421e06068519335cc90c1abf1a6b63d22bc6d75d52b6f1": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
     "published": "2026-10-30",
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Waren",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-keamanan-security-bank-papua-kc-waren-1964"
+  },
+  "ae2a59a4db59e5d693b81994b5b767180be020fc6dd86050a422371a9c0fa864": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Tender Pascakualifikasi Aplikasi Digital Banking",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/tender-pascakualifikasi-aplikasi-digital-banking"
+  },
+  "af54d8c50e9dace4165684b28f1ac3c09a1d6a11fff15a81c6fddc635b3da87e": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Gagal Pengadaan Upgrade Mail Server",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-gagal-pengadaan-upgrade-mail-server"
   },
   "b0e165d9f1e884a783de73fe234300e2d032dc7bcd7479b1c731da815c6e3b33": {
     "bank": "Bank Papua",
@@ -160,12 +706,40 @@
     "title": "Pemenang Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Bintuni",
     "url": "https://bankpapua.co.id/home/index/detail/pemenang-lelang-pekerjaan-pengadaan-outsourcing-jasa-keamanan-security-bank-papua-kc-bintuni-1961"
   },
+  "b2538f01153514beea88749479ce805ee73cdabbe28970d9ee9ded52a116c867": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Evaluasi Pengadaan IBM iSeries untuk Core Banking System",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-evaluasi-pengadaan-ibm-iseries-untuk-core-banking-system"
+  },
   "b6391f91ffb660603ced29e5c394a06a165c7d6b2cd9a15e678ac18c8794f8e3": {
     "bank": "Bankaltimtara",
     "first_seen": "2026-11-10",
     "published": "2026-09-21",
     "title": "Pengumuman Tender Pengadaan Penyedia Jasa Tenaga Kerja Alih Daya Jasa Cleaning Service Wilayah 1 PT BPD Kaltim Kaltara 21 September 2026 Lampiran",
     "url": "https://www.bankaltimtara.co.id/id/pengumuman/pengumuman-tender-pengadaan-penyedia-jasa-tenaga-kerja-alih-daya-jasa-cleaning-service-wilayah-1-pt-bpd-kaltim-kaltara"
+  },
+  "b7d51b727363c075ebbe5a0add547c93c40af3a29875f277c79fe64ef239c122": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan Server Baremetal Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-server-baremetal-bank-jatim"
+  },
+  "b87cc19591ff6d5036f50097286fd1f57d4b202ab56693bbd645b71f3e627499": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Ulang Pascakualifikasi Pengadaan Aplikasi Jatim Inventory Management System",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-ulang-pascakualifikasi-pengadaan-aplikasi-jatim-inventory-management-system"
+  },
+  "b9c5b9368bb561d8d88d4448228484e520b2cd9a4fff40858faa60a43366f022": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-13",
+    "title": "IT Pengadaan Unlimited License Agreement (ULA) Oracle tahun 2026 - 2029 13 Oktober 2026 16 Oktober 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
   },
   "bd30d4a7f6e28a9e0db8ac138cbf5ff1441e507e77a90d92d8fd03f6a215caaf": {
     "bank": "Bank Papua",
@@ -181,6 +755,13 @@
     "title": "Pengadaan Perusahaan Penyedia Jasa Tenaga Alih Daya (TAD) Consumer Loan Marketing (CLM) dan Collection Kring Pensiunan",
     "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
   },
+  "c3ee962f9cfaa561f8a8eb759ea60e45b31bcbf96af6c27577e7e346f2aa8cd2": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Pemenang Pengadaan Aplikasi Digital Banking Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-pemenang-pengadaan-aplikasi-digital-banking-bank-jatim"
+  },
   "c93bb7409da642c448735131b596e267f2f6886dcf7e206ad33c5ad4ca0d2698": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-10",
@@ -188,12 +769,40 @@
     "title": "Lelang Pekerjaan Pengadaan Outsourcing Jasa Driver Bank Papua KCU Merauke",
     "url": "https://bankpapua.co.id/home/index/detail/lelang-pekerjaan-pengadaan-outsourcing-jasa-driver-bank-papua-kcu-merauke-1965"
   },
+  "cea5f532bae5b2c081eb1662caf1dd2597139b110849c535112119419a7f78ce": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-07",
+    "title": "IT Pengadaan Perangkat Storage untuk System Core dan Surrounding pd DC BNI 07 September 2026 10 September 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "cf11f06f57a492d5a2d8d04b605e1d23dea74d3ef07a71c696581ea40f9f84fc": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemenang Pengadaan Network Monitoring System (NMS) Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemenang-pengadaan-network-monitoring-system-nms-bank-jatim"
+  },
   "cf9c5a9f65b4a32be15651cbf2bc71e449ccdaf25dba939eb883d5b8eb5416d2": {
     "bank": "Bank Indonesia",
     "first_seen": "2026-11-25",
     "published": "2026-11-19",
     "title": "Jasa Tenaga Kerja Bongkar Muat Barang Perkasan HCTS dan Arsip",
     "url": "https://www.bi.go.id/id/layanan/lelang-jasa-barang/default.aspx"
+  },
+  "d667dd8ac1acd969a33ec5d50efcc2f38c4b2846e9101065ee93029bf55e93be": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Jasa Konsultan Penetration Testing Tahun 2026",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-jasa-konsultan-penetration-testing-tahun-2026"
+  },
+  "d7a30f0863af0c2365e4f621fe1f67270419b2f387fd7a49f539c3e74c85a0f8": {
+    "bank": "Bank Sultra",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengadaan Server Data Center (DC) dan Disaster Recovery Center (DRC)",
+    "url": "https://e-tender.banksultra.co.id/tender/detail/Mw=="
   },
   "d984738f89e2105ba4d5b65cf61b595a2f9e9e5077a867de72e3f8ce8b09c7c7": {
     "bank": "BTN",
@@ -223,12 +832,47 @@
     "title": "30 Oktober 2026 Lelang Pekerjaan Pengadaan Outsourcing Jasa Driver Bank Papua KCU Merauke",
     "url": "https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33"
   },
+  "ddc96d8d8e99249e817759325cc57771311a73d778f2d707cdc67ac0e20e87ae": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Hasil Rekapitulasi Evaluasi Dokumen Penawaran Pengadaan Ulang Upgrade Mail Server",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-hasil-rekapitulasi-evaluasi-dokumen-penawaran-pengadaan-ulang-upgrade-mail-server"
+  },
+  "de7a28ca94296c8e45d50d51e51bd75c7aa1e0510f02786ca6e5c9dbb0e9720e": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Evaluasi Pengadaan Aplikasi Digital Banking",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-evaluasi-pengadaan-aplikasi-digital-banking"
+  },
   "e22a1e06531ec0ac7c7fcef3d93321e5928aecb51b3cb37144db00d9787bb814": {
     "bank": "Bank Papua",
     "first_seen": "2026-11-16",
     "published": "2026-10-30",
     "title": "30 Oktober 2026 Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Waren",
     "url": "https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33"
+  },
+  "e44ff10dfa311494fc9bcf85e6175d11ec0b697183ebabd9ebd305ad7af71a19": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemberitahuan Hasil Rekapitulasi Evaluasi Dokumen Penawaran Pengadaan Server Baremetal Bank Jatim",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemberitahuan-hasil-rekapitulasi-evaluasi-dokumen-penawaran-pengadaan-server-baremetal-bank-jatim"
+  },
+  "e64980a7cb0f484a9e666f22c9180e664e3ef951f534bee50df4e372a3194b27": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Pengadaan Server Baremetal",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/winserverbaremetalprocurement"
+  },
+  "e6844a5befb4d3a12c3c7774d9ed6d189ac263295617a24df664a09b3da40130": {
+    "bank": "Bank Nagari",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-14",
+    "title": "Pengadaan Server dan Switch untuk Infrastruktur Virtualisasi PT Bank Nagari 14 Oktober 2026 download",
+    "url": "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
   },
   "e89e3272e84bdb121b74d1b23d6d400d728af2d8774529afaa618461988372b0": {
     "bank": "Bank Papua",
@@ -237,11 +881,123 @@
     "title": "03 November 2026 Lelang Pekerjaan Pengadaan Outsourcing Jasa Keamanan (Security) Bank Papua KC Waisai",
     "url": "https://bankpapua.co.id/home/index/berita/pengumuman-lelang-33"
   },
+  "e907c777af3aa2b57c9c3e2f6e8944c3beb0b5324a1fedaa798b5982a62030e5": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Rekapitulasi Evaluasi Dokumen Administrasi untuk Pengadaan Implementasi Platform Machine Learning berbasis Artificial Intelligence (AI)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-rekapitulasi-evaluasi-dokumen-administrasi-untuk-pengadaan-implementasi-platform-machine-learn"
+  },
+  "eb7d0495ddc419b0ab4c541d4e55f1653d7395d832a7b334f22fcb5fb2e16d1b": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Tiga Server Baremetal",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-tiga-server-baremetal"
+  },
+  "ec5a27f1f102fbbd5d2605016ae223c336514a334134370f55c6f066119900d1": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender (Pascakualifikasi) Pengadaan Aplikasi Digital Banking (One Platform) PT Bank Pembangunan Daerah Jawa Timur Tbk",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-aplikasi-digital-banking-one-platform-pt-bank-pembangun"
+  },
+  "ee32a9aa33edd7e57422b5d89b46ea3ceb423e45ae20ba37a05b60ff9db566b2": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pemenang Pengadaan Kompartemen Data Center",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pemenang-pengadaan-kompartemen-data-center"
+  },
+  "ee4d0e3c92275f0c4f6b922f42efc0ec524d2aa0f60ce0fe3ab733942484cf86": {
+    "bank": "INAPROC",
+    "first_seen": "2026-11-27",
+    "published": "2026-08-31",
+    "title": "Pengumuman Paket Mini Kompetisi Pengadaan Laptop Bagi Posyandu Kota Bekasi",
+    "url": "https://bantuan.inaproc.id/hc/id-id/articles/17434275812623-Pengumuman-Paket-Mini-Kompetisi-Pengadaan-Laptop-Bagi-Posyandu-Kota-Bekasi"
+  },
+  "ef6cc2af58dcde25b58788d35f2061ef1025c4fb8b23078394b388d3d7d96a41": {
+    "bank": "Bank NTB Syariah",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-09",
+    "title": "Pengumuman Pemenang Pengadaan Jasa Aplikasi PSAK 413",
+    "url": "https://www.bankntbsyariah.co.id/posts/pengumuman-pemenang-pengadaan-jasa-aplikasi-psak-413"
+  },
+  "f0743cbe9cafbe8667a0ba1134d230f38c12ccebc3ede47893e123115b797bce": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Rekapitulasi Evaluasi Dokumen Penawaran untuk Pengadaan Jasa Konsultan Penetration Testing 2026",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-rekapitulasi-evaluasi-dokumen-penawaran-untuk-pengadaan-jasa-konsultan-penetration-testing-202"
+  },
+  "f0e0cd1755d212568b1d11a5c5f9f784470345fb5ab31888edc1e6fd7a2e0dba": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-16",
+    "title": "Berikut Kami Sampaikan Tender Pengadaan 1 (SATU) Unit Server Baremetal Data Warehouse Bank Pembangunan Daerah Jawa Timur Sudah Dibuka, Perusahaan Yang Memenuhi Syarat Dipersilahkan Mendaftar Pengadaan Melalui Dokumen Yang Sudah Disediakan. Silahka...",
+    "url": "https://eprocurement.bankjatim.co.id/"
+  },
+  "f113faf94b187eb6157298cbbdac3aaa928037926cbaab3322bfc3401ab7f123": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Pascakualifikasi Pengadaan Peremajaan Network Monitoring System (NMS)",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-pascakualifikasi-pengadaan-peremajaan-network-monitoring-system-nms"
+  },
+  "f20d6e2c910eefa0aa8c42c80799ce38cfa147fb95246252cf6f4cd422cc65e7": {
+    "bank": "BTN",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-29",
+    "title": "Pengadaan Ulang Sertifikat Digital Secure Socket Layer (SSL)",
+    "url": "https://www.btn.co.id/en/Procurement/Procurement-List"
+  },
+  "f38c3c4a115f9283b4880a229f2cafd8bab08b46b794545ca87cd6ed8bebfd73": {
+    "bank": "Bank Maluku Malut",
+    "first_seen": "2026-11-27",
+    "published": "2026-10-23",
+    "title": "PENGUMUMAN PEMILIHAN LANGSUNG/SELEKSI LANGSUNG PENGADAAN BARANG DAN/ATAU JASA PENGEMBANGAN SOFTWARE...",
+    "url": "https://www.bankmalukumalut.co.id/informasitender"
+  },
+  "f51d019f966db0609902c1c20c71b68b8c4beb9df3041dfd63ac65ab2f64de71": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Hasil Pengadaan Upgrade Server Load Balancer",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/hasil-pengadaan-upgrade-server-load-balancer"
+  },
+  "f56a8fbc05c8973267cb75c18da21b5dc51bbf49eadc46ed988bfbb9c1ae870d": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "Pengumuman Tender Paskakualifikasi Pengadaan Ulang Upgrade Mail Server",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-paskakualifikasi-pengadaan-ulang-upgrade-mail-server"
+  },
   "f6f78eeb850c40c25b6e9c88705500c19d72af6c0a787103d4b463b5932d2f14": {
     "bank": "Bank Nagari",
     "first_seen": "2026-11-10",
     "published": "2026-09-21",
     "title": "Pengadaan Penyedia Jasa Tenaga Alih Daya Marketing PT Bank Nagari Tahun 2026 21 September 2026 download",
+    "url": "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
+  },
+  "f793fb6455a25f7dd43bd0e4ba36e1ee2890cc8ad73a3a376eb320c39d4192a4": {
+    "bank": "BNI",
+    "first_seen": "2026-11-27",
+    "published": "2026-09-15",
+    "title": "IT Pengadaan Perangkat SAN Switch pada Data Center BNI 15 September 2026 18 September 2026 CLOSED",
+    "url": "https://tenderannouncement.bni.co.id/"
+  },
+  "fa9b1a11019bc048eea87afcd160df04dfe18c65f61508969426f310a09034d7": {
+    "bank": "Bank Jatim",
+    "first_seen": "2026-11-27",
+    "published": null,
+    "title": "PENGUMUMAN TENDER ULANG (PASCAKUALIFIKASI) PENGADAAN APLIKASI MONITORING ATM PT BANK PEMBANGUNAN DAERAH JAWA TIMUR Tbk",
+    "url": "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan/pengumuman-tender-ulang-pascakualifikasi-pengadaan-aplikasi-monitoring-atm-pt-bank-pembangunan-daera"
+  },
+  "ffa8e1353b876302edc11d68ef90caa122f67aeb20bd1beeea8476c6be569971": {
+    "bank": "Bank Nagari",
+    "first_seen": "2026-11-27",
+    "published": "2026-11-02",
+    "title": "Pengadaan Sarana Kerja Hardware Komputer Inventaris PT Bank Nagari 02 November 2026 download",
     "url": "https://www.banknagari.co.id/lelang?page=iUREE%2FSGh92qayN32vA1Lw%3D%3D"
   }
 }
