@@ -5,7 +5,7 @@
     "last_ok": "2026-11-27"
   },
   "feed:https://investasi.kontan.co.id/rss": {
-    "consecutive_failures": 5,
+    "consecutive_failures": 6,
     "last_error": "2026-11-27: gagal",
     "last_ok": "2026-11-24"
   },
@@ -20,12 +20,12 @@
     "last_ok": "2026-11-27"
   },
   "feed:https://news.detik.com/rss": {
-    "consecutive_failures": 1,
-    "last_error": "2026-11-27: gagal",
-    "last_ok": "2026-11-26"
+    "consecutive_failures": 0,
+    "last_error": null,
+    "last_ok": "2026-11-27"
   },
   "feed:https://rss.tempo.co/": {
-    "consecutive_failures": 2,
+    "consecutive_failures": 3,
     "last_error": "2026-11-27: gagal",
     "last_ok": "2026-11-25"
   },
@@ -55,7 +55,7 @@
     "last_ok": "2026-11-27"
   },
   "gdelt": {
-    "consecutive_failures": 44,
+    "consecutive_failures": 45,
     "last_error": "2026-11-27: HTTP 429 (rate limited)",
     "last_ok": "2026-10-23"
   },
@@ -85,7 +85,7 @@
   "https://www.bankjatim.co.id/id/informasi/lelang-pengadaan": {
     "consecutive_failures": 0,
     "last_error": null,
-    "last_item_count": 378,
+    "last_item_count": 379,
     "last_ok": "2026-11-27"
   },
   "https://www.banksumut.co.id/archive-jasa-barang/": {
