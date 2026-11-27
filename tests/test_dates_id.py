@@ -99,3 +99,21 @@ def test_jadwal_format_lain_tetap():
     assert parse_date_range(
         "Kamis - Senin (19 November 2026 - 23 November 2026)") == (
         date(2026, 11, 19), date(2026, 11, 23))
+
+
+def test_rentang_tahun_pertama_dari_tanggal_kedua_pdf_185_dan_188():
+    pdf185 = ("Hari / Tanggal : Kamis - Senin / 29 Oktober - 2 November 2026 "
+              "Pukul : 08.00 WIB s.d. 16.00 WIB")
+    pdf188 = ("Hari/tanggal : Kamis s.d Senin (29 Oktober s.d 2 November 2026) "
+              "Pukul : 08.00 WIB s.d 16.00 WIB")
+    for teks in (pdf185, pdf188):
+        assert parse_date_range(teks) == (date(2026, 10, 29), date(2026, 11, 2))
+
+
+def test_rentang_tahun_pertama_mundur_dan_pemisah_lain():
+    assert parse_date_range("29 Desember s.d. 2 Januari 2027") == (
+        date(2026, 12, 29), date(2027, 1, 2))
+    assert parse_date_range("29 Oktober sampai 2 November 2026") == (
+        date(2026, 10, 29), date(2026, 11, 2))
+    assert parse_date_range("29 Oktober \u2013 2 November 2026") == (
+        date(2026, 10, 29), date(2026, 11, 2))

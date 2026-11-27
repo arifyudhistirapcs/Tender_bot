@@ -62,6 +62,13 @@ _RE_DAY_RANGE = re.compile(
     re.IGNORECASE,
 )
 
+# "29 Oktober - 2 November 2026": tanggal pertama tanpa tahun, kedua lengkap.
+_RE_MONTH_RANGE = re.compile(
+    rf"(?<![\d/-])(\d{{1,2}})\s+({_MONTH_ALT})\.?\s*(?:s\.?\s*/?\s*d\.?|sampai\s+dengan|sampai|hingga|[-\u2013\u2014])\s*"
+    rf"(\d{{1,2}})\s+({_MONTH_ALT})\.?\s+(\d{{2}}|\d{{4}})\b",
+    re.IGNORECASE,
+)
+
 # Daftar hari berkoma tepat sebelum rentang: "/20, " pada "Rabu/20, 23 s.d. 25 ...".
 _RE_DAY_LIST_BEFORE = re.compile(r"(?<!\d)(?<!\d/)(?<!\d-)((?:\d{1,2}\s*,\s*)+)$")
 
@@ -118,6 +125,16 @@ def parse_date_range(text: str) -> tuple[Optional[date], Optional[date]]:
         return (None, None)
     # Cari semua tanggal dulu; bila ada >=2 dan ada penanda rentang, ambil
     # dua tanggal pertama sebagai (mulai, selesai).
+    mr = _RE_MONTH_RANGE.search(text)
+    if mr:
+        m1 = _MONTHS.get(mr.group(2).lower().rstrip("."))
+        m2 = _MONTHS.get(mr.group(4).lower().rstrip("."))
+        y2 = _expand_year(mr.group(5))
+        if m1 and m2:
+            first = _mk_date(int(mr.group(1)), m1, y2 - 1 if m1 > m2 else y2)
+            second = _mk_date(int(mr.group(3)), m2, y2)
+            if first and second and first <= second:
+                return (first, second)
     dr = _RE_DAY_RANGE.search(text)
     if dr and not _RE_MONTH_BEFORE.search(text[: dr.start(1)]):
         month = _MONTHS.get(dr.group(3).lower().rstrip("."))
