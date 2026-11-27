@@ -62,6 +62,8 @@ def _print_report(report: RunReport) -> None:
         f"akan dibuka {report.upcoming_count})",
         file=sys.stderr,
     )
+    for note in report.notes:
+        print(f"  {note}", file=sys.stderr)
     if report.dropped:
         print(f"  dibuang (status): {len(report.dropped)}", file=sys.stderr)
         for bank, title, reason in report.dropped:

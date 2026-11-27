@@ -56,6 +56,7 @@ class RunReport:
     ongoing_count: int = 0   # jumlah tender berjalan di laporan
     upcoming_count: int = 0  # jumlah tender akan dibuka di laporan
     unknown_count: int = 0   # jumlah tender dengan tanggal tutup belum diketahui
+    notes: list[str] = field(default_factory=list)  # catatan run untuk report
 
 
 _COLLECTOR_BY_TYPE = {
@@ -65,6 +66,21 @@ _COLLECTOR_BY_TYPE = {
     "bi_tender": bi_tender.collect_bi_tender,
     "zendesk_section": zendesk_section.collect_zendesk_section,
 }
+
+
+# Anggaran waktu total pengayaan detail per run (detik). Lewat ini, item sisa
+# tidak diperkaya (tetap dilaporkan dengan field yang ada). Job CI dibatasi
+# 45 menit; tanpa anggaran ~134 item x ~15 detik > 30 menit.
+ENRICH_BUDGET_SECONDS = 360.0
+# Urutan prioritas pengayaan; kategori lain/None paling akhir.
+ENRICH_CATEGORY_PRIORITY = ("edc", "alih_data", "alih_daya", "aplikasi_it")
+
+
+def enrich_priority_order(items: list[Item]) -> list[Item]:
+    """Urutkan item: kategori sesuai prioritas, dalam kategori terbaru dulu."""
+    rank = {c: i for i, c in enumerate(ENRICH_CATEGORY_PRIORITY)}
+    by_date = sorted(items, key=lambda it: it.published or "", reverse=True)
+    return sorted(by_date, key=lambda it: rank.get(it.category or "", len(rank)))
 
 
 # Jeda sebelum mencoba ulang halaman yang tiba-tiba kosong (tes menolkannya).
@@ -318,6 +334,11 @@ def process_candidates(
     for candidate in candidates:
         titles_by_bank.setdefault(normalize_text(candidate.bank), []).append(candidate.title)
 
+    # Item baru-unik dikumpulkan dulu; pengayaan berjalan sesudah saringan
+    # (urutan prioritas + anggaran waktu), lalu keputusan status per item.
+    pending: list[Item] = []
+    to_enrich: list[Item] = []
+
     for item in candidates:
         # Cuplikan terpotong ("...") yang duplikat judul utuh item lain bank yang sama.
         if is_truncated_duplicate(item.title, titles_by_bank[normalize_text(item.bank)]):
@@ -356,15 +377,31 @@ def process_candidates(
 
         # Pengayaan detail jaringan (opsional; butuh jaringan).
         nurl = _norm_url(item.url)
+        pending.append(item)
         if enrich and fetcher is not None and item.enrich and nurl not in no_enrich_urls:
-            try:
-                enrich_item(item, fetcher,
-                            shared_list_page=url_counts.get(item.url, 0) > 1
-                            or nurl in source_urls,
-                            bank_names=names_by_bank.get(normalize_text(item.bank)))
-            except Exception:
-                pass  # kegagalan pengayaan tidak boleh menggagalkan run
+            to_enrich.append(item)
 
+    started = time.monotonic()
+    skipped = 0
+    for item in enrich_priority_order(to_enrich):
+        if time.monotonic() - started >= ENRICH_BUDGET_SECONDS:
+            skipped += 1
+            continue
+        nurl = _norm_url(item.url)
+        try:
+            enrich_item(item, fetcher,
+                        shared_list_page=url_counts.get(item.url, 0) > 1
+                        or nurl in source_urls,
+                        bank_names=names_by_bank.get(normalize_text(item.bank)))
+        except Exception:
+            pass  # kegagalan pengayaan tidak boleh menggagalkan run
+    if skipped:
+        report.notes.append(
+            f"Catatan: pengayaan detail dihentikan setelah {ENRICH_BUDGET_SECONDS:.0f} detik; "
+            f"{skipped} item tidak diperkaya."
+        )
+
+    for item in pending:
         # Status + keputusan laporan. Pengumuman hasil bank yang sama dengan
         # inti judul identik menutup tender asal, bukan hanya item hasilnya.
         result_cores = result_cores_by_bank.get(normalize_text(item.bank), set())
