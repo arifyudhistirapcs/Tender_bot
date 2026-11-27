@@ -98,7 +98,7 @@ def test_estimate_date_from_url_pola_bulan():
 
 
 def test_tidak_diketahui_dikirim_bila_posting_baru():
-    # Tidak ada tutup, tapi posting dalam 45 hari terakhir -> dikirim.
+    # Tidak ada tutup, tapi posting dalam 14 hari terakhir -> dikirim.
     it = _item(posted="2026-10-13")
     it.status = compute_status(it, date(2026, 10, 23))
     assert it.status == STATUS_UNKNOWN
@@ -107,8 +107,40 @@ def test_tidak_diketahui_dikirim_bila_posting_baru():
 
 
 def test_tidak_diketahui_dibuang_bila_posting_lama():
-    it = _item(posted="2026-08-01")  # > 45 hari sebelum 23 Okt
+    it = _item(posted="2026-08-01")  # > 14 hari sebelum 23 Okt
     it.status = compute_status(it, date(2026, 10, 23))
     send_ok, reason = report_decision(it, date(2026, 10, 23))
     assert not send_ok
     assert reason == "tanggal tidak diketahui dan sudah lama"
+
+
+def test_tanpa_tutup_diumumkan_13_hari_dikirim_15_hari_dibuang():
+    today = date(2026, 11, 27)
+    baru = _item(posted="2026-11-14")
+    baru.status = compute_status(baru, today)
+    assert report_decision(baru, today)[0]
+    lama = _item(posted="2026-11-12")
+    lama.status = compute_status(lama, today)
+    send_ok, reason = report_decision(lama, today)
+    assert not send_ok
+    assert reason == "tanggal tidak diketahui dan sudah lama"
+
+
+def test_tanggal_terlama_dipakai_bila_posted_lebih_baru_dari_published():
+    """Bank Jatim 27 Nov 2026: terbit 16 Okt, teks detail memuat 26 Nov."""
+    from datetime import date as _date
+
+    from tenderbot.models import Item as _Item
+    from tenderbot.status import report_decision as _report_decision
+
+    item = _Item(bank="Bank Jatim", title="Pengumuman Tender Server Baremetal",
+                 url="https://www.bankjatim.co.id/id/informasi/lelang-pengadaan",
+                 published="2026-10-16", source_type="portal")
+    item.posted = "2026-11-26"
+    keep, reason = _report_decision(item, _date(2026, 11, 27))
+    assert not keep and reason == "tanggal tidak diketahui dan sudah lama"
+
+    baru = _Item(bank="Bank Nagari", title="Pengadaan Hardware Komputer",
+                 url="https://www.banknagari.co.id/x", published="2026-11-23",
+                 source_type="portal")
+    assert _report_decision(baru, _date(2026, 11, 27))[0]

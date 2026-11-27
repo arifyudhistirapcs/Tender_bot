@@ -43,8 +43,8 @@ def test_urutan_prioritas_kategori_lalu_terbaru():
 
 def test_anggaran_habis_item_sisa_tidak_diperkaya_tetap_seen(tmp_path, monkeypatch):
     items = [_item(1, "aplikasi_it", "2026-11-20"),
-             _item(2, "edc", "2026-11-10"),
-             _item(3, "alih_daya", "2026-11-15")]
+             _item(2, "edc", "2026-11-18"),
+             _item(3, "alih_daya", "2026-11-20")]
     called = []
     clock = {"t": 0.0}
 
@@ -76,7 +76,7 @@ def test_anggaran_cukup_tanpa_catatan(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "enrich_item",
                         lambda item, fetcher, **kw: called.append(item.bank))
     report = RunReport(run_date="2026-11-26", mode="light")
-    process_candidates([_item(1, "edc", "2026-11-10")], KW, State.load(tmp_path), TODAY,
+    process_candidates([_item(1, "edc", "2026-11-18")], KW, State.load(tmp_path), TODAY,
                        "2026-11-26", report, fetcher=FakeFetcher({}))
     assert called == ["Bank 1"]
     assert report.notes == []

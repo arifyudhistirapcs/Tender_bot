@@ -45,7 +45,7 @@ def test_tanpa_padanan_atau_bukan_terpotong_tetap():
 
 def _it(title):
     return Item(bank="BPD Bali", title=title, url="https://www.bpdbali.co.id/pengumuman",
-                published="2026-11-11", source_type="portal")
+                published="2026-11-20", source_type="portal")
 
 
 def test_pipeline_catat_dropped_dan_kirim_sisanya(tmp_path):
@@ -69,7 +69,7 @@ def test_dua_tender_beda_di_halaman_daftar_sama_tetap_dikirim(tmp_path):
     ppjt = ("PENGUMUMAN PELELANGAN PENGADAAN BARANG DAN/ATAU JASA PIHAK PENYEDIA JASA "
             "TEKNOLOGI INFORMASI (PPJT...")
     items = [
-        Item(bank="Bank Maluku Malut", title=software, url=url, published="2026-10-23",
+        Item(bank="Bank Maluku Malut", title=software, url=url, published="2026-11-19",
              source_type="portal"),
         # Tanggal dibuat baru: tender tanpa tanggal tutup yang sudah lama
         # sengaja dibuang oleh aturan status, bukan bagian uji ini.
