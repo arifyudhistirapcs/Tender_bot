@@ -11,7 +11,7 @@ Status (relatif terhadap hari ini WIB):
 Aturan laporan (lihat brief enrich):
   - status "tutup" DIBUANG dari laporan tapi tetap ditandai seen;
   - status "tidak_diketahui" hanya dikirim bila tanggal posting (atau perkiraan
-    dari pola URL lampiran /YYYY/<bulan>/) berada dalam 45 hari terakhir;
+    dari pola URL lampiran /YYYY/<bulan>/) berada dalam 14 hari terakhir;
   - selain itu akan_dibuka dan berjalan selalu dikirim.
 """
 
@@ -24,7 +24,7 @@ from typing import Optional
 from .dates_id import _MONTHS
 from .models import Item, normalize_text, parse_iso_date, strip_title_date
 
-STALE_UNKNOWN_DAYS = 45
+STALE_UNKNOWN_DAYS = 14
 
 STATUS_UPCOMING = "akan_dibuka"
 STATUS_ONGOING = "berjalan"
@@ -157,7 +157,7 @@ def report_decision(item: Item, today: date) -> tuple[bool, str]:
     """(boleh_dikirim, alasan_bila_dibuang). Status harus sudah dihitung.
 
     - tutup -> dibuang ("sudah tutup").
-    - tidak_diketahui -> hanya bila posting/perkiraan dalam 45 hari terakhir,
+    - tidak_diketahui -> hanya bila posting/perkiraan dalam 14 hari terakhir,
       selain itu dibuang ("tanggal tidak diketahui dan sudah lama").
     - akan_dibuka / berjalan -> selalu dikirim.
     """

@@ -98,7 +98,7 @@ def test_estimate_date_from_url_pola_bulan():
 
 
 def test_tidak_diketahui_dikirim_bila_posting_baru():
-    # Tidak ada tutup, tapi posting dalam 45 hari terakhir -> dikirim.
+    # Tidak ada tutup, tapi posting dalam 14 hari terakhir -> dikirim.
     it = _item(posted="2026-10-13")
     it.status = compute_status(it, date(2026, 10, 23))
     assert it.status == STATUS_UNKNOWN
@@ -107,8 +107,20 @@ def test_tidak_diketahui_dikirim_bila_posting_baru():
 
 
 def test_tidak_diketahui_dibuang_bila_posting_lama():
-    it = _item(posted="2026-08-01")  # > 45 hari sebelum 23 Okt
+    it = _item(posted="2026-08-01")  # > 14 hari sebelum 23 Okt
     it.status = compute_status(it, date(2026, 10, 23))
     send_ok, reason = report_decision(it, date(2026, 10, 23))
+    assert not send_ok
+    assert reason == "tanggal tidak diketahui dan sudah lama"
+
+
+def test_tanpa_tutup_diumumkan_13_hari_dikirim_15_hari_dibuang():
+    today = date(2026, 11, 27)
+    baru = _item(posted="2026-11-14")
+    baru.status = compute_status(baru, today)
+    assert report_decision(baru, today)[0]
+    lama = _item(posted="2026-11-12")
+    lama.status = compute_status(lama, today)
+    send_ok, reason = report_decision(lama, today)
     assert not send_ok
     assert reason == "tanggal tidak diketahui dan sudah lama"
