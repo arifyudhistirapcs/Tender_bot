@@ -168,10 +168,15 @@ def report_decision(item: Item, today: date) -> tuple[bool, str]:
         return (False, reason)
 
     if status == STATUS_UNKNOWN:
+        # Pakai tanggal TERLAMA di antara posted dan published. "posted" dibaca
+        # dari teks detail dan bisa tanggal lain di halaman itu (27 Nov 2026:
+        # Bank Jatim terbit 16 Okt terbaca posted 26 Nov, BPD Bali terbit
+        # 11 Nov terbaca posted 24 Nov), sehingga tender lama ikut terkirim.
+        known = [d for d in (parse_iso_date(item.posted), parse_iso_date(item.published)) if d]
         ref = (
-            parse_iso_date(item.posted)
-            or parse_iso_date(item.published)
-            or estimate_date_from_url(item.attachment_url or "")
+            min(known) if known else None
+        ) or (
+            estimate_date_from_url(item.attachment_url or "")
             or estimate_date_from_url(item.url or "")
         )
         if ref is not None and (today - ref) <= timedelta(days=STALE_UNKNOWN_DAYS) \
