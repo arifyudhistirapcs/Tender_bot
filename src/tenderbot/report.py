@@ -113,6 +113,7 @@ def build_report_json(report: RunReport, ctx: ReportContext) -> dict:
             for name, reason in report.failed
         ],
         "needs_browser": list(report.deferred_js),
+        "notes": list(report.notes),
     }
 
 
@@ -204,6 +205,7 @@ def build_report_md(report: RunReport, ctx: ReportContext) -> str:
             f"tanggal tutup belum diketahui {c.unknown_count})."
         )
     lines.append(_gchat_status_line(ctx))
+    lines.extend(report.notes)
     if ctx.fallback_note:
         lines.append("Catatan: riset penuh tidak berjalan hari ini (jalan mode light cadangan).")
     lines.append("")
